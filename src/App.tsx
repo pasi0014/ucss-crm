@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import RegisterForm from './components/Registerform'
 import './App.css'
+import Registration from './components/RegisterForm'
 
 function App() {
   const [count, setCount] = useState(0)
