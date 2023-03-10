@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
-import RegisterForm from './components/Registerform'
 import './App.css'
-import Registration from './components/RegisterForm'
+import RegisterForm from './components/RegisterForm/index'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -19,7 +18,7 @@ function App() {
       </div>
       <h1>Vite + React</h1>
 
-      <Registration />
+      <RegisterForm />
       
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
