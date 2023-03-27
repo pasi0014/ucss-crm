@@ -1,39 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import RegisterForm from './components/Registerform'
-import './App.css'
-import Registration from './components/RegisterForm'
+import { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Outlet,
+  useNavigate,
+  BrowserRouter,
+  Navigate,
+} from "react-router-dom";
+
+import { useAuth } from "./context/AuthContext";
+
+import SidebarWithHeader from "./components/SidebarWithHeader";
+import RegisterForm from "./components/RegisterForm";
+import Login from "./containers/Login";
+
+import AppRouter from "./routers/AppRouter";
+
+import "./App.css";
+import { Home } from "./containers/Home";
+import Dashboard from "./containers/Dashboard";
+import ProtectedRoute from "./routers/ProtectedRoute";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { token } = useAuth();
+
+  useEffect(() => {
+    console.log({ token });
+  }, [token]);
+
+  const authenticatedApp = () => {
+    return (
+      <SidebarWithHeader>
+        <AppRouter />
+      </SidebarWithHeader>
+    );
+  };
+
+  const sideBarView = () => {
+    return (
+      <SidebarWithHeader>
+        <Outlet />
+      </SidebarWithHeader>
+    );
+  };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-
-      <Registration />
-      
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    <BrowserRouter>
+      {token ? (
+        <>
+          <SidebarWithHeader>
+            <Routes>
+              <Route path="/" element={<ProtectedRoute element={<Home />} />} />
+              <Route
+                path="/dashboard"
+                element={<ProtectedRoute element={<Dashboard />} />}
+              />
+              <Route path="/login" element={<Navigate to="/" replace />} />
+            </Routes>
+          </SidebarWithHeader>
+        </>
+      ) : (
+        <Routes>
+          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      )}
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
