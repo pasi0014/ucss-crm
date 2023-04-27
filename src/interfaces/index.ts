@@ -11,3 +11,9 @@ export interface ILoggedInUser {
   email: String;
   role?: String;
 }
+
+
+export interface DonorFormDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}

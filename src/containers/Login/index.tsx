@@ -18,9 +18,11 @@ import { useAuth } from "../../context/AuthContext";
 import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import { useColorModeValue } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
+import { VStack } from "@chakra-ui/react";
+import { StackDivider } from "@chakra-ui/react";
 
 export default function Login() {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -30,8 +32,11 @@ export default function Login() {
   const doLogin = async () => {
     try {
       setLoading(true);
-      console.log("Loggin in...", { email, password });
-      await login(email, password);
+      const response = await login(email, password);
+      console.log({ response });
+      if (!response.success) {
+        setError(true);
+      }
     } catch (error) {
       console.error("Error");
     }
@@ -46,13 +51,11 @@ export default function Login() {
           maxW={"7xl"}
           columns={{ base: 1, md: 2 }}
           spacing={{ base: 10, lg: 32 }}
-          py={{ base: 10, sm: 20, lg: 32 }}
-        >
+          py={{ base: 10, sm: 20, lg: 32 }}>
           <Stack spacing={{ base: 10, md: 20 }}>
             <Heading
               lineHeight={1.1}
-              fontSize={{ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" }}
-            >
+              fontSize={{ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" }}>
               Client Relationship Management System
             </Heading>
           </Stack>
@@ -61,27 +64,35 @@ export default function Login() {
             rounded={"xl"}
             p={{ base: 4, sm: 6, md: 8 }}
             spacing={{ base: 8 }}
-            maxW={{ lg: "lg" }}
-          >
+            maxW={{ lg: "lg" }}>
             <Stack spacing={4}>
               <Heading
                 color={useColorModeValue("gray.800", "gray.100")}
                 lineHeight={1.1}
-                fontSize={{ base: "2xl", sm: "3xl", md: "4xl" }}
-              >
+                fontSize={{ base: "2xl", sm: "3xl", md: "4xl" }}>
                 Login
               </Heading>
               <Text color={"gray.500"} fontSize={{ base: "sm", sm: "md" }}>
                 Let us authenticate you first ✌️
               </Text>
             </Stack>
+
             <Box as={"form"} mt={10}>
+              {error && (
+                <VStack
+                  divider={<StackDivider borderColor="gray.200" />}
+                  spacing={4}
+                  align="stretch">
+                  <Box mb={4} bg="red.200">
+                    <Text p={3} color={useColorModeValue("white", "white")}>
+                      You entered wrong email or password. <br /><br />
+                      Please, Try again.
+                    </Text>
+                  </Box>
+                </VStack>
+              )}
+
               <Stack spacing={4}>
-                {/* <FormControl>
-                <FormLabel>Email address</FormLabel>
-                <Input type="email" />
-                <FormHelperText>We'll never share your email.</FormHelperText>
-              </FormControl> */}
                 <FormControl isInvalid={error} isRequired>
                   <FormLabel>Email</FormLabel>
                   <Input
@@ -128,19 +139,16 @@ export default function Login() {
                 }}
                 isLoading={loading}
                 onClick={() => {
-                  console.log("Should call Login");
                   doLogin();
-                }}
-              >
+                }}>
                 Sign in
               </Button>
             </Box>
             <Stack pt={2}>
               <Text align={"center"}>
                 New user?{" "}
-                <NavLink to="/register">
-                  {" "}
-                  <Link color={"blue.400"}>Sign Up</Link>
+                <NavLink color={"blue.400"} to="/register">
+                  Sign Up
                 </NavLink>
               </Text>
             </Stack>
@@ -166,8 +174,7 @@ export const Blur = (props: any) => {
       viewBox="0 0 528 560"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+      {...props}>
       <circle cx="71" cy="61" r="111" fill="#3498db" />
       <circle cx="244" cy="106" r="109" fill="#3498db" />
       <circle cy="291" r="139" fill="#ffdb58" />

@@ -22,7 +22,6 @@ import { FiChevronDown } from "react-icons/fi";
 import { FaSun, FaRegMoon } from "react-icons/fa";
 
 const ProfileCard = ({ user }: { user: any }) => {
-  console.log(user.firstName);
   const { colorMode, toggleColorMode } = useColorMode();
   return (
     <HStack spacing={{ base: "0", md: "6" }}>
