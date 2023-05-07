@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import DataTable from "../../components/DataTable";
 import DonorFormDrawer from "../../components/DonorForm";
+import { Heading } from "@chakra-ui/react";
 
 const Donors = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -43,6 +44,9 @@ const Donors = () => {
 
   return (
     <>
+      <Box textAlign="left" my={5} p={3}>
+        <Heading>Donors</Heading>
+      </Box>
       <Box
         bg={useColorModeValue("white", "gray.700")}
         px={4}

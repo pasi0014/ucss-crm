@@ -21,3 +21,35 @@ export function getAnErrorMessage(response: any) {
     "An error occurred. Please try again."
   );
 }
+
+
+export function getCookieValue(name: string) {
+  // Split the cookie string into an array of individual cookies
+  const cookies = document.cookie.split(";");
+
+  // Loop through the cookies to find the one with the specified name
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    // If the cookie name matches, return its value
+    if (cookie.startsWith(`${name}=`)) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+}
+
+export function getStatus(domain: any, statusId: any) {
+  const tag = Object.keys(domain).find(key => domain[key] === statusId) || null;
+
+  return {
+    id: statusId,
+    tag,
+  };
+}
+
+
+
+// export function getEntityStatuses(domain: any, entity: any) {
+//   const statuses = Object.keys(domain).filter(iValue => domain[key] === entity) || null;
+//   return statuses;
+
+// }

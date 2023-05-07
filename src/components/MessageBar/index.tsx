@@ -2,7 +2,7 @@ import React from "react";
 
 import { Alert, AlertIcon, Stack } from "@chakra-ui/react";
 
-interface IMessageBar {
+export interface IMessageBar {
   type: "error" | "success" | "warning" | "info";
   message: any;
 }

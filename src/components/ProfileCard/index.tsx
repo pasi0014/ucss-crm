@@ -20,9 +20,18 @@ import {
 } from "@chakra-ui/react";
 import { FiChevronDown } from "react-icons/fi";
 import { FaSun, FaRegMoon } from "react-icons/fa";
+import { useSignOut } from "react-auth-kit";
+import { useNavigate } from "react-router-dom";
 
 const ProfileCard = ({ user }: { user: any }) => {
   const { colorMode, toggleColorMode } = useColorMode();
+  const signOut = useSignOut();
+  const navigate = useNavigate();
+
+  const doSignOut = () => {
+    signOut();
+    navigate("/login");
+  };
   return (
     <HStack spacing={{ base: "0", md: "6" }}>
       {/* Bell icon here */}
@@ -48,8 +57,7 @@ const ProfileCard = ({ user }: { user: any }) => {
           <MenuButton
             py={2}
             transition="all 0.3s"
-            _focus={{ boxShadow: "none" }}
-          >
+            _focus={{ boxShadow: "none" }}>
             <HStack>
               <Avatar
                 size={"sm"}
@@ -61,8 +69,7 @@ const ProfileCard = ({ user }: { user: any }) => {
                 display={{ base: "none", md: "flex" }}
                 alignItems="flex-start"
                 spacing="1px"
-                ml="2"
-              >
+                ml="2">
                 <Text fontSize="sm">{`${user.firstName} ${user.lastName}`}</Text>
                 <Text fontSize="xs" color="gray.600">
                   {user.role?.toLowerCase()}
@@ -75,20 +82,12 @@ const ProfileCard = ({ user }: { user: any }) => {
           </MenuButton>
           <MenuList
             bg={useColorModeValue("white", "gray.900")}
-            borderColor={useColorModeValue("gray.200", "gray.700")}
-          >
+            borderColor={useColorModeValue("gray.200", "gray.700")}>
             <MenuItem>Profile</MenuItem>
             <MenuItem>Settings</MenuItem>
             <MenuItem>Billing</MenuItem>
             <MenuDivider />
-            <MenuItem
-              onClick={() => {
-                localStorage.setItem("accessToken", ""),
-                  window.location.replace("/login");
-              }}
-            >
-              Sign out
-            </MenuItem>
+            <MenuItem onClick={() => doSignOut()}>Sign out</MenuItem>
           </MenuList>
         </Menu>
       </Flex>

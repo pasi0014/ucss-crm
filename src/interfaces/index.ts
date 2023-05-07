@@ -17,3 +17,9 @@ export interface DonorFormDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+export interface IColumnProps {
+  header: string,
+  accessor: string,
+  render?: (value: any, items: any) => React.ReactNode;
+}

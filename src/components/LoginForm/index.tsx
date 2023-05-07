@@ -21,11 +21,7 @@ import { FaUserAlt, FaLock } from "react-icons/fa";
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
 
-import { useAuth } from "../../context/AuthContext";
-
 const LoginForm = () => {
-  const { user, login, logout } = useAuth();
-
   const [email, setEmail] = useState<String | null>(null);
   const [password, setPassword] = useState<String | null>(null);
 
@@ -109,24 +105,6 @@ const LoginForm = () => {
       </Box>
     </Flex>
   );
-
-  // Render the appropriate content depending on whether the user is logged in or not
-  //   if (user) {
-  //     return (
-  //       <div>
-  //         Welcome, {user.name}! <button onClick={logout}>Logout</button>
-  //       </div>
-  //     );
-  //   } else {
-  //     return (
-  //       <div>
-  //         Please log in:{" "}
-  //         <button onClick={() => login("example@example.com", "password")}>
-  //           Login
-  //         </button>
-  //       </div>
-  //     );
-  //   }
 };
 
 export default LoginForm;

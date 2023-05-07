@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Box,
@@ -14,31 +14,68 @@ import {
   useBreakpointValue,
   Icon,
 } from "@chakra-ui/react";
-import { useAuth } from "../../context/AuthContext";
-import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import { useSignIn } from "react-auth-kit";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useColorModeValue } from "@chakra-ui/react";
-import { Link } from "@chakra-ui/react";
-import { VStack } from "@chakra-ui/react";
-import { StackDivider } from "@chakra-ui/react";
+
+import MessageBar, { IMessageBar } from "../../components/MessageBar";
+
+import { loginUser } from "./calls";
+
+import "./styles.scss";
 
 export default function Login() {
-  const { login } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
+  const [messageBar, setMessageBar] = useState<IMessageBar>({
+    type: "info",
+    message: "",
+  });
+
+  const signIn = useSignIn();
+  const navigate = useNavigate();
+
   const doLogin = async () => {
+    const logContext = {
+      component: "containers/Login/index.doLogin",
+    };
+
+    setLoading(true);
+
     try {
-      setLoading(true);
-      const response = await login(email, password);
-      console.log({ response });
+      const response = await loginUser(email, password);
+
       if (!response.success) {
-        setError(true);
+        throw new Error("Error while logging in the user");
       }
-    } catch (error) {
-      console.error("Error");
+
+      console.log(response.data);
+
+      if (response.success) {
+        signIn({
+          token: response.data.accessToken,
+          expiresIn: 10_800,
+          tokenType: "Bearer",
+          authState: { email },
+        });
+      }
+
+      navigate("/");
+    } catch (error: any) {
+      setLoading(false);
+      setError(true);
+      setMessageBar({
+        type: "error",
+        message: error.message,
+      });
+      console.error("Unexpected error while trying to login the user", {
+        ...logContext,
+        error,
+      });
     }
     setLoading(false);
   };
@@ -75,23 +112,15 @@ export default function Login() {
               <Text color={"gray.500"} fontSize={{ base: "sm", sm: "md" }}>
                 Let us authenticate you first ✌️
               </Text>
+              {error && (
+                <MessageBar
+                  type={messageBar.type}
+                  message={messageBar.message}
+                />
+              )}
             </Stack>
 
             <Box as={"form"} mt={10}>
-              {error && (
-                <VStack
-                  divider={<StackDivider borderColor="gray.200" />}
-                  spacing={4}
-                  align="stretch">
-                  <Box mb={4} bg="red.200">
-                    <Text p={3} color={useColorModeValue("white", "white")}>
-                      You entered wrong email or password. <br /><br />
-                      Please, Try again.
-                    </Text>
-                  </Box>
-                </VStack>
-              )}
-
               <Stack spacing={4}>
                 <FormControl isInvalid={error} isRequired>
                   <FormLabel>Email</FormLabel>
@@ -180,7 +209,6 @@ export const Blur = (props: any) => {
       <circle cy="291" r="139" fill="#ffdb58" />
       <circle cx="80.5" cy="189.5" r="101.5" fill="#3498db" />
       <circle cx="70.5" cy="458.5" r="101.5" fill="#ffdb58" />
-      {/* <circle cx="426.5" cy="-0.5" r="101.5" fill="#4299E1" /> */}
     </Icon>
   );
 };
