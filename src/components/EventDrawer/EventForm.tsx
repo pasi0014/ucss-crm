@@ -7,12 +7,11 @@ import { Event } from '../../types';
 import { createEvent, findEventById, updateEvent } from './calls';
 import { AppContext } from '../../context/AppContext';
 
-export function EventForm(props: { onNext: () => void; event?: Event; eventId?: number | null }) {
+export function EventForm(props: { onNext: () => void; event?: Event; eventId?: number | null; onEventStatusUpdate: (val: number) => void }) {
   const { appLoading, setAppLoading } = useContext<any>(AppContext);
   const [error, setError] = useState(false);
   const [messageBar, setMessageBar] = useState<any>({});
   const [minEndDate, setMinEndDate] = useState('');
-  const [time, setTime] = useState(new Date());
   const [formValues, setFormValues] = useState<Event>({
     name: '',
     description: '',
@@ -51,6 +50,7 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
       }
 
       // setEvent(response.data);
+      props.onEventStatusUpdate(response.data.StatusId);
       updateEventObj(response.data);
     } catch (error: any) {
       console.error('Error : ', { ...error });
@@ -85,6 +85,7 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
         });
         throw new Error(`There was an error while tryting to create the Event ${response.data}`);
       }
+      updateEventObj(response.data);
       props.onNext();
     } catch (error: any) {
       console.error('Unexpected error: ', error.message);
@@ -142,7 +143,7 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
    * Make sure that end date is not before the start date
    */
   useEffect(() => {
-    if (formValues.startTime && formValues.startTime.length) {
+    if (formValues.startTime && formValues.startTime.length && !formValues.endTime && formValues.endTime.length) {
       const tempDate = formatDate(new Date(formValues.startTime));
       setFormValues((prevState) => ({
         ...prevState,

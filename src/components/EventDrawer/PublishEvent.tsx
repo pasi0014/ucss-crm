@@ -9,7 +9,7 @@ import { CheckIcon } from '@chakra-ui/icons';
 import { getStatus } from '../../utils/utilities';
 import { updateEventStatus } from './calls';
 
-export function PublishEvent(props: { onNext: () => void; entity: string; eventId: any }) {
+export function PublishEvent(props: { onNext: () => void; entity: string; eventStatus: number | undefined }) {
   const { setAppLoading } = useContext<any>(AppContext);
   const { statuses } = useContext<any>(StatusContext);
 
@@ -48,10 +48,6 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventI
     setAppLoading(false);
   };
 
-  //   useEffect(() => {
-  //     setEventStatuses(getEntityStatuses(''))
-  //   }, [])
-
   return (
     <>
       <Box>
@@ -66,9 +62,9 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventI
       )}
       <Box>
         <Select placeholder="Select a status">
-          {statuses.map((status: any) => (
-            <option key={status.id} value={status.id}>
-              {status.value}
+          {statusItems.map((status: any) => (
+            <option key={status.key} value={props.eventStatus}>
+              {status.text}
             </option>
           ))}
         </Select>
@@ -83,7 +79,7 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventI
           bg={useColorModeValue('green.500', 'green.600')}
           onClick={doUpdateStatus}
         >
-          Create Price
+          Update Status
         </Button>
       </Flex>
     </>

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Heading, useColorModeValue, Box, Flex } from '@chakra-ui/react';
 
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
+import { Button } from '@chakra-ui/react';
 
 import { Event } from '../../types';
 import { EventForm } from './EventForm';
-import useMobile from '../../hooks/useMobile';
 import { PriceInfo } from './PriceInfo';
-import { Button } from '@chakra-ui/react';
+import { PublishEvent } from './PublishEvent';
+
+import useMobile from '../../hooks/useMobile';
 
 interface IEventFormDrawerProps {
   event?: Event;
@@ -25,11 +27,14 @@ interface IStep {
 const steps: IStep[] = [
   { title: 'First', description: 'Event Info' },
   { title: 'Second', description: 'Price' },
-  { title: 'Final', description: 'Publish the event' },
+  { title: 'Third', description: 'Publish the event' },
+  { title: 'Final', description: 'Event is ready' },
 ];
 
 const EventFormDrawer = (props: IEventFormDrawerProps) => {
   const [messageBar, setMessageBar] = useState<any>({});
+
+  const [eventStatus, setEventStatus] = useState<any>(null);
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
@@ -84,8 +89,9 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <EventForm onNext={() => goToNext()} eventId={props.eventId} />}
+                {activeStep === 1 && <EventForm onNext={() => goToNext()} eventId={props.eventId} onEventStatusUpdate={setEventStatus} />}
                 {activeStep === 2 && <PriceInfo onNext={() => goToNext()} eventId={props.eventId} />}
+                {activeStep === 3 && <PublishEvent onNext={goToNext} entity="Event" eventStatus={eventStatus} />}
                 {hasCompletedAllSteps && (
                   <Box sx={{ bg, my: 8, p: 8, rounded: 'md' }}>
                     <Heading fontSize="xl" textAlign={'center'}>
@@ -94,9 +100,12 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                   </Box>
                 )}
                 <Flex mt="15px">
-                  <Button mr="15px" onClick={goToNext}>
-                    Next
-                  </Button>
+                  {!hasCompletedAllSteps && (
+                    <Button mr="15px" onClick={goToNext}>
+                      Next
+                    </Button>
+                  )}
+
                   {activeStep !== 1 && <Button onClick={goToPrevious}>Previuos</Button>}
                 </Flex>
               </Flex>
