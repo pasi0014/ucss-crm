@@ -30,6 +30,7 @@ export type Event = {
 export type Price = {
   id?: number,
   EventId: number | null,
+  ticketType: string,
   amount: number,
   name: string,
   StatusId?: number,

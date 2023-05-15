@@ -168,7 +168,7 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
 
   return (
     <>
-      <Box>
+      <Box mt="15px">
         <Heading as="h3" size="lg" my={5}>
           Fill in Event information
         </Heading>

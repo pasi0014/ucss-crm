@@ -5,11 +5,12 @@ import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparat
 import { Button } from '@chakra-ui/react';
 
 import { Event } from '../../types';
-import { EventForm } from './EventForm';
+// import { EventForm } from './EventForm';
 import { PriceInfo } from './PriceInfo';
 import { PublishEvent } from './PublishEvent';
 
 import useMobile from '../../hooks/useMobile';
+import { EventForm } from '../EventForm';
 
 interface IEventFormDrawerProps {
   event?: Event;
@@ -26,7 +27,7 @@ interface IStep {
 
 const steps: IStep[] = [
   { title: 'First', description: 'Event Info' },
-  { title: 'Second', description: 'Price' },
+  { title: 'Second', description: 'Tickets' },
   { title: 'Third', description: 'Publish the event' },
   { title: 'Final', description: 'Event is ready' },
 ];
