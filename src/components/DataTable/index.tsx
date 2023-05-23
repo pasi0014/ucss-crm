@@ -23,7 +23,7 @@ type Props = {
   dataDescription?: String;
   onOpenRecord: (item: Item) => void;
   onEditRecord: (item: Item) => void;
-  onDeleteRecord?: (item: Item) => void;
+  onDeleteRecord: (item: Item) => void;
 };
 
 const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRecord, onEditRecord, onDeleteRecord }) => {
