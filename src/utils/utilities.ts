@@ -45,11 +45,3 @@ export function getStatus(domain: any, statusId: any) {
     tag,
   };
 }
-
-
-
-// export function getEntityStatuses(domain: any, entity: any) {
-//   const statuses = Object.keys(domain).filter(iValue => domain[key] === entity) || null;
-//   return statuses;
-
-// }

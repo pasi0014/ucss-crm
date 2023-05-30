@@ -11,6 +11,7 @@ import { PublishEvent } from './PublishEvent';
 
 import useMobile from '../../hooks/useMobile';
 import { EventForm } from '../EventForm';
+import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
 interface IEventFormDrawerProps {
   event?: Event;
@@ -101,13 +102,18 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                   </Box>
                 )}
                 <Flex mt="15px">
-                  {!hasCompletedAllSteps && (
-                    <Button mr="15px" onClick={goToNext}>
-                      Next
+                  {activeStep !== 1 && (
+                    <Button onClick={goToPrevious}>
+                      Previuos
+                      <ArrowLeftIcon ml="15px" width="15px" />
                     </Button>
                   )}
-
-                  {activeStep !== 1 && <Button onClick={goToPrevious}>Previuos</Button>}
+                  {!hasCompletedAllSteps && (
+                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={props.eventId && goToNext} isDisabled={!props.eventId}>
+                      Next
+                      <ArrowRightIcon ml="15px" width="15px" />
+                    </Button>
+                  )}
                 </Flex>
               </Flex>
             </Box>

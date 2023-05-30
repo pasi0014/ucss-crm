@@ -49,7 +49,6 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
         throw new Error(response.data);
       }
 
-      // setEvent(response.data);
       props.onEventStatusUpdate(response.data.StatusId);
       updateEventObj(response.data);
     } catch (error: any) {

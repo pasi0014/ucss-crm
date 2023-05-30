@@ -5,15 +5,15 @@ import { useColorModeValue, Button, Flex, Heading, Box, Select } from '@chakra-u
 import MessageBar from '../MessageBar';
 import { AppContext } from '../../context/AppContext';
 import { StatusContext } from '../../context/StatusContext';
-import { CheckIcon } from '@chakra-ui/icons';
 import { getStatus } from '../../utils/utilities';
 import { updateEventStatus } from './calls';
+import { propNames } from '@chakra-ui/react';
 
-export function PublishEvent(props: { onNext: () => void; entity: string; eventStatus: number | undefined }) {
+export function PublishEvent(props: { onNext: () => void; entity: string; eventStatus: number }) {
   const { setAppLoading } = useContext<any>(AppContext);
   const { statuses } = useContext<any>(StatusContext);
 
-  const [selectedStatus, setSelectedStatus] = useState<any>(null);
+  const [selectedStatus, setSelectedStatus] = useState<any>(props.eventStatus || statuses.Event.DRAFT);
 
   const statusItems = useMemo(
     () =>
@@ -38,15 +38,25 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
         setError(true);
         setMessageBar({
           type: 'error',
-          message: 'Unexpected error while trying to create Price',
+          message: `Unexpected error while trying to update Event's Status`,
         });
       }
-    } catch (error) {
-      console.log('Unexpected error while trying to create Price');
-      setMessageBar({ type: 'ERROR' });
+    } catch (error: any) {
+      console.log(`Unexpected error while trying to update Event's Status`);
+      setMessageBar({ type: 'error', message: error.message });
     }
     setAppLoading(false);
   };
+
+  useEffect(() => {
+    console.log({ selectedStatus });
+  }, [selectedStatus]);
+
+  useEffect(() => {
+    if (props.eventStatus) {
+      console.log({ test: getStatus(statuses.Event, statuses.Event[props.eventStatus]).tag });
+    }
+  }, [props.eventStatus]);
 
   return (
     <>
@@ -61,11 +71,17 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
         </Box>
       )}
       <Box>
-        <Select placeholder="Select a status">
+        {/* <Heading as="h3" size="sm">
+        </Heading> */}
+        <Select
+          placeholder="Select a status"
+          value={selectedStatus}
+          onChange={(val: React.ChangeEvent<HTMLSelectElement>) => {
+            console.log({ val: val.target.selectedOptions });
+          }}
+        >
           {statusItems.map((status: any) => (
-            <option key={status.key} value={props.eventStatus}>
-              {status.text}
-            </option>
+            <option key={status.key}>{status.text}</option>
           ))}
         </Select>
       </Box>
