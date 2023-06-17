@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect, useContext, useLayoutEffect } from 'react';
 import { getStatuses, valdiateToken } from './calls';
-import { useAuthUser, useSignOut } from 'react-auth-kit';
+import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit';
 import { AppContext } from './AppContext';
 
-interface Status {
+export interface Status {
   id: number;
   entity: string;
   value: string;
@@ -18,6 +18,7 @@ export const StatusContext = createContext<AppContextProps>({
 });
 
 const StatusContextProvider = ({ children }: any) => {
+  const isAuthenticated = useIsAuthenticated();
   const [statuses, setStatuses] = useState<Status[]>([]);
   const { setAppLoading } = useContext<any>(AppContext);
 
@@ -52,8 +53,10 @@ const StatusContextProvider = ({ children }: any) => {
     setAppLoading(false);
   };
 
-  useLayoutEffect(() => {
-    doGetStatuses();
+  useEffect(() => {
+    if (isAuthenticated()) {
+      doGetStatuses();
+    }
   }, []);
 
   return <StatusContext.Provider value={{ statuses }}>{children}</StatusContext.Provider>;

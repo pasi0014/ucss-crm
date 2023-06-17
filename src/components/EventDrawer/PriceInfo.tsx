@@ -27,6 +27,7 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
 
   const handleAddTicket = (ticketData: Price) => {
     console.log('Adjust ui');
+    console.log({ ticketData });
     setTickets((prevTickets: Price[]) => [...prevTickets, ticketData]);
   };
 
@@ -48,6 +49,7 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
       setMessageBar({ type: 'error', message: 'Unexpected error while deleting the Ticket' });
       return;
     }
+    console.log({ ticketToRemove });
     if (ticketToRemove.id) {
       doDeletePrice(ticketToRemove.id);
     } else {

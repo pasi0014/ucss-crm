@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect } from 'react';
 import {
   IconButton,
   Box,
@@ -11,15 +11,15 @@ import {
   DrawerContent,
   Text,
   useDisclosure,
-} from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+} from '@chakra-ui/react';
+import { Link, useLocation } from 'react-router-dom';
 
-import { FiHome, FiMenu, FiCalendar } from "react-icons/fi";
-import { FaDonate, FaUsers, FaIdCard, FaChartBar } from "react-icons/fa";
-import { IconType } from "react-icons";
+import { FiHome, FiMenu, FiCalendar, FiUsers } from 'react-icons/fi';
+import { FaDonate, FaUsers, FaIdCard, FaChartBar } from 'react-icons/fa';
+import { IconType } from 'react-icons';
 
-import ProfileCard from "../ProfileCard";
-import { ILoggedInUser } from "../../interfaces";
+import ProfileCard from '../ProfileCard';
+import { ILoggedInUser } from '../../interfaces';
 
 interface LinkItemProps {
   name: string;
@@ -27,43 +27,29 @@ interface LinkItemProps {
   url?: String;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Home", icon: FiHome, url: "/dashboard" },
-  { name: "Statistics", icon: FaChartBar, url: "/login" },
-  { name: "Donors", icon: FaUsers, url: "/donors" },
-  { name: "Donations", icon: FaDonate, url: "/donations" },
-  { name: "Events", icon: FiCalendar, url: "/events" },
-  { name: "Reservations", icon: FaIdCard, url: "/reservations" },
+  { name: 'Home', icon: FiHome, url: '/dashboard' },
+  { name: 'Statistics', icon: FaChartBar, url: '/login' },
+  { name: 'Donors', icon: FaUsers, url: '/donors' },
+  { name: 'Donations', icon: FaDonate, url: '/donations' },
+  { name: 'Events', icon: FiCalendar, url: '/events' },
+  { name: 'Reservations', icon: FaIdCard, url: '/reservations' },
+  { name: 'Clients', icon: FiUsers, url: '/clients' },
 ];
 
 const user: ILoggedInUser = {
-  id: "1",
-  lastName: "Pasika",
-  firstName: "Nazar",
-  role: "ADMIN",
-  email: "nazar.pasika1@gmail.com",
+  id: '1',
+  lastName: 'Pasika',
+  firstName: 'Nazar',
+  role: 'ADMIN',
+  email: 'nazar.pasika1@gmail.com',
 };
 
-export default function SidebarWithHeader({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function SidebarWithHeader({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
-      <SidebarContent
-        onClose={() => onClose}
-        display={{ base: "none", md: "block" }}
-      />
-      <Drawer
-        autoFocus={false}
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        returnFocusOnClose={false}
-        onOverlayClick={onClose}
-        size="full"
-      >
+    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
+      <SidebarContent onClose={() => onClose} display={{ base: 'none', md: 'block' }} />
+      <Drawer autoFocus={false} isOpen={isOpen} placement="left" onClose={onClose} returnFocusOnClose={false} onOverlayClick={onClose} size="full">
         <DrawerContent>
           <SidebarContent onClose={onClose} />
         </DrawerContent>
@@ -86,10 +72,10 @@ interface SidebarProps {
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   return (
     <Box
-      bg={useColorModeValue("white", "gray.900")}
+      bg={useColorModeValue('white', 'gray.900')}
       borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.700")}
-      w={{ base: "full", md: 60 }}
+      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+      w={{ base: 'full', md: 60 }}
       pos="fixed"
       h="full"
       {...rest}
@@ -98,7 +84,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
           CRM
         </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
         <NavItem key={link.name} icon={link.icon} url={link.url}>
@@ -115,8 +101,11 @@ interface NavItemProps {
   url: any;
 }
 const NavItem = ({ icon, url, children, ...rest }: NavItemProps) => {
+  const { pathname } = useLocation();
+  const isActive = pathname === url;
+
   return (
-    <Link to={url} style={{ textDecoration: "none" }}>
+    <Link to={url} style={{ textDecoration: 'none' }}>
       <Flex
         align="center"
         p="4"
@@ -125,9 +114,11 @@ const NavItem = ({ icon, url, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "cyan.400",
-          color: "white",
+          bg: 'cyan.400',
+          color: 'white',
         }}
+        bg={isActive ? 'cyan.400' : 'transparent'}
+        color={isActive ? 'white' : useColorModeValue('gray.800', 'white')}
         {...rest}
       >
         {icon && (
@@ -135,7 +126,7 @@ const NavItem = ({ icon, url, children, ...rest }: NavItemProps) => {
             mr="4"
             fontSize="16"
             _groupHover={{
-              color: "white",
+              color: 'white',
             }}
             as={icon}
           />
@@ -156,25 +147,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue("white", "gray.900")}
+      bg={useColorModeValue('white', 'gray.900')}
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-      justifyContent={{ base: "space-between", md: "flex-end" }}
+      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+      justifyContent={{ base: 'space-between', md: 'flex-end' }}
       {...rest}
     >
-      <IconButton
-        display={{ base: "flex", md: "none" }}
-        onClick={onOpen}
-        variant="outline"
-        aria-label="open menu"
-        icon={<FiMenu />}
-      />
-      <Text
-        display={{ base: "flex", md: "none" }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
+      <IconButton display={{ base: 'flex', md: 'none' }} onClick={onOpen} variant="outline" aria-label="open menu" icon={<FiMenu />} />
+      <Text display={{ base: 'flex', md: 'none' }} fontSize="2xl" fontFamily="monospace" fontWeight="bold">
         Logo
       </Text>
 

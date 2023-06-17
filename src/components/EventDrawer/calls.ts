@@ -151,9 +151,44 @@ export const createPrice = async (price: Price) => {
   };
 };
 
-export const updateEventStatus = async (statusId: number) => {
+// export const getEventStatus = async (eventId: number | null | undefined) => {
+//   const ctx = {
+//     component: `components/EventDrawer/calls.getEventStatus`,
+//     params: { eventId }
+//   };
+
+//   let errorMessage = null;
+
+//   try {
+//     console.log('Trying to get the Event status', { ...ctx });
+
+//     const token = getCookieValue('_auth');
+
+//     const response = await axios.get(`${API_BASE_URL}/v1/events/${eventId}/status/`, {
+//       headers: {
+//         "Authorization": `Bearer ${token}`,
+//       },
+//     });
+
+//     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+//       return { success: true, data: response.data.content };
+//     }
+
+//     errorMessage = getAnErrorMessage(response);
+//   } catch (error) {
+//     console.error('Unexpected error while trying to update status of an Event', error);
+//   }
+
+//   return {
+//     success: false,
+//     data: errorMessage,
+//   };
+
+// }
+
+export const updateEventStatus = async (statusId: number, eventId: null | undefined | number) => {
   const ctx = {
-    component: 'components/EventDrawer/calls.createPrice',
+    component: 'components/EventDrawer/calls.updateEventStatus',
   };
 
   let errorMessage = null;
@@ -163,9 +198,9 @@ export const updateEventStatus = async (statusId: number) => {
 
     const token = getCookieValue('_auth');
 
-    const response = await axios.post(`${API_BASE_URL}/v1/events/status/${statusId}`, {
+    const response = await axios.post(`${API_BASE_URL}/v1/events/${eventId}/status/${statusId}`, {}, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
       },
     });
 

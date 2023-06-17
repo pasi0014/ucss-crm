@@ -1,19 +1,20 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 
-import { useColorModeValue, Button, Flex, Heading, Box, Select } from '@chakra-ui/react';
+import { useColorModeValue, Button, Flex, Heading, Box, Select, useToast } from '@chakra-ui/react';
 
 import MessageBar from '../MessageBar';
 import { AppContext } from '../../context/AppContext';
 import { StatusContext } from '../../context/StatusContext';
 import { getStatus } from '../../utils/utilities';
+import { findEventById } from '../EventForm/calls';
 import { updateEventStatus } from './calls';
-import { propNames } from '@chakra-ui/react';
 
-export function PublishEvent(props: { onNext: () => void; entity: string; eventStatus: number }) {
+export function PublishEvent(props: { onNext: () => void; entity: string; eventId: number | undefined | null }) {
+  const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
   const { statuses } = useContext<any>(StatusContext);
 
-  const [selectedStatus, setSelectedStatus] = useState<any>(props.eventStatus || statuses.Event.DRAFT);
+  const [selectedStatus, setSelectedStatus] = useState<any>(statuses.Event.DRAFT);
 
   const statusItems = useMemo(
     () =>
@@ -27,12 +28,32 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
   const [error, setError] = useState(false);
   const [messageBar, setMessageBar] = useState<any>({});
 
+  const doGetEventStatus = async () => {
+    setAppLoading(true);
+    setError(false);
+
+    try {
+      const response = await findEventById(props.eventId);
+
+      if (!response.success) {
+        setError(true);
+        throw new Error(`Error : ${response.data}`);
+      }
+      setSelectedStatus(response.data.StatusId);
+    } catch (error: any) {
+      console.error(`Unexpected error while contacting UcssAPI to get Event Status`, { ...error });
+      setMessageBar({ type: 'error', message: error.message });
+    }
+
+    setAppLoading(false);
+  };
+
   const doUpdateStatus = async () => {
     setAppLoading(true);
     setError(false);
 
     try {
-      const response = await updateEventStatus(selectedStatus);
+      const response = await updateEventStatus(selectedStatus, props.eventId);
 
       if (!response.success) {
         setError(true);
@@ -41,6 +62,16 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
           message: `Unexpected error while trying to update Event's Status`,
         });
       }
+
+      console.log({ temp: response });
+      toast({
+        title: 'Event Status updated!',
+        description: `The Event status has been set to ${getStatus(statuses.Event, response.data.StatusId).tag}.`,
+        position: 'top-right',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
     } catch (error: any) {
       console.log(`Unexpected error while trying to update Event's Status`);
       setMessageBar({ type: 'error', message: error.message });
@@ -49,19 +80,21 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
   };
 
   useEffect(() => {
-    console.log({ selectedStatus });
-  }, [selectedStatus]);
+    let isMounted = true;
 
-  useEffect(() => {
-    if (props.eventStatus) {
-      console.log({ test: getStatus(statuses.Event, statuses.Event[props.eventStatus]).tag });
+    if (isMounted) {
+      doGetEventStatus();
     }
-  }, [props.eventStatus]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <>
       <Box>
-        <Heading as="h3" size="lg" my={5}>
+        <Heading as="h3" size="md" mt={10} mb={5}>
           Publish the event
         </Heading>
       </Box>
@@ -71,17 +104,17 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
         </Box>
       )}
       <Box>
-        {/* <Heading as="h3" size="sm">
-        </Heading> */}
         <Select
           placeholder="Select a status"
           value={selectedStatus}
-          onChange={(val: React.ChangeEvent<HTMLSelectElement>) => {
-            console.log({ val: val.target.selectedOptions });
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            setSelectedStatus(e.target.value);
           }}
         >
           {statusItems.map((status: any) => (
-            <option key={status.key}>{status.text}</option>
+            <option key={status.key} value={status.key}>
+              {status.text}
+            </option>
           ))}
         </Select>
       </Box>

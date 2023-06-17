@@ -10,7 +10,6 @@ import './index.scss';
 import { AppProvider } from './context/AppContext';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  // <React.StrictMode>
   <ChakraProvider>
     <AuthProvider authType={'cookie'} authName="_auth" cookieDomain={window.location.hostname} cookieSecure={true}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
@@ -21,5 +20,4 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       </AppProvider>
     </AuthProvider>
   </ChakraProvider>,
-  // </React.StrictMode>,
 );

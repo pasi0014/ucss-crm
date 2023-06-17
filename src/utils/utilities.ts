@@ -38,10 +38,31 @@ export function getCookieValue(name: string) {
 }
 
 export function getStatus(domain: any, statusId: any) {
-  const tag = Object.keys(domain).find(key => domain[key] === statusId) || null;
+  try {
+    const tag = Object.keys(domain).find(key => domain[key] === statusId) || '';
 
+    return {
+      id: statusId,
+      tag,
+    };
+  } catch (error: any) {
+    console.error({ ...error })
+  }
   return {
-    id: statusId,
-    tag,
-  };
+    id: null,
+    tag: "",
+  }
+}
+
+
+export function getStatusColor(status: string) {
+  if (!status) {
+    return null;
+  }
+
+  if (status === 'ACTIVE') { console.log('green'); return 'green'; }
+  if (status === 'DRAFT') return 'orange';
+  if (status === 'INACTIVE') return 'red';
+  if (status === 'CANCELLED') return 'red';
+  if (status === 'COMPLETED') return 'teal';
 }

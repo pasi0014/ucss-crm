@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Heading, Flex, Button, useDisclosure, useColorModeValue } from '@chakra-ui/react';
+import { Box, Heading, Flex, Button, Badge, useColorModeValue } from '@chakra-ui/react';
 
 import moment from 'moment';
 
@@ -12,9 +12,15 @@ import { deleteEvent, getEvents } from './calls';
 import { IColumnProps } from '../../interfaces';
 import { Event } from '../../types';
 import ConfirmPopup from '../../components/ConfirmPopup';
+import { StatusContext } from '../../context/StatusContext';
+import { getStatus, getStatusColor } from '../../utils/utilities';
+import { useNavigate } from 'react-router-dom';
+import { AddIcon } from '@chakra-ui/icons';
 
 export default function Events() {
+  const navigate = useNavigate();
   const { setAppLoading } = useContext<any>(AppContext);
+  const { statuses } = useContext<any>(StatusContext);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -30,16 +36,15 @@ export default function Events() {
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
     { header: 'Name', accessor: 'name' },
-    { header: 'Description', accessor: 'description' },
-    { header: 'Start Time', accessor: 'startTime', render: (value) => moment(value).tz('America/Toronto').utc().format('YYYY-MM-DD hh:mm A') },
-    { header: 'End Time', accessor: 'endTime', render: (value) => moment(value).tz('America/Toronto').utc().format('YYYY-MM-DD hh:mm A') },
-    { header: 'Location', accessor: 'location' },
+    { header: 'Start Time', accessor: 'startTime', render: (value) => moment(value).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mm') },
+    { header: 'End Time', accessor: 'endTime', render: (value) => moment(value).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mm') },
     { header: 'Capacity', accessor: 'capacity' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'Created At', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').utc().format('YYYY-MM-DD hh:mm A') },
+    {
+      header: 'Status',
+      accessor: 'StatusId',
+      render: (value) => <Badge colorScheme={getStatusColor(getStatus(statuses.Event, value).tag || '')}>{getStatus(statuses.Event, value).tag}</Badge>,
+    },
     { header: 'Created By', accessor: 'createdBy' },
-    { header: 'Updated At', accessor: 'updatedAt', render: (value) => moment(value).tz('America/Toronto').utc().format('YYYY-MM-DD hh:mm A') },
-    { header: 'Updated By', accessor: 'updatedBy' },
   ];
 
   const handleOpenDrawer = () => {
@@ -53,10 +58,11 @@ export default function Events() {
   };
 
   const onOpenRecord = (item: any) => {
-    console.log(`Opening record ${item.id}`);
+    navigate(`/events/${item.id}`);
   };
 
   const onEditRecord = (item: any) => {
+    console.log({ id: item.id });
     setSelectedEventId(item.id);
     handleOpenDrawer();
   };
@@ -129,6 +135,7 @@ export default function Events() {
         <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
           <Flex alignItems={'center'}>
             <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer}>
+              <AddIcon boxSize={3} mr={3} />
               Create an event
             </Button>
           </Flex>

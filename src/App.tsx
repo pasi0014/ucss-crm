@@ -6,14 +6,15 @@ import Dashboard from './containers/Dashboard';
 import Donors from './containers/Donors';
 
 import './App.scss';
-import { RequireAuth, useAuthUser } from 'react-auth-kit';
+import { RequireAuth, useIsAuthenticated } from 'react-auth-kit';
 import Admin from './Admin';
 import SignupCard from './components/RegisterForm';
 import Events from './containers/Events';
+import EventView from './containers/EventView';
+import Reservations from './containers/Reservations';
 
 function App() {
-  const auth = useAuthUser();
-
+  const isAuthenticated = useIsAuthenticated();
   return (
     <BrowserRouter>
       <Routes>
@@ -34,12 +35,26 @@ function App() {
               </RequireAuth>
             }
           />
-          <Route path="/donors" element={<Donors />} />
-        </Route>
-        <Route path="*" element={auth()?.email ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
 
-        <Route path="/login" element={auth()?.email ? <Navigate to="/" replace /> : <Login />} />
-        <Route path="/register" element={auth()?.email ? <Navigate to="/" replace /> : <SignupCard />} />
+          <Route
+            path="/events/:eventId"
+            element={
+              <RequireAuth loginPath="login">
+                <EventView />
+              </RequireAuth>
+            }
+          />
+
+          <Route path="donors" element={<Donors />} />
+          <Route path="donations" element={<>Donations</>} />
+          <Route path="statistics" element={<>Statistics</>} />
+          <Route path="clients" element={<>Clients</>} />
+          <Route path="reservations" element={<Reservations />} />
+        </Route>
+        <Route path="*" element={isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
+
+        <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/register" element={isAuthenticated() ? <Navigate to="/" replace /> : <SignupCard />} />
       </Routes>
     </BrowserRouter>
   );

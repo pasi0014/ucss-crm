@@ -1,5 +1,5 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import SidebarWithHeader from "./components/SidebarWithHeader";
+import { Outlet } from 'react-router-dom';
+import SidebarWithHeader from './components/SidebarWithHeader';
 
 const Admin: React.FC = () => {
   return (
