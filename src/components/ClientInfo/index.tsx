@@ -36,21 +36,21 @@ const ClientInfo: React.FC<IClientProps> = (props) => {
           <FormLabel htmlFor="last-name" fontWeight={'normal'}>
             Last name
           </FormLabel>
-          <Input id="last-name" value={props.client.lastName} placeholder="First name" />
+          <Input id="last-name" value={props.client.lastName} onChange={(event: any) => console.log(event.target.value)} placeholder="First name" />
         </FormControl>
       </Flex>
       <FormControl mt="2%">
         <FormLabel htmlFor="email" fontWeight={'normal'}>
           Email address
         </FormLabel>
-        <Input id="email" type="email" value={props.client.email} />
+        <Input id="email" type="email" value={props.client.email} onChange={(event: any) => console.log(event.target.value)} />
       </FormControl>
 
       <FormControl mt="2%">
         <FormLabel htmlFor="phone" fontWeight={'normal'}>
           Phone Number
         </FormLabel>
-        <Input id="phone" type="phone" value={props.client.phone} />
+        <Input id="phone" type="phone" value={props.client.phone} onChange={(event: any) => console.log(event.target.value)} />
       </FormControl>
     </Box>
   );

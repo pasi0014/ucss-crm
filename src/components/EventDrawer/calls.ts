@@ -7,7 +7,7 @@ import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
 
 
-export const deletePrice = async (priceId: number) => {
+export const deletePrice = async (priceId: number | unknown) => {
   const ctx = {
     component: 'components/EventDrawer/calls.deletePrice',
     params: { priceId }

@@ -63,7 +63,6 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventI
         });
       }
 
-      console.log({ temp: response });
       toast({
         title: 'Event Status updated!',
         description: `The Event status has been set to ${getStatus(statuses.Event, response.data.StatusId).tag}.`,

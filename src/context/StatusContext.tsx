@@ -19,7 +19,7 @@ export const StatusContext = createContext<AppContextProps>({
   setFetchStatus: (val: boolean) => {},
 });
 
-const StatusContextProvider = ({ children }: any, auth: string) => {
+const StatusContextProvider = ({ children }: any) => {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [fetchStatus, setFetchStatus] = useState(false);
 

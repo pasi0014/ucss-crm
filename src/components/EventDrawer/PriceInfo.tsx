@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { useColorModeValue, Button, Heading, Box } from '@chakra-ui/react';
+import { useToast, useColorModeValue, Button, Heading, Box } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 
 import { AppContext } from '../../context/AppContext';
@@ -11,33 +11,22 @@ import MessageBar from '../MessageBar';
 import TicketForm from '../TicketForm';
 
 export function PriceInfo(props: { onNext: () => void; eventId: any }) {
+  const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
   const [tickets, setTickets] = useState<any>([]);
-  const [isNewPrice, setIsNewPrice] = useState(true);
   const [messageBar, setMessageBar] = useState<any>({});
 
   const [error, setError] = useState(false);
 
-  const [formValues, setFormValues] = useState<Price>({
-    name: '',
-    amount: 0,
-    EventId: props.eventId,
-    ticketType: 'paid',
-  });
-
   const handleAddTicket = (ticketData: Price) => {
-    console.log('Adjust ui');
-    console.log({ ticketData });
     setTickets((prevTickets: Price[]) => [...prevTickets, ticketData]);
   };
 
   const handleCreateTicket = (ticketData: Price) => {
-    console.log('make calls to create the ticket');
     doCreatePrice(ticketData);
   };
 
   const handleUpdateTicket = (index: number, ticketData: Price) => {
-    console.log('make calls to update the ticket');
     doUpdatePrice(index, ticketData);
   };
 
@@ -49,9 +38,9 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
       setMessageBar({ type: 'error', message: 'Unexpected error while deleting the Ticket' });
       return;
     }
-    console.log({ ticketToRemove });
+
     if (ticketToRemove.id) {
-      doDeletePrice(ticketToRemove.id);
+      doDeletePrice(ticketToRemove);
     } else {
       setTickets((prevTickets: Price[]) => {
         const updatedTickets = [...prevTickets];
@@ -61,20 +50,28 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
     }
   };
 
-  const doDeletePrice = async (id: number) => {
+  const doDeletePrice = async (price: Price) => {
     setAppLoading(true);
     setError(false);
 
     console.log('Deleting price');
     try {
-      const response = await deletePrice(id);
-      console.log({ response });
+      const response = await deletePrice(price.id);
+
       if (!response.success) {
         throw new Error('Unexpected error : could not delete the event price');
       }
 
-      const filteredTickets = tickets.filter((iTicket: Price) => iTicket.id !== id);
+      const filteredTickets = tickets.filter((iTicket: Price) => iTicket.id !== price.id);
       setTickets(filteredTickets);
+      toast({
+        title: 'Price Deleted Successfully!',
+        description: `You have deleted ticket ${price.name}`,
+        position: 'top-right',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
     } catch (error: any) {
       console.error('Unepxected error while trying to delete the Event Price', { ...error });
       setError(true);
@@ -96,7 +93,6 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
       }
 
       setTickets(response.data);
-      setIsNewPrice(false);
     } catch (error: any) {
       console.error('Unepxected error while trying to find the Event Price', { ...error });
       setError(true);
@@ -121,7 +117,14 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
 
         throw new Error(response.data);
       }
-      setTickets((prevTickets: Price[]) => [...prevTickets, response.data]);
+      toast({
+        title: 'Price Created Successfully!',
+        description: `You have created ticket ${price.name}`,
+        position: 'top-right',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
       setMessageBar({ type: 'success', message: 'Price was successfully created' });
     } catch (error: any) {
       console.error('Unexpected error while trying to create Price', { ...error });
@@ -151,6 +154,14 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
         updatedTickets[index] = response.data;
         return updatedTickets;
       });
+      toast({
+        title: 'Price Updated Successfully!',
+        description: `You have updated ticket ${price.name}`,
+        position: 'top-right',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
       setMessageBar({ type: 'success', message: 'Price was successfully updated' });
     } catch (error: any) {
       console.error('Unexpected error while trying to create Price', { ...error });
@@ -162,8 +173,6 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
   useEffect(() => {
     if (props.eventId) {
       doFetchPrice();
-    } else {
-      setIsNewPrice(true);
     }
   }, []);
 
@@ -203,85 +212,6 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
           onRemoveTicket={handleRemoveTicket}
         />
       ))}
-
-      {/* I want to extract this code to the separate component */}
-      {/* <Box
-        shadow="md"
-        px="15px"
-        py="15px"
-        bg={useColorModeValue('white', 'gray.700')}
-        border="1px"
-        borderRadius="15px"
-        borderColor={useColorModeValue('gray.100', 'gray.400')}
-      >
-        <Box>
-          <Box mb="20px">
-            <Flex minWidth="max-content" alignItems="center" gap="2">
-              <Box p="2">
-                <Heading size="md" mb="15px">
-                  Ticket Info
-                </Heading>
-              </Box>
-              <Spacer />
-              <Button width="20px">X</Button>
-            </Flex>
-            <Flex>
-              <Button
-                variant={formValues.ticketType === 'paid' ? 'solid' : 'outline'}
-                mr="15px"
-                width="130px"
-                onClick={() => setFormValues({ ...formValues, ticketType: 'paid' })}
-              >
-                Paid
-              </Button>
-              <Button
-                variant={formValues.ticketType === 'free' ? 'solid' : 'outline'}
-                width="130px"
-                onClick={() => setFormValues({ ...formValues, ticketType: 'free', amount: 0 })}
-              >
-                Free
-              </Button>
-            </Flex>
-          </Box>
-          <FormControl isRequired>
-            <FormLabel>Ticket Name</FormLabel>
-            <Input type="text" name="name" value={formValues.name} onChange={handleInputChange} />
-          </FormControl>
-          <FormControl mt={5} isRequired>
-            <FormLabel>Amount</FormLabel>
-            <InputGroup>
-              <InputLeftElement pointerEvents="none" color="gray.300" fontSize="1.2em" children="$" />
-              <Input disabled={ticketType === 'free' ? true : false} type="number" name="amount" value={formValues.amount} onChange={handleInputChange} />
-              <InputRightElement children={<CheckIcon color="green.500" />} />
-            </InputGroup>
-          </FormControl>
-        </Box>
-        <Flex>
-          <Button
-            mt={7}
-            _hover={{
-              bg: useColorModeValue('green.400', 'green.500'),
-            }}
-            color={useColorModeValue('white', 'gray.100')}
-            bg={useColorModeValue('green.500', 'green.600')}
-            onClick={isNewPrice ? doCreatePrice : doUpdatePrice}
-          >
-            {isNewPrice ? 'Create' : 'Update'} Price
-          </Button>
-          <Button
-            mt={7}
-            mx={4}
-            _hover={{
-              bg: useColorModeValue('red.200', 'red.500'),
-            }}
-            color={useColorModeValue('white', 'gray.100')}
-            bg={useColorModeValue('red.300', 'red.600')}
-            onClick={resetForm}
-          >
-            Reset Form
-          </Button>
-        </Flex>
-      </Box> */}
     </>
   );
 }
