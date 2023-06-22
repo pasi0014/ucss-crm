@@ -1,9 +1,9 @@
-import React, { createContext, useState, useEffect, useContext, useLayoutEffect } from 'react';
-import { getStatuses, valdiateToken } from './calls';
-import { useAuthUser, useSignOut } from 'react-auth-kit';
+import { createContext, useState, useEffect, useContext } from 'react';
+import { getStatuses } from './calls';
+import { useSignOut } from 'react-auth-kit';
 import { AppContext } from './AppContext';
 
-interface Status {
+export interface Status {
   id: number;
   entity: string;
   value: string;
@@ -11,14 +11,18 @@ interface Status {
 
 interface AppContextProps {
   statuses: Status[];
+  setFetchStatus: (val: boolean) => void;
 }
 
 export const StatusContext = createContext<AppContextProps>({
   statuses: [],
+  setFetchStatus: (val: boolean) => {},
 });
 
 const StatusContextProvider = ({ children }: any) => {
   const [statuses, setStatuses] = useState<Status[]>([]);
+  const [fetchStatus, setFetchStatus] = useState(false);
+
   const { setAppLoading } = useContext<any>(AppContext);
 
   const signOut = useSignOut();
@@ -37,14 +41,16 @@ const StatusContextProvider = ({ children }: any) => {
       if (!response.success) {
         return response;
       }
-      const temp = {} as any;
+      const statusObj = {} as any;
+
       response.data.content.forEach((status: any) => {
-        if (!temp[status.entity]) {
-          temp[status.entity] = {};
+        if (!statusObj[status.entity]) {
+          statusObj[status.entity] = {};
         }
-        temp[status.entity][status.value] = status.id;
+        statusObj[status.entity][status.value] = status.id;
       });
-      setStatuses(temp);
+
+      setStatuses(statusObj);
     } catch (error: any) {
       console.error('Unexpected Error: ', { ...error });
     }
@@ -52,11 +58,13 @@ const StatusContextProvider = ({ children }: any) => {
     setAppLoading(false);
   };
 
-  useLayoutEffect(() => {
-    doGetStatuses();
-  }, []);
+  useEffect(() => {
+    if (fetchStatus) {
+      doGetStatuses();
+    }
+  }, [fetchStatus]);
 
-  return <StatusContext.Provider value={{ statuses }}>{children}</StatusContext.Provider>;
+  return <StatusContext.Provider value={{ statuses, setFetchStatus }}>{children}</StatusContext.Provider>;
 };
 
 export default StatusContextProvider;

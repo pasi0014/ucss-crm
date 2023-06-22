@@ -1,19 +1,20 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 
-import { useColorModeValue, Button, Flex, Heading, Box, Select } from '@chakra-ui/react';
+import { useColorModeValue, Button, Flex, Heading, Box, Select, useToast } from '@chakra-ui/react';
 
 import MessageBar from '../MessageBar';
 import { AppContext } from '../../context/AppContext';
 import { StatusContext } from '../../context/StatusContext';
-import { CheckIcon } from '@chakra-ui/icons';
 import { getStatus } from '../../utils/utilities';
+import { findEventById } from '../EventForm/calls';
 import { updateEventStatus } from './calls';
 
-export function PublishEvent(props: { onNext: () => void; entity: string; eventStatus: number | undefined }) {
+export function PublishEvent(props: { onNext: () => void; entity: string; eventId: number | undefined | null }) {
+  const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
   const { statuses } = useContext<any>(StatusContext);
 
-  const [selectedStatus, setSelectedStatus] = useState<any>(null);
+  const [selectedStatus, setSelectedStatus] = useState<any>(statuses.Event.DRAFT);
 
   const statusItems = useMemo(
     () =>
@@ -27,31 +28,72 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
   const [error, setError] = useState(false);
   const [messageBar, setMessageBar] = useState<any>({});
 
+  const doGetEventStatus = async () => {
+    setAppLoading(true);
+    setError(false);
+
+    try {
+      const response = await findEventById(props.eventId);
+
+      if (!response.success) {
+        setError(true);
+        throw new Error(`Error : ${response.data}`);
+      }
+      setSelectedStatus(response.data.StatusId);
+    } catch (error: any) {
+      console.error(`Unexpected error while contacting UcssAPI to get Event Status`, { ...error });
+      setMessageBar({ type: 'error', message: error.message });
+    }
+
+    setAppLoading(false);
+  };
+
   const doUpdateStatus = async () => {
     setAppLoading(true);
     setError(false);
 
     try {
-      const response = await updateEventStatus(selectedStatus);
+      const response = await updateEventStatus(selectedStatus, props.eventId);
 
       if (!response.success) {
         setError(true);
         setMessageBar({
           type: 'error',
-          message: 'Unexpected error while trying to create Price',
+          message: `Unexpected error while trying to update Event's Status`,
         });
       }
-    } catch (error) {
-      console.log('Unexpected error while trying to create Price');
-      setMessageBar({ type: 'ERROR' });
+
+      toast({
+        title: 'Event Status updated!',
+        description: `The Event status has been set to ${getStatus(statuses.Event, response.data.StatusId).tag}.`,
+        position: 'top-right',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      console.log(`Unexpected error while trying to update Event's Status`);
+      setMessageBar({ type: 'error', message: error.message });
     }
     setAppLoading(false);
   };
 
+  useEffect(() => {
+    let isMounted = true;
+
+    if (isMounted) {
+      doGetEventStatus();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <>
       <Box>
-        <Heading as="h3" size="lg" my={5}>
+        <Heading as="h3" size="md" mt={10} mb={5}>
           Publish the event
         </Heading>
       </Box>
@@ -61,9 +103,15 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventS
         </Box>
       )}
       <Box>
-        <Select placeholder="Select a status">
+        <Select
+          placeholder="Select a status"
+          value={selectedStatus}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            setSelectedStatus(e.target.value);
+          }}
+        >
           {statusItems.map((status: any) => (
-            <option key={status.key} value={props.eventStatus}>
+            <option key={status.key} value={status.key}>
               {status.text}
             </option>
           ))}

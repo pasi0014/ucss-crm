@@ -1,67 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Heading, useColorModeValue, Box, Flex } from '@chakra-ui/react';
-
+import { Drawer } from '@chakra-ui/react';
+import { DrawerContent } from '@chakra-ui/react';
+import { DrawerHeader } from '@chakra-ui/react';
+import { DrawerBody } from '@chakra-ui/react';
+import { useColorModeValue } from '@chakra-ui/react';
+import { Heading } from '@chakra-ui/react';
+import { DrawerCloseButton } from '@chakra-ui/react';
+import { DrawerOverlay } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
+import React, { useState } from 'react';
+import useIsMobile from '../../hooks/useMobile';
+import { Flex } from '@chakra-ui/react';
 import { Button } from '@chakra-ui/react';
-
-import { Event } from '../../types';
-// import { EventForm } from './EventForm';
-import { PriceInfo } from './PriceInfo';
-import { PublishEvent } from './PublishEvent';
-
-import useMobile from '../../hooks/useMobile';
-import { EventForm } from '../EventForm';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
+import ReservationForm from '../ReservationForm';
 
-interface IEventFormDrawerProps {
-  event?: Event;
-  eventId: number | null;
+interface IReservationDrawerProps {
+  eventId?: number;
   isOpen: boolean;
   onClose: () => void;
   variant?: 'circles' | 'circles-alt' | 'simple' | undefined;
 }
 
 interface IStep {
+  title: string;
   description: string;
 }
 
-const steps: IStep[] = [{ description: 'Event Info' }, { description: 'Tickets' }, { description: 'Publish the event' }];
+const steps: IStep[] = [
+  { title: '', description: 'Personal Information' },
+  { title: '', description: 'Payment' },
+  { title: '', description: 'Confirmation' },
+];
 
-const EventFormDrawer = (props: IEventFormDrawerProps) => {
+const ReservationDrawer = (props: IReservationDrawerProps) => {
   const [messageBar, setMessageBar] = useState<any>({});
-  const [eventId, setEventId] = useState<any>(null);
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
     count: steps.length,
   });
 
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const bg = useColorModeValue('gray.100', 'gray.700');
-
   const onDrawerClose = () => {
     setMessageBar({});
     setActiveStep(1);
     props.onClose();
   };
-
-  const onEventUpdate = (eventId: number) => {
-    console.log(`OnEventUpdate`, { eventId });
-    setEventId(eventId);
-  };
-
-  useEffect(() => {
-    console.log({ eventId });
-  }, []);
-
   return (
-    <>
+    <React.Fragment>
       <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
           <DrawerHeader>
-            <Heading size="xl">Create an event</Heading>
+            <Heading size="xl">Create an Reservation</Heading>
           </DrawerHeader>
           <DrawerBody>
             <Box
@@ -81,6 +75,7 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                       </StepIndicator>
 
                       <Box flexShrink="0">
+                        <StepTitle>{step.title}</StepTitle>
                         <StepDescription>{step.description}</StepDescription>
                       </Box>
 
@@ -89,10 +84,17 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <EventForm onNext={() => goToNext()} eventId={props.eventId} onEventUpdate={onEventUpdate} />}
-                {activeStep === 2 && <PriceInfo onNext={() => goToNext()} eventId={props.eventId} />}
-                {activeStep === 3 && <PublishEvent onNext={goToNext} entity="Event" eventId={props.eventId} />}
+                {activeStep === 1 && <ReservationForm />}
+                {activeStep === 2 && <>Paymen Here</>}
+                {activeStep === 3 && <>Confirmation with Ticket Detail</>}
 
+                {/* {hasCompletedAllSteps && (
+                  <Box sx={{ bg, my: 8, p: 8, rounded: 'md' }}>
+                    <Heading fontSize="xl" textAlign={'center'}>
+                      You have successfully created an Event! 🎉
+                    </Heading>
+                  </Box>
+                )} */}
                 <Flex mt="15px">
                   {activeStep !== 1 && (
                     <Button onClick={goToPrevious}>
@@ -112,8 +114,8 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
-    </>
+    </React.Fragment>
   );
 };
 
-export default EventFormDrawer;
+export default ReservationDrawer;

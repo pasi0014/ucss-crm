@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import moment from 'moment-timezone';
-import { FormControl, Input, useColorModeValue, Button, Flex, FormLabel, Heading, Box, TimePicker } from '@chakra-ui/react';
+import { FormControl, Input, useColorModeValue, Button, Flex, FormLabel, Heading, Box } from '@chakra-ui/react';
 
 import MessageBar from '../MessageBar';
 import { Event } from '../../types';
 import { createEvent, findEventById, updateEvent } from './calls';
 import { AppContext } from '../../context/AppContext';
 
-export function EventForm(props: { onNext: () => void; event?: Event; eventId?: number | null; onEventStatusUpdate: (val: number) => void }) {
+export function EventForm(props: { onNext: () => void; event?: Event; eventId?: number | null; onEventUpdate: (eventId: number) => void }) {
   const { appLoading, setAppLoading } = useContext<any>(AppContext);
   const [error, setError] = useState(false);
   const [messageBar, setMessageBar] = useState<any>({});
@@ -39,18 +39,15 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
   const doFetchEvent = async () => {
     setAppLoading(true);
     setError(false);
-
     try {
       const response = await findEventById(props.eventId);
-
+      console.log({ response });
       if (!response.success) {
         setError(true);
         setMessageBar({ type: 'error', message: response.data });
         throw new Error(response.data);
       }
 
-      // setEvent(response.data);
-      props.onEventStatusUpdate(response.data.StatusId);
       updateEventObj(response.data);
     } catch (error: any) {
       console.error('Error : ', { ...error });
@@ -86,6 +83,7 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
         throw new Error(`There was an error while tryting to create the Event ${response.data}`);
       }
       updateEventObj(response.data);
+      props.onEventUpdate(response.data.id);
       props.onNext();
     } catch (error: any) {
       console.error('Unexpected error: ', error.message);
@@ -168,7 +166,7 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
 
   return (
     <>
-      <Box>
+      <Box mt="15px">
         <Heading as="h3" size="lg" my={5}>
           Fill in Event information
         </Heading>

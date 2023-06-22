@@ -47,7 +47,7 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRec
         <InputGroup>
           <Input bg={useColorModeValue('white', 'gray.700')} shadow="md" placeholder="Search" value={searchTerm} onChange={handleSearch} />
           <InputRightElement>
-            <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={() => {}} />
+            <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
           </InputRightElement>
         </InputGroup>
       </Box>
