@@ -1,39 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import RegisterForm from './components/Registerform'
-import './App.css'
-import Registration from './components/RegisterForm'
+import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
+
+import Login from './containers/Login';
+
+import Dashboard from './containers/Dashboard';
+import Donors from './containers/Donors';
+
+import './App.scss';
+import { RequireAuth, useIsAuthenticated } from 'react-auth-kit';
+import Admin from './Admin';
+import SignupCard from './components/RegisterForm';
+import Events from './containers/Events';
+import EventView from './containers/EventView';
+import Reservations from './containers/Reservations';
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const isAuthenticated = useIsAuthenticated();
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <RequireAuth loginPath="login">
+              <Admin />
+            </RequireAuth>
+          }
+        >
+          <Route path="/" element={<Dashboard />} />
+          <Route
+            path="/events"
+            element={
+              <RequireAuth loginPath="login">
+                <Events />
+              </RequireAuth>
+            }
+          />
 
-      <Registration />
-      
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+          <Route
+            path="/events/:eventId"
+            element={
+              <RequireAuth loginPath="login">
+                <EventView />
+              </RequireAuth>
+            }
+          />
+
+          <Route path="donors" element={<Donors />} />
+          <Route path="donations" element={<>Donations</>} />
+          <Route path="statistics" element={<>Statistics</>} />
+          <Route path="clients" element={<>Clients</>} />
+          <Route path="reservations" element={<Reservations />} />
+        </Route>
+        <Route path="*" element={isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
+
+        <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/register" element={isAuthenticated() ? <Navigate to="/" replace /> : <SignupCard />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
