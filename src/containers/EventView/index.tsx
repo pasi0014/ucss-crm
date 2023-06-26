@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber, HStack } from '@chakra-ui/react';
+import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { AppContext } from '../../context/AppContext';
 import { getEventById } from './calls';
 
@@ -9,17 +9,23 @@ import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { AddIcon } from '@chakra-ui/icons';
 
+import { Event } from '../../types';
+
 import ReservationDrawer from '../../components/ReservationDrawer';
 import MessageBar from '../../components/MessageBar';
 
-const EventView: React.FC = () => {
-  const { eventId } = useParams() as any;
-  const [event, setEvent] = useState(null);
-  const [messageBar, setMessageBar] = useState<any>(null);
+type EventParams = {
+  eventId: any;
+};
 
+const EventView: React.FC = () => {
+  const { eventId } = useParams<EventParams>();
+  const { setAppLoading, appLoading } = useContext<any>(AppContext);
+  const [loading, setLoading] = useState(false);
+  const [event, setEvent] = useState<Event | null>(null);
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
 
-  const { setAppLoading, appLoading } = useContext<any>(AppContext);
+  const [messageBar, setMessageBar] = useState<any>(null);
 
   const doFetchEvent = async () => {
     setAppLoading(true);
@@ -42,6 +48,16 @@ const EventView: React.FC = () => {
     setAppLoading(false);
   };
 
+  const doFetchEventReservations = async (eventId: number) => {
+    setLoading(true);
+    try {
+      const response = {};
+    } catch (error: any) {
+      console.error(`Unepxected error : ${error.message}`);
+    }
+    setLoading(false);
+  };
+
   const handleOpenDrawer = () => {
     setDrawerIsOpen(true);
   };
@@ -51,6 +67,12 @@ const EventView: React.FC = () => {
       doFetchEvent();
     }
   }, [eventId]);
+
+  useEffect(() => {
+    if (event?.id) {
+      doFetchEventReservations(event.id);
+    }
+  }, [event]);
 
   return (
     <React.Fragment>
@@ -79,7 +101,7 @@ const EventView: React.FC = () => {
         <>
           <Stack>
             <Box textAlign="left" my={5} p={3}>
-              <Heading>{event?.name}</Heading>
+              <Heading>{event.name}</Heading>
             </Box>
           </Stack>
 
@@ -170,16 +192,7 @@ const EventView: React.FC = () => {
                 </Flex>
               </Box>
 
-              <HStack spacing="24px" mt={5}>
-                <Text fontSize="xl">Status:</Text>
-                <Button borderRadius="15px" bg="green.400" color="white">
-                  ACTIVE
-                </Button>
-                <Button borderRadius="15px" bg="orange.300" color="white">
-                  PENDING
-                </Button>
-                <Button borderRadius="15px">CANCELLED</Button>
-              </HStack>
+              {/* DataTable */}
             </Box>
           </Stack>
         </>

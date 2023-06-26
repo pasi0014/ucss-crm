@@ -88,13 +88,6 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
                 {activeStep === 2 && <>Paymen Here</>}
                 {activeStep === 3 && <>Confirmation with Ticket Detail</>}
 
-                {/* {hasCompletedAllSteps && (
-                  <Box sx={{ bg, my: 8, p: 8, rounded: 'md' }}>
-                    <Heading fontSize="xl" textAlign={'center'}>
-                      You have successfully created an Event! 🎉
-                    </Heading>
-                  </Box>
-                )} */}
                 <Flex mt="15px">
                   {activeStep !== 1 && (
                     <Button onClick={goToPrevious}>
