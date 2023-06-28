@@ -1,23 +1,25 @@
 import React, { useState, ChangeEvent, useEffect } from 'react';
-import { Input, Box, Spinner, useColorModeValue, Flex } from '@chakra-ui/react';
-import { searchClients } from './calls';
+import { InputLeftElement, InputGroup, Input, Box, Spinner, useColorModeValue, Flex } from '@chakra-ui/react';
+import { Search2Icon } from '@chakra-ui/icons';
+
 import { Client } from '../../types';
-import { HStack } from '@chakra-ui/react';
-import { VStack } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/react';
+
+import { searchClients } from './calls';
 
 interface ISearchBarProps {
   entity: string;
+  onSelect: (value: Client) => void;
+  resetErrors: (val: boolean) => void;
 }
 
-const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
+const SearchBar: React.FC<ISearchBarProps> = ({ entity, onSelect, resetErrors }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const bgColor = useColorModeValue('', 'bg-gray-500');
-  const resultBg = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue('', 'bg-gray-800');
+  const resultBg = useColorModeValue('gray.200', 'gray.500');
 
   const handleSearch = async () => {
     if (searchTerm && searchTerm.length > 3) {
@@ -50,6 +52,7 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
     if (searchTerm.length === 0) {
       setSearchResults([]);
     }
+
     return () => {
       if (timer) {
         clearTimeout(timer);
@@ -60,15 +63,19 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
   return (
     <React.Fragment>
       <Box mt={5}>
-        <Input
-          type="text"
-          placeholder={`Search ${entity || '...'}`}
-          className="text-red-500"
-          value={searchTerm}
-          onChange={handleChange}
-          paddingRight="10rem"
-          sx={{ color: isLoading ? useColorModeValue('gray.300', 'gray.500') : useColorModeValue('gray.500', 'white') }}
-        />
+        <InputGroup>
+          <InputLeftElement pointerEvents="none">
+            <Search2Icon color="gray.300" />
+          </InputLeftElement>
+          <Input
+            type="text"
+            bg={useColorModeValue('white', 'gray.700')}
+            placeholder={`Search ${entity || '...'}`}
+            value={searchTerm}
+            onChange={handleChange}
+            sx={{ color: isLoading ? useColorModeValue('gray.300', 'gray.500') : useColorModeValue('gray.500', 'white') }}
+          />
+        </InputGroup>
       </Box>
       <Box>
         {isLoading && (
@@ -82,9 +89,12 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
               <Box bg={resultBg} borderRadius="15px" my={2} boxShadow="sm" key={iClient.id}>
                 <button
                   className={`flex flex-col text-left justify-items-start p-3 w-full transition-all ease hover:${
-                    bgColor || 'bg-gray-100'
+                    bgColor || 'bg-gray-800'
                   } duration-300 rounded-xl`}
-                  onClick={() => console.log({ iClient })}
+                  onClick={() => {
+                    setSearchTerm('');
+                    onSelect(iClient);
+                  }}
                 >
                   <span>{`${iClient.firstName} ${iClient.lastName}`}</span>
                   <span className="text-xs">{`${iClient.phone}`}</span>

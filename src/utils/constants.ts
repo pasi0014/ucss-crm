@@ -6,4 +6,4 @@ export const UCSS_API_CONSTANTS = {
   HOST: "'http://localhost:3005'",
 };
 
-export const MAXIMUM_CLIENTS: number = 8;
+export const MAXIMUM_CLIENTS: number = 3;
