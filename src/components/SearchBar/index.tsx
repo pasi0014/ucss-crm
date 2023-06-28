@@ -1,41 +1,10 @@
-// import { Button, Input, InputGroup, InputLeftElement, InputRightAddon } from '@chakra-ui/react';
-// import { SearchIcon } from '@chakra-ui/icons';
-// import { useState } from 'react';
-
-// interface ISearchBarProps {
-//   entity: string;
-//   onSearch: (searchTerm: string) => void;
-// }
-
-// const SearchBar = (props: ISearchBarProps) => {
-//   const [searchTerm, setSearchTerm] = useState('');
-//   return (
-//     <>
-//       <InputGroup borderRadius="15px" size="sm">
-//         <Input
-//           type="text"
-//           placeholder={`Search ${props.entity ? props.entity : '...'}`}
-//           borderRadius="15px"
-//           p={5}
-//           value={searchTerm}
-//           onChange={(event: any) => setSearchTerm(event.target.value)}
-//         />
-//         <Button size="md" ml={3} p={5} onClick={() => props.onSearch(searchTerm)}>
-//           Search
-//         </Button>
-//       </InputGroup>
-//     </>
-//   );
-// };
-// export default SearchBar;
-
 import React, { useState, ChangeEvent, useEffect } from 'react';
-import { Input, Box, Spinner } from '@chakra-ui/react';
-import { CUIAutoComplete } from 'chakra-ui-autocomplete';
+import { Input, Box, Spinner, useColorModeValue, Flex } from '@chakra-ui/react';
 import { searchClients } from './calls';
 import { Client } from '../../types';
-import { useColorModeValue } from '@chakra-ui/react';
-import { Flex } from '@chakra-ui/react';
+import { HStack } from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 
 interface ISearchBarProps {
   entity: string;
@@ -46,6 +15,9 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const bgColor = useColorModeValue('', 'bg-gray-500');
+  const resultBg = useColorModeValue('gray.200', 'gray.600');
 
   const handleSearch = async () => {
     if (searchTerm && searchTerm.length > 3) {
@@ -90,7 +62,7 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
       <Box mt={5}>
         <Input
           type="text"
-          placeholder={`Search ${entity || ''}`}
+          placeholder={`Search ${entity || '...'}`}
           className="text-red-500"
           value={searchTerm}
           onChange={handleChange}
@@ -99,18 +71,28 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity }) => {
         />
       </Box>
       <Box>
-        {isLoading ? (
-          <Flex>
+        {isLoading && (
+          <Flex p={5}>
             <Spinner size="sm" mr={2} />
             Loading...
           </Flex>
-        ) : searchResults.length > 0 ? (
-          searchResults.map((iClient: Client) => (
-            <Box bg={useColorModeValue('gray.300', 'gray.500')} p={3} borderRadius="10px" key={iClient.id}>{`${iClient.firstName} ${iClient.lastName}`}</Box>
-          ))
-        ) : (
-          searchTerm && <Box>No results found...</Box>
         )}
+        {searchResults.length > 0
+          ? searchResults.map((iClient: Client) => (
+              <Box bg={resultBg} borderRadius="15px" my={2} boxShadow="sm" key={iClient.id}>
+                <button
+                  className={`flex flex-col text-left justify-items-start p-3 w-full transition-all ease hover:${
+                    bgColor || 'bg-gray-100'
+                  } duration-300 rounded-xl`}
+                  onClick={() => console.log({ iClient })}
+                >
+                  <span>{`${iClient.firstName} ${iClient.lastName}`}</span>
+                  <span className="text-xs">{`${iClient.phone}`}</span>
+                  <span className="text-xs">{`${iClient.email}`}</span>
+                </button>
+              </Box>
+            ))
+          : searchTerm && <Flex className="p-2">No results found...</Flex>}
       </Box>
     </React.Fragment>
   );

@@ -1,17 +1,5 @@
 import React, { ReactNode, useEffect } from 'react';
-import {
-  IconButton,
-  Box,
-  CloseButton,
-  Flex,
-  Icon,
-  useColorModeValue,
-  Link as ChakraLink, // Renamed ChakraUI Link to ChakraLink
-  Drawer,
-  DrawerContent,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { IconButton, Box, CloseButton, Flex, Icon, useColorModeValue, Drawer, DrawerContent, Text, useDisclosure } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { FiHome, FiMenu, FiCalendar, FiUsers } from 'react-icons/fi';
@@ -70,6 +58,7 @@ interface SidebarProps {
 
 // SideBar Navigation
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+  const { pathname } = useLocation();
   return (
     <Box
       bg={useColorModeValue('white', 'gray.900')}
@@ -87,7 +76,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} url={link.url}>
+        <NavItem key={link.name} icon={link.icon} url={link.url} currentPath={pathname}>
           {link.name}
         </NavItem>
       ))}
@@ -99,10 +88,10 @@ interface NavItemProps {
   icon: IconType;
   children: any;
   url: any;
+  currentPath: string;
 }
-const NavItem = ({ icon, url, children, ...rest }: NavItemProps) => {
-  const { pathname } = useLocation();
-  const isActive = pathname === url;
+const NavItem = ({ icon, url, children, currentPath, ...rest }: NavItemProps) => {
+  const isActive = currentPath === url;
 
   return (
     <Link to={url} style={{ textDecoration: 'none' }}>

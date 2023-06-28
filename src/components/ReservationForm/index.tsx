@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Flex, Button, Box } from '@chakra-ui/react';
+import { Heading, Flex, Button, Box } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Client } from '../../types';
 
@@ -9,15 +9,7 @@ import ClientInfo from '../ClientInfo';
 import SearchBar from '../SearchBar';
 
 const ReservationForm: React.FC = (props: any) => {
-  const [clients, setClients] = useState<Client[]>([
-    // {
-    //   id: uuidv4(),
-    //   firstName: '',
-    //   lastName: '',
-    //   phone: '',
-    //   email: '',
-    // },
-  ]);
+  const [clients, setClients] = useState<Client[]>([]);
 
   const handleAddGuest = () => {
     const newClient = {
@@ -40,21 +32,21 @@ const ReservationForm: React.FC = (props: any) => {
     });
   };
 
-  const handleSaveClient = (id: string) => {};
-
   return (
-    <Box mt="3" height={100}>
-      <Flex alignItems="center" justifyContent="space-between">
-        <Box width="350px" height={100}>
-          <SearchBar entity="Client" />
-        </Box>
-        <Flex alignItems="center">
-          <Button variant="solid" colorScheme="teal" size="md" onClick={handleAddGuest}>
-            <AddIcon boxSize={3} mr={2} />
-            Create Client
-          </Button>
-        </Flex>
+    <Box mt="3">
+      <Flex justifyContent="space-between">
+        <Heading as="h2" my={5}>
+          Client's Information
+        </Heading>
+        <Button variant="solid" colorScheme="teal" size="md" onClick={handleAddGuest} my="auto">
+          <AddIcon boxSize={3} mr={2} />
+          Create Client
+        </Button>
       </Flex>
+
+      <Box width="350px" className="px-3 pb-5 pt-3 mb-5 rounded-xl">
+        <SearchBar entity="Client" />
+      </Box>
 
       <Box>
         {clients.map((iClient: any, index: number) => (
