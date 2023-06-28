@@ -50,10 +50,6 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
     setEventId(eventId);
   };
 
-  useEffect(() => {
-    console.log({ eventId });
-  }, []);
-
   return (
     <>
       <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="xl">

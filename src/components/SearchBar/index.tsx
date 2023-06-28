@@ -26,7 +26,6 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity, onSelect, resetErrors })
       setIsLoading(true);
       try {
         const response = await searchClients(searchTerm);
-        console.log({ response });
         setSearchResults(response.data || []);
       } catch (error) {
         console.error('Error while fetching search results:', error);

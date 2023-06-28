@@ -41,7 +41,6 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
     setError(false);
     try {
       const response = await findEventById(props.eventId);
-      console.log({ response });
       if (!response.success) {
         setError(true);
         setMessageBar({ type: 'error', message: response.data });

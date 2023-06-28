@@ -62,7 +62,6 @@ export default function Events() {
   };
 
   const onEditRecord = (item: any) => {
-    console.log({ id: item.id });
     setSelectedEventId(item.id);
     handleOpenDrawer();
   };
