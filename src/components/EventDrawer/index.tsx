@@ -4,7 +4,7 @@ import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerC
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
 import { Button } from '@chakra-ui/react';
 
-import { Event } from '../../types';
+import { Event } from '../../types/Event';
 // import { EventForm } from './EventForm';
 import { PriceInfo } from './PriceInfo';
 import { PublishEvent } from './PublishEvent';

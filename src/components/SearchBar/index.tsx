@@ -2,17 +2,16 @@ import React, { useState, ChangeEvent, useEffect } from 'react';
 import { InputLeftElement, InputGroup, Input, Box, Spinner, useColorModeValue, Flex } from '@chakra-ui/react';
 import { Search2Icon } from '@chakra-ui/icons';
 
-import { Client } from '../../types';
+import { Client } from '../../types/Client';
 
 import { searchClients } from './calls';
 
 interface ISearchBarProps {
   entity: string;
   onSelect: (value: Client) => void;
-  resetErrors: (val: boolean) => void;
 }
 
-const SearchBar: React.FC<ISearchBarProps> = ({ entity, onSelect, resetErrors }) => {
+const SearchBar: React.FC<ISearchBarProps> = ({ entity, onSelect }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);

@@ -1,18 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { Alert, AlertIcon, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Stack } from '@chakra-ui/react';
 
 export interface IMessageBar {
-  type: "error" | "success" | "warning" | "info";
+  type: 'error' | 'success' | 'warning' | 'info';
   message: any;
 }
 
-const MessageBar = (props: IMessageBar) => {
+const MessageBar: React.FC<IMessageBar> = ({ type, message }) => {
   return (
     <Stack spacing={3}>
-      <Alert status={props.type}>
+      <Alert status={type}>
         <AlertIcon />
-        {props.message}
+        {message}
       </Alert>
     </Stack>
   );

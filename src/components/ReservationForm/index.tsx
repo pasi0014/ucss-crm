@@ -1,32 +1,42 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Heading, Flex, Button, Box, useToast } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { Client } from '../../types';
+import { Client } from '../../types/Client';
 
 import { MAXIMUM_CLIENTS } from '../../utils/constants';
 
 import ClientInfo from '../ClientInfo';
 import SearchBar from '../SearchBar';
-import MessageBar from '../MessageBar';
+import MessageBar, { IMessageBar } from '../MessageBar';
+import { Reservation } from '../../types/Reservation';
+import { Price } from '../../types/Price';
+import { AppContext } from '../../context/AppContext';
+import { updateOrSaveClient } from './calls';
 
-const ReservationForm: React.FC = (props: any) => {
+interface IReservationFormProps {
+  eventId: number;
+  onReservationUpdate: (reservation: Reservation) => void;
+}
+
+const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, onReservationUpdate }) => {
+  const { setAppLoading } = useContext<any>(AppContext);
   const toast = useToast();
   const [clients, setClients] = useState<Client[]>([]);
-  const [messageBar, setMessageBar] = useState<any>(null);
+  const [saveResult, setSaveResult] = useState<any>(null);
+  const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   const handleAddGuest = () => {
-    setMessageBar(null);
     // Validate if we reaching the maximum event capacity
     if (clients.length >= MAXIMUM_CLIENTS) {
       setMessageBar({ type: 'info', message: `Warning: you have reached maximum clients (${MAXIMUM_CLIENTS}) per one reservation` });
       toast({
         title: 'Warning',
         description: `You have reached maximum client's capacity (${MAXIMUM_CLIENTS}) per one reservation`,
-        position: 'top-right',
+        position: 'top-left',
         status: 'warning',
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
       return;
@@ -38,26 +48,20 @@ const ReservationForm: React.FC = (props: any) => {
       lastName: '',
       email: '',
       phone: '',
+      isOwner: clients.length === 0,
     };
 
     setClients((prevClients) => [...prevClients, newClient]);
   };
 
-  const handleClientInfoChange = (index: number, fieldName: string, value: string) => {
+  const handleClientInfoChange = (index: number, fieldName: string, value: string | Price) => {
     setClients((prevClients) => {
       const updatedClients = [...prevClients];
       const clientToUpdate: any = updatedClients[index];
       clientToUpdate[fieldName] = value;
       return updatedClients;
     });
-  };
-
-  const handleResetError = (value: boolean) => {
-    if (value) {
-      setMessageBar(null);
-      return;
-    }
-    return;
+    // onReservationUpdate(clients);
   };
 
   const handleSelectedClient = (client: Client) => {
@@ -76,12 +80,13 @@ const ReservationForm: React.FC = (props: any) => {
     if (actualClientCount === MAXIMUM_CLIENTS) {
       toast({
         title: 'Warning',
-        description: `You have reached maximum client's capacity per one reservation`,
-        position: 'top-right',
+        description: `You have reached maximum client's capacity ${MAXIMUM_CLIENTS} per one reservation`,
+        position: 'top-left',
         status: 'warning',
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
+      setMessageBar({ type: 'warning', message: `You have reached maximum client's capacity of ${MAXIMUM_CLIENTS} per one reservation` });
     }
 
     // Validate if we reaching the maximum event capacity
@@ -89,9 +94,9 @@ const ReservationForm: React.FC = (props: any) => {
       toast({
         title: 'Warning',
         description: `You have reached maximum client's capacity ${MAXIMUM_CLIENTS} per one reservation`,
-        position: 'top-right',
+        position: 'top-left',
         status: 'warning',
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
       return;
@@ -101,21 +106,76 @@ const ReservationForm: React.FC = (props: any) => {
       toast({
         title: 'Client has already been added',
         description: `You have already added ${client.firstName} ${client.lastName} to this reservation`,
-        position: 'top-right',
+        position: 'top-left',
         status: 'error',
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
       return;
     }
 
-    setClients((prev) => [...prev, client]);
+    setClients((prev) => [...prev, { ...client, isOwner: clients.length === 0 }]);
 
     toast({
       title: 'Success',
       description: `You have successfully added ${client.firstName} ${client.lastName} to the reservation`,
-      position: 'top-right',
+      position: 'top-left',
       status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
+  // Saves client in the DB
+  const saveClient = async (client: Client) => {
+    setAppLoading(true);
+
+    try {
+      const response = await updateOrSaveClient(client);
+
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: `Client ${client.firstName} ${client.lastName} has been saved in the database, successfully`,
+          position: 'top-left',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: `There was an error while trying to save the client in the DB. Please, try again.`,
+          position: 'top-left',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+        setMessageBar({ type: 'error', message: response.data });
+      }
+    } catch (error: any) {
+      console.error(`Unepexted error :: ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
+    }
+
+    setAppLoading(false);
+  };
+
+  const removeClient = (client: Client) => {
+    setMessageBar(null);
+    setClients((prevClients) => {
+      // If the client being removed is the owner, set isOwner to true for the first client
+      const updatedClients = prevClients.filter((iClient) => iClient.id !== client.id);
+      if (updatedClients.length > 0) {
+        updatedClients[0].isOwner = true;
+      }
+      return updatedClients;
+    });
+    toast({
+      title: 'Client has been removed',
+      description: `You have removed ${client.firstName || 'Client'} from this reservation`,
+      position: 'top-left',
+      status: 'warning',
       duration: 9000,
       isClosable: true,
     });
@@ -140,12 +200,21 @@ const ReservationForm: React.FC = (props: any) => {
       )}
 
       <Box className="w-full mb-5 rounded-xl">
-        <SearchBar entity="Client" onSelect={handleSelectedClient} resetErrors={(value: boolean) => handleResetError(value)} />
+        <SearchBar entity="Client" onSelect={handleSelectedClient} />
       </Box>
 
       <Box>
         {clients.map((iClient: any, index: number) => (
-          <ClientInfo key={index} index={index} client={iClient} onChange={handleClientInfoChange} onSave={(clientId) => {}} onDelete={(clientId) => {}} />
+          <ClientInfo
+            key={index}
+            index={index}
+            client={iClient}
+            onChange={handleClientInfoChange}
+            eventId={eventId}
+            onSave={saveClient}
+            onDelete={removeClient}
+            onSaveResult={saveResult}
+          />
         ))}
       </Box>
     </Box>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getAnErrorMessage } from "../../utils/utilities";
-import { Donor } from "../../types";
+import { Donor } from "../../types/Donor";
 import API_BASE_URL from "../../config";
 
 export const createDonor = async (donor: Donor) => {

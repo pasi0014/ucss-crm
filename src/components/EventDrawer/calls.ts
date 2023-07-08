@@ -1,7 +1,7 @@
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 
-import { Event, Price } from '../../types';
+import { Price } from '../../types/Price';
 
 import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';

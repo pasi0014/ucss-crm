@@ -9,7 +9,7 @@ import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { AddIcon } from '@chakra-ui/icons';
 
-import { Event } from '../../types';
+import { Event } from '../../types/Event';
 
 import ReservationDrawer from '../../components/ReservationDrawer';
 import MessageBar from '../../components/MessageBar';

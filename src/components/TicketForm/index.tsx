@@ -5,7 +5,7 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody,
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
 import { Spacer } from '@chakra-ui/react';
-import { Price } from '../../types';
+import { Price } from '../../types/Price';
 import MessageBar from '../MessageBar';
 import { useDisclosure } from '@chakra-ui/react';
 import { useColorModeValue } from '@chakra-ui/react';

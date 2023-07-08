@@ -10,7 +10,7 @@ import EventFormDrawer from '../../components/EventDrawer';
 
 import { deleteEvent, getEvents } from './calls';
 import { IColumnProps } from '../../interfaces';
-import { Event } from '../../types';
+import { Event } from '../../types/Event';
 import ConfirmPopup from '../../components/ConfirmPopup';
 import { StatusContext } from '../../context/StatusContext';
 import { getStatus, getStatusColor } from '../../utils/utilities';
@@ -24,7 +24,7 @@ export default function Events() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [events, setEvents] = useState<any>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [eventToDelete, setEventToDelete] = useState<any>(null);
   const [fetchEvents, setFetchEvents] = useState(false);

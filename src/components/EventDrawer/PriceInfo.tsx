@@ -4,7 +4,7 @@ import { useToast, useColorModeValue, Button, Heading, Box } from '@chakra-ui/re
 import { AddIcon } from '@chakra-ui/icons';
 
 import { AppContext } from '../../context/AppContext';
-import { Price } from '../../types';
+import { Price } from '../../types/Price';
 import { createPrice, deletePrice, findEventPrice, updatePrice } from './calls';
 
 import MessageBar from '../MessageBar';
