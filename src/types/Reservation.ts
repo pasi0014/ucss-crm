@@ -1,9 +1,10 @@
+import { Client } from "./Client";
+
 export type Reservation = {
     id?: number;
-    reservationCode?: string | null;
     EventId: number;
     OwnerId: string;
-    ClientList?: Array<any>;
+    Clients?: Client[];
     StatusId?: number;
     createdAt?: Date;
     createdBy?: string | null;

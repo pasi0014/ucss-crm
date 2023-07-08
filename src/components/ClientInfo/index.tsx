@@ -24,6 +24,8 @@ interface IClientProps {
     lastName: string;
     email: string;
     phone: string;
+    isOwner: boolean;
+    Price?: Price;
   };
   eventId: unknown;
   onChange: (index: number, fieldName: string, value: string | Price) => void;
@@ -61,7 +63,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(null);
   const [tickets, setTickets] = useState<Price[]>([]);
-  const [selectedTicket, setSelectedTicket] = useState<Price>();
+  const [selectedTicket, setSelectedTicket] = useState<Price | null>(client.Price || null);
 
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
@@ -272,6 +274,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
           type="email"
           value={client.email}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'email', event.target.value)}
+          placeholder="example@mail.com"
         />
       </FormControl>
 
@@ -284,6 +287,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
           type="phone"
           value={client.phone}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'phone', event.target.value)}
+          placeholder="+1-888-5555 / 18885555"
         />
       </FormControl>
 

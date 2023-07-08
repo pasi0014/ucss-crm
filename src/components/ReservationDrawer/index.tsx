@@ -6,6 +6,14 @@ import { useColorModeValue } from '@chakra-ui/react';
 import { Heading } from '@chakra-ui/react';
 import { DrawerCloseButton } from '@chakra-ui/react';
 import { DrawerOverlay } from '@chakra-ui/react';
+import { Modal } from '@chakra-ui/react';
+import { ModalOverlay } from '@chakra-ui/react';
+import { ModalContent } from '@chakra-ui/react';
+import { ModalHeader } from '@chakra-ui/react';
+import { ModalCloseButton } from '@chakra-ui/react';
+import { ModalBody } from '@chakra-ui/react';
+import { ModalFooter } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
 import React, { useState } from 'react';
@@ -15,6 +23,7 @@ import { Button } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import ReservationForm from '../ReservationForm';
 import { Reservation } from '../../types/Reservation';
+import { useToast } from '@chakra-ui/react';
 
 interface IReservationDrawerProps {
   eventId: number;
@@ -35,10 +44,13 @@ const steps: IStep[] = [
 ];
 
 const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen, onClose, variant }) => {
+  const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
+  const toast = useToast();
   const [messageBar, setMessageBar] = useState<any>({});
   const [reservation, setReservation] = useState<Reservation>({
     EventId: eventId,
     OwnerId: '',
+    Clients: [],
   });
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
@@ -53,9 +65,61 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     setActiveStep(1);
     onClose();
   };
+
+  const handleNextClick = () => {
+    const clientWithoutTicket = reservation.Clients?.find((iClient) => !iClient.Price);
+    if (clientWithoutTicket) {
+      // If at least one client doesn't have a ticket selected, display a message or perform an action
+      toast({
+        title: 'Warning',
+        description: 'Please make sure you have selected a ticket for all reservation clients.',
+        position: 'top-left',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      // All clients have a ticket selected, proceed to the next step
+      goToNext();
+    }
+  };
+
+  const handleCloseClick = () => {
+    closeModal();
+    // Reset reservation state to its initial values
+    setReservation({
+      EventId: eventId,
+      OwnerId: '',
+      Clients: [],
+    });
+    // Close the drawer
+    onClose();
+  };
+
   return (
     <React.Fragment>
-      <Drawer isOpen={isOpen} onClose={onDrawerClose} size="xl">
+      {/* Confirmation modal popup */}
+      <Modal isOpen={isModalOpen} onClose={() => closeModal()}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>You are about to close Reservation</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            Are you sure you want to close this window?
+            <br /> Reservation Data will be lost.
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={handleCloseClick}>
+              Close
+            </Button>
+            <Button variant="ghost" onClick={() => closeModal()}>
+              Exit
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Drawer isOpen={isOpen} onClose={() => openModal()} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
@@ -89,7 +153,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <ReservationForm eventId={eventId} onReservationUpdate={(reservation: Reservation) => console.log({ reservation })} />}
+                {activeStep === 1 && <ReservationForm eventId={eventId} reservation={reservation} onReservationUpdate={setReservation} />}
                 {activeStep === 2 && <>Paymen Here</>}
                 {activeStep === 3 && <>Confirmation with Ticket Detail</>}
 
@@ -101,7 +165,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                     </Button>
                   )}
                   {activeStep !== 3 && (
-                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={eventId && goToNext} isDisabled={!eventId}>
+                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={eventId && handleNextClick} isDisabled={!eventId}>
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />
                     </Button>

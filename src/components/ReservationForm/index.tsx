@@ -17,13 +17,14 @@ import { updateOrSaveClient } from './calls';
 
 interface IReservationFormProps {
   eventId: number;
+  reservation: Reservation;
   onReservationUpdate: (reservation: Reservation) => void;
 }
 
-const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, onReservationUpdate }) => {
+const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation, onReservationUpdate }) => {
   const { setAppLoading } = useContext<any>(AppContext);
   const toast = useToast();
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<Client[]>(reservation.Clients || []);
   const [saveResult, setSaveResult] = useState<any>(null);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
@@ -52,6 +53,10 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, onReservati
     };
 
     setClients((prevClients) => [...prevClients, newClient]);
+    // Update the reservation object with the updated clients array
+    const updatedClients = clients.length > 0 ? [...clients, newClient] : [newClient];
+    const updatedReservation = { ...reservation, Clients: updatedClients };
+    onReservationUpdate(updatedReservation);
   };
 
   const handleClientInfoChange = (index: number, fieldName: string, value: string | Price) => {
@@ -61,7 +66,9 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, onReservati
       clientToUpdate[fieldName] = value;
       return updatedClients;
     });
-    // onReservationUpdate(clients);
+    // Update the reservation object with the updated clients array
+    const updatedReservation = { ...reservation, Clients: clients };
+    onReservationUpdate(updatedReservation);
   };
 
   const handleSelectedClient = (client: Client) => {
@@ -114,7 +121,12 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, onReservati
       return;
     }
 
-    setClients((prev) => [...prev, { ...client, isOwner: clients.length === 0 }]);
+    const updatedClients = [...clients, { ...client, isOwner: clients.length === 0 }];
+    setClients(updatedClients);
+
+    // Update the reservation object with the updated clients array
+    const updatedReservation = { ...reservation, Clients: updatedClients };
+    onReservationUpdate(updatedReservation);
 
     toast({
       title: 'Success',
@@ -163,14 +175,14 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, onReservati
 
   const removeClient = (client: Client) => {
     setMessageBar(null);
-    setClients((prevClients) => {
-      // If the client being removed is the owner, set isOwner to true for the first client
-      const updatedClients = prevClients.filter((iClient) => iClient.id !== client.id);
-      if (updatedClients.length > 0) {
-        updatedClients[0].isOwner = true;
-      }
-      return updatedClients;
-    });
+    const updatedClients = clients.filter((iClient) => iClient.id !== client.id);
+    if (updatedClients.length > 0) {
+      updatedClients[0].isOwner = true;
+    }
+    setClients(updatedClients);
+    // Update the reservation object with the updated clients array
+    const updatedReservation = { ...reservation, Clients: updatedClients };
+    onReservationUpdate(updatedReservation);
     toast({
       title: 'Client has been removed',
       description: `You have removed ${client.firstName || 'Client'} from this reservation`,
