@@ -24,6 +24,8 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import ReservationForm from '../ReservationForm';
 import { Reservation } from '../../types/Reservation';
 import { useToast } from '@chakra-ui/react';
+import PaymentInformation from '../PaymentInformation';
+import ReservationSummary from '../ReservationSummary';
 
 interface IReservationDrawerProps {
   eventId: number;
@@ -51,6 +53,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     EventId: eventId,
     OwnerId: '',
     Clients: [],
+    pendingPayments: [],
   });
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
@@ -67,7 +70,18 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
   };
 
   const handleNextClick = () => {
-    const clientWithoutTicket = reservation.Clients?.find((iClient) => !iClient.Price);
+    if (!reservation.Clients?.length) {
+      toast({
+        title: 'Warning',
+        description: 'Please make sure you have added at least 1 Client to the reservation.',
+        position: 'top-left',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    const clientWithoutTicket = reservation.Clients.find((iClient) => !iClient.Price);
     if (clientWithoutTicket) {
       // If at least one client doesn't have a ticket selected, display a message or perform an action
       toast({
@@ -154,8 +168,8 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                 </Stepper>
                 {/* Stepper Content */}
                 {activeStep === 1 && <ReservationForm eventId={eventId} reservation={reservation} onReservationUpdate={setReservation} />}
-                {activeStep === 2 && <>Paymen Here</>}
-                {activeStep === 3 && <>Confirmation with Ticket Detail</>}
+                {activeStep === 2 && <PaymentInformation onReservationUpdate={setReservation} reservation={reservation} onNext={() => goToNext()} />}
+                {activeStep === 3 && <ReservationSummary />}
 
                 <Flex mt="15px">
                   {activeStep !== 1 && (

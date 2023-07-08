@@ -195,7 +195,12 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
 
   return (
     <Box mt="3">
-      <Flex justifyContent="space-between">
+      {messageBar && (
+        <Flex>
+          <MessageBar type={messageBar.type} message={messageBar.message} />
+        </Flex>
+      )}
+      <Flex justifyContent={{ base: 'center', md: 'space-between' }} direction={{ base: 'column', md: 'row' }}>
         <Heading as="h2" my={5}>
           Client's Information
         </Heading>
@@ -204,17 +209,9 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
           Create Client
         </Button>
       </Flex>
-
-      {messageBar && (
-        <Flex>
-          <MessageBar type={messageBar.type} message={messageBar.message} />
-        </Flex>
-      )}
-
       <Box className="w-full mb-5 rounded-xl">
         <SearchBar entity="Client" onSelect={handleSelectedClient} />
       </Box>
-
       <Box>
         {clients.map((iClient: any, index: number) => (
           <ClientInfo
