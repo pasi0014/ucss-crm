@@ -41,8 +41,6 @@ export default function Login() {
         throw new Error('Error while logging in the user');
       }
 
-      console.log(response.data);
-
       if (response.success) {
         signIn({
           token: response.data.accessToken,

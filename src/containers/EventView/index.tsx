@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber, HStack } from '@chakra-ui/react';
+import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { AppContext } from '../../context/AppContext';
 import { getEventById } from './calls';
 
@@ -9,17 +9,25 @@ import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { AddIcon } from '@chakra-ui/icons';
 
+import { Event } from '../../types/Event';
+
 import ReservationDrawer from '../../components/ReservationDrawer';
 import MessageBar from '../../components/MessageBar';
 
+type EventParams = {
+  eventId: any;
+};
+
 const EventView: React.FC = () => {
-  const { eventId } = useParams() as any;
-  const [event, setEvent] = useState(null);
+  const { eventId } = useParams<EventParams>();
+  const { setAppLoading, appLoading } = useContext<any>(AppContext);
+
+  const [loading, setLoading] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [drawerIsOpen, setDrawerIsOpen] = useState(false);
   const [messageBar, setMessageBar] = useState<any>(null);
 
-  const [drawerIsOpen, setDrawerIsOpen] = useState(false);
-
-  const { setAppLoading, appLoading } = useContext<any>(AppContext);
+  const bgColor = useColorModeValue('white', 'gray.700');
 
   const doFetchEvent = async () => {
     setAppLoading(true);
@@ -33,13 +41,28 @@ const EventView: React.FC = () => {
       }
 
       if (response.data === null) throw new Error(`An Error occurred while trying to get the Event`);
-
-      setEvent(response.data);
+      setSelectedEvent(response.data);
+      setAppLoading(false);
     } catch (error: any) {
       console.error(`Unexpected error while getting the Event : ${error.message}`, { ...error });
       setMessageBar({ type: 'error', message: error.message });
     }
-    setAppLoading(false);
+  };
+
+  useEffect(() => {
+    if (eventId) {
+      doFetchEvent();
+    }
+  }, []);
+
+  const doFetchEventReservations = async (eventId: number) => {
+    setLoading(true);
+    try {
+      const response = {};
+    } catch (error: any) {
+      console.error(`Unepxected error : ${error.message}`);
+    }
+    setLoading(false);
   };
 
   const handleOpenDrawer = () => {
@@ -47,10 +70,10 @@ const EventView: React.FC = () => {
   };
 
   useEffect(() => {
-    if (eventId) {
-      doFetchEvent();
+    if (selectedEvent && selectedEvent.id) {
+      doFetchEventReservations(selectedEvent.id);
     }
-  }, [eventId]);
+  }, [selectedEvent]);
 
   return (
     <React.Fragment>
@@ -61,7 +84,7 @@ const EventView: React.FC = () => {
         </Stack>
       )}
 
-      {!event && !appLoading && (
+      {!selectedEvent && !appLoading && (
         <Box textAlign="center" py={10} px={6}>
           <Heading display="inline-block" as="h2" size="2xl" bgGradient="linear(to-r, teal.400, teal.600)" backgroundClip="text">
             404
@@ -75,17 +98,17 @@ const EventView: React.FC = () => {
         </Box>
       )}
 
-      {event && (
+      {selectedEvent && (
         <>
           <Stack>
             <Box textAlign="left" my={5} p={3}>
-              <Heading>{event?.name}</Heading>
+              <Heading>{selectedEvent.name}</Heading>
             </Box>
           </Stack>
 
           {/* Stats */}
           <Stack my={25} spacing="24px" direction={['column', 'row']}>
-            <Box bg={useColorModeValue('white', 'gray.700')} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -102,7 +125,7 @@ const EventView: React.FC = () => {
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={useColorModeValue('white', 'gray.700')} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -115,11 +138,11 @@ const EventView: React.FC = () => {
                   </Flex>
                 </StatLabel>
                 <StatNumber>
-                  <Text fontSize="4xl">{event?.capacity}</Text>
+                  <Text fontSize="4xl">{selectedEvent.capacity}</Text>
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={useColorModeValue('white', 'gray.700')} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -140,20 +163,20 @@ const EventView: React.FC = () => {
 
           {/* Event Description */}
           <Stack>
-            <Box bg={useColorModeValue('white', 'gray.700')} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="sm">
+            <Box bg={bgColor} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="sm">
               <Heading as="h3" size="lg">
                 Event Description
               </Heading>
 
               <Box my={2} mx={2}>
-                <Text>{event?.description}</Text>
+                <Text>{selectedEvent.description}</Text>
               </Box>
             </Box>
           </Stack>
 
           {/* Reservations */}
           <Stack>
-            <Box bg={useColorModeValue('white', 'gray.700')} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="s">
+            <Box bg={bgColor} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="s">
               <Heading as="h3" size="lg">
                 Orders
               </Heading>
@@ -170,16 +193,7 @@ const EventView: React.FC = () => {
                 </Flex>
               </Box>
 
-              <HStack spacing="24px" mt={5}>
-                <Text fontSize="xl">Status:</Text>
-                <Button borderRadius="15px" bg="green.400" color="white">
-                  ACTIVE
-                </Button>
-                <Button borderRadius="15px" bg="orange.300" color="white">
-                  PENDING
-                </Button>
-                <Button borderRadius="15px">CANCELLED</Button>
-              </HStack>
+              {/* DataTable */}
             </Box>
           </Stack>
         </>

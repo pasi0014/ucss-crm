@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getAnErrorMessage } from "../../utils/utilities";
-import { Donor } from "../../types";
+import { Donor } from "../../types/Donor";
 import API_BASE_URL from "../../config";
 
 export const createDonor = async (donor: Donor) => {
@@ -16,15 +16,13 @@ export const createDonor = async (donor: Donor) => {
 
         const data = donor;
         const token = localStorage.getItem("accessToken");
-        
+
         const response = await axios.post(`${API_BASE_URL}/v1/donors`, data, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
             },
         });
-
-        console.log({ response });
 
         if (response.status === 200 && response.data.code.id !== 9999) {
             return { success: true, data: response.data };

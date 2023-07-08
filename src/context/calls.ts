@@ -23,7 +23,6 @@ export const loginUser = async (email: string, password: string) => {
         "Content-Type": "application/json",
       },
     });
-    console.log({ response })
     if (response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -55,7 +54,6 @@ export const valdiateToken = async () => {
       }
     })
 
-    console.log({ response });
     return response;
   } catch (error: any) {
     console.error("Could not verify the token", { ...error })

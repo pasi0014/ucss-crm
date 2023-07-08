@@ -14,9 +14,10 @@ import { Flex } from '@chakra-ui/react';
 import { Button } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import ReservationForm from '../ReservationForm';
+import { Reservation } from '../../types/Reservation';
 
 interface IReservationDrawerProps {
-  eventId?: number;
+  eventId: number;
   isOpen: boolean;
   onClose: () => void;
   variant?: 'circles' | 'circles-alt' | 'simple' | undefined;
@@ -28,13 +29,17 @@ interface IStep {
 }
 
 const steps: IStep[] = [
-  { title: '', description: 'Personal Information' },
+  { title: '', description: 'Personal Information and Tickets' },
   { title: '', description: 'Payment' },
   { title: '', description: 'Confirmation' },
 ];
 
-const ReservationDrawer = (props: IReservationDrawerProps) => {
+const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen, onClose, variant }) => {
   const [messageBar, setMessageBar] = useState<any>({});
+  const [reservation, setReservation] = useState<Reservation>({
+    EventId: eventId,
+    OwnerId: '',
+  });
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
@@ -46,16 +51,16 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
   const onDrawerClose = () => {
     setMessageBar({});
     setActiveStep(1);
-    props.onClose();
+    onClose();
   };
   return (
     <React.Fragment>
-      <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="xl">
+      <Drawer isOpen={isOpen} onClose={onDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
           <DrawerHeader>
-            <Heading size="xl">Create an Reservation</Heading>
+            <Heading size="xl">Create a Reservation</Heading>
           </DrawerHeader>
           <DrawerBody>
             <Box
@@ -84,17 +89,10 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <ReservationForm />}
+                {activeStep === 1 && <ReservationForm eventId={eventId} onReservationUpdate={(reservation: Reservation) => console.log({ reservation })} />}
                 {activeStep === 2 && <>Paymen Here</>}
                 {activeStep === 3 && <>Confirmation with Ticket Detail</>}
 
-                {/* {hasCompletedAllSteps && (
-                  <Box sx={{ bg, my: 8, p: 8, rounded: 'md' }}>
-                    <Heading fontSize="xl" textAlign={'center'}>
-                      You have successfully created an Event! 🎉
-                    </Heading>
-                  </Box>
-                )} */}
                 <Flex mt="15px">
                   {activeStep !== 1 && (
                     <Button onClick={goToPrevious}>
@@ -103,7 +101,7 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
                     </Button>
                   )}
                   {activeStep !== 3 && (
-                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={props.eventId && goToNext} isDisabled={!props.eventId}>
+                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={eventId && goToNext} isDisabled={!eventId}>
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />
                     </Button>
