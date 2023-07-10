@@ -5,7 +5,7 @@ export type Reservation = {
     id?: number;
     EventId: number;
     OwnerId: string;
-    Clients?: Client[];
+    ClientLists?: Client[];
     pendingPayments?: Price[],
     StatusId?: number;
     createdAt?: Date;

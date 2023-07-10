@@ -1,6 +1,5 @@
 import API_BASE_URL from "../config";
 import { UCSS_API_CONSTANTS } from "../utils/constants";
-import request, { quickRequest } from "../utils/request";
 import { getAnErrorMessage, getCookieValue } from "../utils/utilities";
 
 import axios from "axios";

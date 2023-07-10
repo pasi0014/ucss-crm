@@ -31,7 +31,6 @@ interface IClientProps {
   onChange: (index: number, fieldName: string, value: string | Price) => void;
   onSave: (client: Client) => void;
   onDelete: (client: Client) => void;
-  onSaveResult: any;
 }
 
 const listOfNames = [
@@ -57,7 +56,7 @@ const listOfNames = [
   'Uncanny',
 ];
 
-const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, onSave, onDelete, onSaveResult }) => {
+const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, onSave, onDelete }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [funnyName, setFunnyName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -75,11 +74,6 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
       setFunnyName(name);
     }
   }, [client.firstName]);
-
-  useEffect(() => {
-    if (onSaveResult) {
-    }
-  }, [onSaveResult]);
 
   const getRandomName = () => {
     const randomIndex = Math.floor(Math.random() * listOfNames.length);
@@ -183,7 +177,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
         )}
         <div className="flex sm:flex-row flex-col sm:space-x-4 w-full text-left">
           {!loading &&
-            tickets.length &&
+            !!tickets.length &&
             tickets.map((iTicket) => (
               <Box
                 key={iTicket.id}

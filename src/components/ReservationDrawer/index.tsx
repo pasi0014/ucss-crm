@@ -16,7 +16,7 @@ import { ModalFooter } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import useIsMobile from '../../hooks/useMobile';
 import { Flex } from '@chakra-ui/react';
 import { Button } from '@chakra-ui/react';
@@ -24,8 +24,12 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import ReservationForm from '../ReservationForm';
 import { Reservation } from '../../types/Reservation';
 import { useToast } from '@chakra-ui/react';
-import PaymentInformation from '../PaymentInformation';
 import ReservationSummary from '../ReservationSummary';
+import PaymentReview from '../PaymentReview';
+import { AppContext } from '../../context/AppContext';
+import { IMessageBar } from '../MessageBar';
+import { postLightReservation, saveClientsToDB } from './calls';
+import { Client } from '../../types/Client';
 
 interface IReservationDrawerProps {
   eventId: number;
@@ -41,18 +45,19 @@ interface IStep {
 
 const steps: IStep[] = [
   { title: '', description: 'Personal Information and Tickets' },
-  { title: '', description: 'Payment' },
+  { title: '', description: 'Review and Payment' },
   { title: '', description: 'Confirmation' },
 ];
 
 const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen, onClose, variant }) => {
   const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
+  const { setAppLoading } = useContext<any>(AppContext);
   const toast = useToast();
-  const [messageBar, setMessageBar] = useState<any>({});
+  const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
   const [reservation, setReservation] = useState<Reservation>({
     EventId: eventId,
     OwnerId: '',
-    Clients: [],
+    ClientLists: [],
     pendingPayments: [],
   });
 
@@ -64,13 +69,13 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
   const isMobile = useIsMobile();
   const bg = useColorModeValue('gray.100', 'gray.700');
   const onDrawerClose = () => {
-    setMessageBar({});
+    setMessageBar(null);
     setActiveStep(1);
     onClose();
   };
 
   const handleNextClick = () => {
-    if (!reservation.Clients?.length) {
+    if (!reservation.ClientLists?.length) {
       toast({
         title: 'Warning',
         description: 'Please make sure you have added at least 1 Client to the reservation.',
@@ -81,7 +86,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
       });
       return;
     }
-    const clientWithoutTicket = reservation.Clients.find((iClient) => !iClient.Price);
+    const clientWithoutTicket = reservation.ClientLists?.find((iClient) => !iClient.Price);
     if (clientWithoutTicket) {
       // If at least one client doesn't have a ticket selected, display a message or perform an action
       toast({
@@ -93,9 +98,44 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
         isClosable: true,
       });
     } else {
-      // All clients have a ticket selected, proceed to the next step
-      goToNext();
+      // All clients that have a ticket selected, proceed to the next step
+      saveClients();
     }
+  };
+
+  const saveClients = async () => {
+    setAppLoading(true);
+    setMessageBar(null);
+
+    try {
+      const response = await postLightReservation(reservation);
+
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: 'Reservation has been successfully saved',
+          position: 'top-left',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        goToNext();
+      } else {
+        toast({
+          title: 'Error',
+          description: response.data,
+          position: 'top-left',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error: any) {
+      console.error(`Error : ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
+    }
+
+    setAppLoading(false);
   };
 
   const handleCloseClick = () => {
@@ -104,8 +144,9 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     setReservation({
       EventId: eventId,
       OwnerId: '',
-      Clients: [],
+      ClientLists: [],
     });
+    setActiveStep(1);
     // Close the drawer
     onClose();
   };
@@ -168,7 +209,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                 </Stepper>
                 {/* Stepper Content */}
                 {activeStep === 1 && <ReservationForm eventId={eventId} reservation={reservation} onReservationUpdate={setReservation} />}
-                {activeStep === 2 && <PaymentInformation onReservationUpdate={setReservation} reservation={reservation} onNext={() => goToNext()} />}
+                {activeStep === 2 && <PaymentReview onReservationUpdate={setReservation} reservation={reservation} onNext={() => goToNext()} />}
                 {activeStep === 3 && <ReservationSummary />}
 
                 <Flex mt="15px">
