@@ -75,7 +75,7 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRec
                 <Tr key={item.id.toString()}>
                   {columns.map((column) => (
                     <Td key={column.accessor}>
-                      <div className="bg-red-100 w-4/12">{renderCell(item, column)}</div>
+                      <div>{renderCell(item, column)}</div>
                     </Td>
                   ))}
                   <Td>

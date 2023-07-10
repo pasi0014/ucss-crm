@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import { FormControl, Input, useColorModeValue, Button, Flex, FormLabel, Heading, Box } from '@chakra-ui/react';
 
 import MessageBar from '../MessageBar';
-import { Event } from '../../types';
+import { Event } from '../../types/Event';
 import { createEvent, findEventById, updateEvent } from './calls';
 import { AppContext } from '../../context/AppContext';
 
@@ -41,7 +41,6 @@ export function EventForm(props: { onNext: () => void; event?: Event; eventId?: 
     setError(false);
     try {
       const response = await findEventById(props.eventId);
-      console.log({ response });
       if (!response.success) {
         setError(true);
         setMessageBar({ type: 'error', message: response.data });

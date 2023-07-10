@@ -6,17 +6,33 @@ import { useColorModeValue } from '@chakra-ui/react';
 import { Heading } from '@chakra-ui/react';
 import { DrawerCloseButton } from '@chakra-ui/react';
 import { DrawerOverlay } from '@chakra-ui/react';
+import { Modal } from '@chakra-ui/react';
+import { ModalOverlay } from '@chakra-ui/react';
+import { ModalContent } from '@chakra-ui/react';
+import { ModalHeader } from '@chakra-ui/react';
+import { ModalCloseButton } from '@chakra-ui/react';
+import { ModalBody } from '@chakra-ui/react';
+import { ModalFooter } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import useIsMobile from '../../hooks/useMobile';
 import { Flex } from '@chakra-ui/react';
 import { Button } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import ReservationForm from '../ReservationForm';
+import { Reservation } from '../../types/Reservation';
+import { useToast } from '@chakra-ui/react';
+import ReservationSummary from '../ReservationSummary';
+import PaymentReview from '../PaymentReview';
+import { AppContext } from '../../context/AppContext';
+import { IMessageBar } from '../MessageBar';
+import { postLightReservation, saveClientsToDB } from './calls';
+import { Client } from '../../types/Client';
 
 interface IReservationDrawerProps {
-  eventId?: number;
+  eventId: number;
   isOpen: boolean;
   onClose: () => void;
   variant?: 'circles' | 'circles-alt' | 'simple' | undefined;
@@ -28,13 +44,22 @@ interface IStep {
 }
 
 const steps: IStep[] = [
-  { title: '', description: 'Personal Information' },
-  { title: '', description: 'Payment' },
+  { title: '', description: 'Personal Information and Tickets' },
+  { title: '', description: 'Review and Payment' },
   { title: '', description: 'Confirmation' },
 ];
 
-const ReservationDrawer = (props: IReservationDrawerProps) => {
-  const [messageBar, setMessageBar] = useState<any>({});
+const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen, onClose, variant }) => {
+  const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
+  const { setAppLoading } = useContext<any>(AppContext);
+  const toast = useToast();
+  const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
+  const [reservation, setReservation] = useState<Reservation>({
+    EventId: eventId,
+    OwnerId: '',
+    ClientLists: [],
+    pendingPayments: [],
+  });
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
@@ -44,18 +69,117 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
   const isMobile = useIsMobile();
   const bg = useColorModeValue('gray.100', 'gray.700');
   const onDrawerClose = () => {
-    setMessageBar({});
+    setMessageBar(null);
     setActiveStep(1);
-    props.onClose();
+    onClose();
   };
+
+  const handleNextClick = () => {
+    if (!reservation.ClientLists?.length) {
+      toast({
+        title: 'Warning',
+        description: 'Please make sure you have added at least 1 Client to the reservation.',
+        position: 'top-left',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    const clientWithoutTicket = reservation.ClientLists?.find((iClient) => !iClient.Price);
+    if (clientWithoutTicket) {
+      // If at least one client doesn't have a ticket selected, display a message or perform an action
+      toast({
+        title: 'Warning',
+        description: 'Please make sure you have selected a ticket for all reservation clients.',
+        position: 'top-left',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      // All clients that have a ticket selected, proceed to the next step
+      saveClients();
+    }
+  };
+
+  const saveClients = async () => {
+    setAppLoading(true);
+    setMessageBar(null);
+
+    try {
+      const response = await postLightReservation(reservation);
+
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: 'Reservation has been successfully saved',
+          position: 'top-left',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        goToNext();
+      } else {
+        toast({
+          title: 'Error',
+          description: response.data,
+          position: 'top-left',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error: any) {
+      console.error(`Error : ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
+    }
+
+    setAppLoading(false);
+  };
+
+  const handleCloseClick = () => {
+    closeModal();
+    // Reset reservation state to its initial values
+    setReservation({
+      EventId: eventId,
+      OwnerId: '',
+      ClientLists: [],
+    });
+    setActiveStep(1);
+    // Close the drawer
+    onClose();
+  };
+
   return (
     <React.Fragment>
-      <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="xl">
+      {/* Confirmation modal popup */}
+      <Modal isOpen={isModalOpen} onClose={() => closeModal()}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>You are about to close Reservation</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            Are you sure you want to close this window?
+            <br /> Reservation Data will be lost.
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={handleCloseClick}>
+              Close
+            </Button>
+            <Button variant="ghost" onClick={() => closeModal()}>
+              Exit
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Drawer isOpen={isOpen} onClose={() => openModal()} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
           <DrawerHeader>
-            <Heading size="xl">Create an Reservation</Heading>
+            <Heading size="xl">Create a Reservation</Heading>
           </DrawerHeader>
           <DrawerBody>
             <Box
@@ -84,17 +208,10 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <ReservationForm />}
-                {activeStep === 2 && <>Paymen Here</>}
-                {activeStep === 3 && <>Confirmation with Ticket Detail</>}
+                {activeStep === 1 && <ReservationForm eventId={eventId} reservation={reservation} onReservationUpdate={setReservation} />}
+                {activeStep === 2 && <PaymentReview onReservationUpdate={setReservation} reservation={reservation} onNext={() => goToNext()} />}
+                {activeStep === 3 && <ReservationSummary />}
 
-                {/* {hasCompletedAllSteps && (
-                  <Box sx={{ bg, my: 8, p: 8, rounded: 'md' }}>
-                    <Heading fontSize="xl" textAlign={'center'}>
-                      You have successfully created an Event! 🎉
-                    </Heading>
-                  </Box>
-                )} */}
                 <Flex mt="15px">
                   {activeStep !== 1 && (
                     <Button onClick={goToPrevious}>
@@ -103,7 +220,7 @@ const ReservationDrawer = (props: IReservationDrawerProps) => {
                     </Button>
                   )}
                   {activeStep !== 3 && (
-                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={props.eventId && goToNext} isDisabled={!props.eventId}>
+                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={eventId && handleNextClick} isDisabled={!eventId}>
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />
                     </Button>

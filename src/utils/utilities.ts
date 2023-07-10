@@ -60,7 +60,7 @@ export function getStatusColor(status: string) {
     return null;
   }
 
-  if (status === 'ACTIVE') { console.log('green'); return 'green'; }
+  if (status === 'ACTIVE') return 'green';
   if (status === 'DRAFT') return 'orange';
   if (status === 'INACTIVE') return 'red';
   if (status === 'CANCELLED') return 'red';

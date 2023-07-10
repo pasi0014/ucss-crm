@@ -5,3 +5,5 @@ export const UCSS_API_CONSTANTS = {
   VERSION: "v1",
   HOST: "'http://localhost:3005'",
 };
+
+export const MAXIMUM_CLIENTS: number = 3;
