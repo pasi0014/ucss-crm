@@ -28,7 +28,7 @@ import ReservationSummary from '../ReservationSummary';
 import PaymentReview from '../PaymentReview';
 import { AppContext } from '../../context/AppContext';
 import { IMessageBar } from '../MessageBar';
-import { postLightReservation, saveClientsToDB } from './calls';
+import { postLightReservation } from './calls';
 import { Client } from '../../types/Client';
 
 interface IReservationDrawerProps {
