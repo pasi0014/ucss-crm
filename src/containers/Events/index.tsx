@@ -14,7 +14,7 @@ import { Event } from '../../types/Event';
 import ConfirmPopup from '../../components/ConfirmPopup';
 import { StatusContext } from '../../context/StatusContext';
 import { getStatus, getStatusColor } from '../../utils/utilities';
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { AddIcon } from '@chakra-ui/icons';
 
 export default function Events() {

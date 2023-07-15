@@ -1,35 +1,41 @@
-import { Drawer } from '@chakra-ui/react';
-import { DrawerContent } from '@chakra-ui/react';
-import { DrawerHeader } from '@chakra-ui/react';
-import { DrawerBody } from '@chakra-ui/react';
-import { useColorModeValue } from '@chakra-ui/react';
-import { Heading } from '@chakra-ui/react';
-import { DrawerCloseButton } from '@chakra-ui/react';
-import { DrawerOverlay } from '@chakra-ui/react';
-import { Modal } from '@chakra-ui/react';
-import { ModalOverlay } from '@chakra-ui/react';
-import { ModalContent } from '@chakra-ui/react';
-import { ModalHeader } from '@chakra-ui/react';
-import { ModalCloseButton } from '@chakra-ui/react';
-import { ModalBody } from '@chakra-ui/react';
-import { ModalFooter } from '@chakra-ui/react';
-import { useDisclosure } from '@chakra-ui/react';
-import { Box } from '@chakra-ui/react';
-import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
 import React, { useContext, useState } from 'react';
-import useIsMobile from '../../hooks/useMobile';
-import { Flex } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/react';
+
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  useColorModeValue,
+  Heading,
+  DrawerCloseButton,
+  DrawerOverlay,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Box,
+  Flex,
+  Button,
+  useToast,
+} from '@chakra-ui/react';
+import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
-import ReservationForm from '../ReservationForm';
+
+import { AppContext } from '../../context/AppContext';
+import useIsMobile from '../../hooks/useMobile';
+
 import { Reservation } from '../../types/Reservation';
-import { useToast } from '@chakra-ui/react';
+import { IMessageBar } from '../MessageBar';
+
+import { postLightReservation, putDraftReservation } from './calls';
+
+import ReservationForm from '../ReservationForm';
 import ReservationSummary from '../ReservationSummary';
 import PaymentReview from '../PaymentReview';
-import { AppContext } from '../../context/AppContext';
-import { IMessageBar } from '../MessageBar';
-import { postLightReservation } from './calls';
-import { Client } from '../../types/Client';
 
 interface IReservationDrawerProps {
   eventId: number;
@@ -60,7 +66,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     ClientLists: [],
     pendingPayments: [],
   });
-
+  const [completedPayment, setCompletedPayment] = useState(false);
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
     count: steps.length,
@@ -99,11 +105,51 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
       });
     } else {
       // All clients that have a ticket selected, proceed to the next step
-      saveClients();
+      if (!reservation.id) {
+        createDraftReservation();
+      } else {
+        updateDraftReservation();
+      }
     }
   };
 
-  const saveClients = async () => {
+  const updateDraftReservation = async () => {
+    setAppLoading(true);
+    setMessageBar(null);
+
+    try {
+      const response = await putDraftReservation(reservation);
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: 'Reservation has been updated successfully',
+          position: 'top-left',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        const updatedReservation: Reservation = { ...reservation, ...response.data };
+        console.log({ updatedReservation });
+        setReservation(updatedReservation);
+        goToNext();
+      } else {
+        toast({
+          title: 'Error',
+          description: response.data,
+          position: 'top-left',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error: any) {
+      console.error(`Unexpected error :: ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
+    }
+    setAppLoading(false);
+  };
+
+  const createDraftReservation = async () => {
     setAppLoading(true);
     setMessageBar(null);
 
@@ -119,6 +165,8 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           duration: 3000,
           isClosable: true,
         });
+        const updatedReservation: Reservation = { ...reservation, ...response.data };
+        setReservation(updatedReservation);
         goToNext();
       } else {
         toast({
@@ -174,7 +222,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Drawer isOpen={isOpen} onClose={() => openModal()} size="xl">
+      <Drawer isOpen={isOpen} onClose={() => openModal()} size="full">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />

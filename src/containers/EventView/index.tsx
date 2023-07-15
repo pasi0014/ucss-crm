@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { AppContext } from '../../context/AppContext';
-import { getEventById } from './calls';
+import { getEventById, getEventReservation } from './calls';
 
 import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
@@ -12,7 +12,16 @@ import { AddIcon } from '@chakra-ui/icons';
 import { Event } from '../../types/Event';
 
 import ReservationDrawer from '../../components/ReservationDrawer';
-import MessageBar from '../../components/MessageBar';
+import MessageBar, { IMessageBar } from '../../components/MessageBar';
+import { Reservation } from '../../types/Reservation';
+import DataTable from '../../components/DataTable';
+import { IColumnProps } from '../../interfaces';
+import moment from 'moment';
+import { Badge } from '@chakra-ui/react';
+import { getStatus, getStatusColor } from '../../utils/utilities';
+import { StatusContext } from '../../context/StatusContext';
+import { Spinner } from '@chakra-ui/react';
+import { Center } from '@chakra-ui/react';
 
 type EventParams = {
   eventId: any;
@@ -20,14 +29,50 @@ type EventParams = {
 
 const EventView: React.FC = () => {
   const { eventId } = useParams<EventParams>();
+  const navigate = useNavigate();
   const { setAppLoading, appLoading } = useContext<any>(AppContext);
+  const { statuses } = useContext<any>(StatusContext);
 
   const [loading, setLoading] = useState(false);
+  const [reservations, setReservations] = useState<any>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
-  const [messageBar, setMessageBar] = useState<any>(null);
+  const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   const bgColor = useColorModeValue('white', 'gray.700');
+
+  const columns: IColumnProps[] = [
+    { header: 'ID', accessor: 'id' },
+    {
+      header: 'Name',
+      accessor: 'ClientLists',
+      render: (ClientLists) => {
+        const owner = ClientLists.find((iClient: any) => reservations.find((iReservation: Reservation) => iReservation.OwnerId === iClient.ClientId)).Client;
+        return `${owner.firstName} ${owner.lastName}`;
+      },
+    },
+    {
+      header: 'Phone',
+      accessor: 'OwnerId',
+      render: (OwnerId) => {
+        const owner = reservations.find((iReservation: any) =>
+          iReservation.ClientLists.find((iCLientList: any) => iCLientList.Client.id === OwnerId),
+        ).ClientLists;
+        const client = owner.find((iClient: any) => iClient.Client.id === OwnerId);
+        return `${client.Client.phone}`;
+      },
+    },
+    { header: 'Reservation Date', accessor: 'startTime', render: (value) => moment(value).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mm') },
+    {
+      header: 'Status',
+      accessor: 'StatusId',
+      render: (value) => (
+        <Badge colorScheme={getStatusColor(getStatus(statuses.Reservation, value).tag || '')}>{getStatus(statuses.Reservation, value).tag}</Badge>
+      ),
+    },
+    { header: 'Created At', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').format('YYYY-MM-DD HH:mm') },
+    { header: 'Created By', accessor: 'createdBy' },
+  ];
 
   const doFetchEvent = async () => {
     setAppLoading(true);
@@ -57,10 +102,16 @@ const EventView: React.FC = () => {
 
   const doFetchEventReservations = async (eventId: number) => {
     setLoading(true);
+
     try {
-      const response = {};
+      const response = await getEventReservation(eventId);
+      if (!response.success) {
+        throw new Error(response.data);
+      }
+      setReservations(response.data);
     } catch (error: any) {
       console.error(`Unepxected error : ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
     }
     setLoading(false);
   };
@@ -121,7 +172,10 @@ const EventView: React.FC = () => {
                   </Flex>
                 </StatLabel>
                 <StatNumber>
-                  <Text fontSize="4xl">0</Text>
+                  <Text fontSize="4xl">
+                    {reservations.length &&
+                      (reservations.filter((iReservation: Reservation) => iReservation.StatusId !== statuses.Reservation.CANCELLED).length || 0)}
+                  </Text>
                 </StatNumber>
               </Stat>
             </Box>
@@ -178,7 +232,7 @@ const EventView: React.FC = () => {
           <Stack>
             <Box bg={bgColor} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="s">
               <Heading as="h3" size="lg">
-                Orders
+                Reservations
               </Heading>
 
               {/* Action Buttons */}
@@ -194,12 +248,36 @@ const EventView: React.FC = () => {
               </Box>
 
               {/* DataTable */}
+              {loading && (
+                <Center>
+                  <Spinner />
+                </Center>
+              )}
+              {reservations.length > 0 && !loading && (
+                <DataTable
+                  columns={columns}
+                  items={reservations}
+                  onOpenRecord={(val: any) => {
+                    navigate(`/events/${eventId}/reservation/${val.id}`);
+                  }}
+                  onEditRecord={(val: any) => console.log({ val })}
+                  onDeleteRecord={(val: any) => console.log({ val })}
+                  dataDescription="Reservations"
+                />
+              )}
             </Box>
           </Stack>
         </>
       )}
       {/* Drawers and other content */}
-      <ReservationDrawer isOpen={drawerIsOpen} onClose={() => setDrawerIsOpen(false)} eventId={eventId} />
+      <ReservationDrawer
+        isOpen={drawerIsOpen}
+        onClose={() => {
+          setDrawerIsOpen(false);
+          doFetchEventReservations(eventId);
+        }}
+        eventId={eventId}
+      />
     </React.Fragment>
   );
 };

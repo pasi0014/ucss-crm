@@ -60,9 +60,8 @@ export function getStatusColor(status: string) {
     return null;
   }
 
-  if (status === 'ACTIVE') return 'green';
-  if (status === 'DRAFT') return 'orange';
-  if (status === 'INACTIVE') return 'red';
-  if (status === 'CANCELLED') return 'red';
-  if (status === 'COMPLETED') return 'teal';
+  if (status === 'ACTIVE' || status === 'PAID') return 'green';
+  if (status === 'DRAFT' || status === 'PENDING' || status === 'AWAITING_PAYMENT') return 'orange';
+  if (status === 'INACTIVE' || status === 'CANCELLED') return 'red';
+  if (status === 'COMPLETED' || status === 'REFUNDED') return 'teal';
 }
