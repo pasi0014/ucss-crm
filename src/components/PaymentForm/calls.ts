@@ -3,11 +3,10 @@ import API_BASE_URL from '../../config';
 
 import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
-import { Price } from '../../types/Price';
 
 export const applyPayment = async (paymentIntent: any, reservationId: number | unknown, eventId: number) => {
     const ctx = {
-        component: `components/PaymentFormWrapper/calls.createPaymentIntent`,
+        component: `components/PaymentForm/calls.applyPayment`,
         params: { paymentIntent, reservationId, eventId },
     };
 
@@ -20,7 +19,7 @@ export const applyPayment = async (paymentIntent: any, reservationId: number | u
 
         const response = await axios.post(
             `${API_BASE_URL}/v1/payments/reservation/${reservationId}`,
-            { eventId },
+            { paymentIntent },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,

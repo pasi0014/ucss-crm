@@ -29,7 +29,7 @@ const Reservations: React.FC = () => {
         <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
           <Flex alignItems={'center'}>
             <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer}>
-              <AddIcon boxSize={3} mr={3} /> Create an Reservation
+              <AddIcon boxSize={3} mr={3} /> Create a Reservation
             </Button>
           </Flex>
         </Flex>

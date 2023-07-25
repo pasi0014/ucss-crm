@@ -76,3 +76,77 @@ export async function getEventReservation(eventId: number) {
         data: errorMessage,
     }
 }
+
+export async function getEventSales(eventId: number) {
+    const ctx = {
+        component: `components/EventView.calls.getEventSales`,
+        params: { eventId }
+    }
+
+    let errorMessage = null;
+
+    try {
+        console.log('Trying to get Event Sales', { ...ctx });
+
+        const token = getCookieValue('_auth');
+
+        const response = await axios.get(
+            `${API_BASE_URL}/v1/statistics/event/${eventId}/sales`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+            return { success: true, data: response.data.content };
+        }
+
+        errorMessage = getAnErrorMessage(response);
+    } catch (error) {
+        console.error(`An unexpected error while getting event clients`, { ...ctx, error })
+    }
+
+    return {
+        success: false,
+        data: errorMessage,
+    }
+}
+
+export async function getEventClients(eventId: number) {
+    const ctx = {
+        component: `components/EventView.calls.getEventClients`,
+        params: { eventId }
+    }
+
+    let errorMessage = null;
+
+    try {
+        console.log('Trying to get Event Reservations', { ...ctx });
+
+        const token = getCookieValue('_auth');
+
+        const response = await axios.get(
+            `${API_BASE_URL}/v1/statistics/event/${eventId}/clients`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+            return { success: true, data: response.data.content };
+        }
+
+        errorMessage = getAnErrorMessage(response);
+    } catch (error) {
+        console.error(`An unexpected error while getting event sales`, { ...ctx, error })
+    }
+
+    return {
+        success: false,
+        data: errorMessage,
+    }
+}

@@ -52,7 +52,6 @@ interface IStep {
 const steps: IStep[] = [
   { title: '', description: 'Personal Information and Tickets' },
   { title: '', description: 'Review and Payment' },
-  { title: '', description: 'Confirmation' },
 ];
 
 const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen, onClose, variant }) => {
@@ -128,7 +127,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           duration: 3000,
           isClosable: true,
         });
-        const updatedReservation: Reservation = { ...reservation, ...response.data };
+        const updatedReservation: Reservation = { ...reservation, StatusId: response.data.StatusId };
         console.log({ updatedReservation });
         setReservation(updatedReservation);
         goToNext();
@@ -165,7 +164,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           duration: 3000,
           isClosable: true,
         });
-        const updatedReservation: Reservation = { ...reservation, ...response.data };
+        const updatedReservation: Reservation = { ...reservation, StatusId: response.data.StatusId, id: response.data.id };
         setReservation(updatedReservation);
         goToNext();
       } else {
@@ -222,7 +221,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Drawer isOpen={isOpen} onClose={() => openModal()} size="full">
+      <Drawer isOpen={isOpen} onClose={() => openModal()} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
@@ -258,16 +257,15 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                 {/* Stepper Content */}
                 {activeStep === 1 && <ReservationForm eventId={eventId} reservation={reservation} onReservationUpdate={setReservation} />}
                 {activeStep === 2 && <PaymentReview onReservationUpdate={setReservation} reservation={reservation} onNext={() => goToNext()} />}
-                {activeStep === 3 && <ReservationSummary />}
 
                 <Flex mt="15px">
                   {activeStep !== 1 && (
                     <Button onClick={goToPrevious}>
+                      <ArrowLeftIcon mr="15px" width="15px" />
                       Previuos
-                      <ArrowLeftIcon ml="15px" width="15px" />
                     </Button>
                   )}
-                  {activeStep !== 3 && (
+                  {activeStep !== 2 && (
                     <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={eventId && handleNextClick} isDisabled={!eventId}>
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />

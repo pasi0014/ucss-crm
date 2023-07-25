@@ -3,10 +3,9 @@ import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { Layout } from '@stripe/stripe-js';
 import { Spinner } from '@chakra-ui/react';
 import MessageBar, { IMessageBar } from '../MessageBar';
-import { Button } from '@chakra-ui/react';
-import { useColorModeValue } from '@chakra-ui/react';
 import { AppContext } from '../../context/AppContext';
 import { applyPayment } from './calls';
+import { useNavigate } from 'react-router-dom';
 
 interface IPaymentForm {
   eventId: number;
@@ -18,26 +17,28 @@ interface IPaymentForm {
 const PaymentForm: React.FC<IPaymentForm> = ({ eventId, reservationId, clientSecret, onNext }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
 
   const { setAppLoading } = useContext<any>(AppContext);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
   const [isLoading, setIsLoading] = useState<any>(false);
 
-  // TODO: finish this method - NP
   const doProcessPayment = async () => {
     setAppLoading(true);
     setMessageBar(null);
     try {
       const stripeResponse = await stripe?.retrievePaymentIntent(clientSecret);
-      const response = await applyPayment(stripeResponse, reservationId, eventId);
+      const response = await applyPayment(stripeResponse?.paymentIntent, reservationId, eventId);
 
       if (!response.success) {
         throw new Error('There was an error while saving payment. Please try opening the reservation again');
       }
+      navigate(`/events/${eventId}/reservation/${reservationId}`);
     } catch (error: any) {
       console.error(`Error :: ${error.message}`);
       setMessageBar({ type: 'error', message: error.message });
     }
+    setAppLoading(false);
   };
 
   useEffect(() => {
@@ -52,6 +53,7 @@ const PaymentForm: React.FC<IPaymentForm> = ({ eventId, reservationId, clientSec
       switch (paymentIntent?.status) {
         case 'succeeded':
           setMessageBar({ type: 'success', message: 'Payment succeeded!' });
+          doProcessPayment();
           break;
         case 'processing':
           setMessageBar({ type: 'info', message: 'Your payment is processing.' });
@@ -83,8 +85,8 @@ const PaymentForm: React.FC<IPaymentForm> = ({ eventId, reservationId, clientSec
     });
 
     if (!error) {
+      doProcessPayment();
     }
-    console.log('SuccessPayment', { error, elements: elements.getElement(PaymentElement) });
     // This point will only be reached if there is an immediate error when
     // confirming the payment. Otherwise, your customer will be redirected to
     // your `return_url`. For some payment methods like iDEAL, your customer will

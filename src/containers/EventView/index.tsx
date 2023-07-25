@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { AppContext } from '../../context/AppContext';
-import { getEventById, getEventReservation } from './calls';
+import { getEventById, getEventClients, getEventReservation, getEventSales } from './calls';
 
 import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
@@ -35,6 +35,8 @@ const EventView: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [reservations, setReservations] = useState<any>([]);
+  const [reservationClients, setReservationClients] = useState<number | null>(null);
+  const [eventSales, setEventSales] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
@@ -44,7 +46,7 @@ const EventView: React.FC = () => {
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
     {
-      header: 'Name',
+      header: 'Guest Name',
       accessor: 'ClientLists',
       render: (ClientLists) => {
         const owner = ClientLists.find((iClient: any) => reservations.find((iReservation: Reservation) => iReservation.OwnerId === iClient.ClientId)).Client;
@@ -62,7 +64,6 @@ const EventView: React.FC = () => {
         return `${client.Client.phone}`;
       },
     },
-    { header: 'Reservation Date', accessor: 'startTime', render: (value) => moment(value).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mm') },
     {
       header: 'Status',
       accessor: 'StatusId',
@@ -116,6 +117,38 @@ const EventView: React.FC = () => {
     setLoading(false);
   };
 
+  const doFetchReservationClients = async (eventId: number) => {
+    setLoading(true);
+
+    try {
+      const response = await getEventClients(eventId);
+      if (!response.success) {
+        throw new Error(response.data);
+      }
+      setReservationClients(response.data);
+    } catch (error: any) {
+      console.error(`Error : ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
+    }
+    setLoading(false);
+  };
+
+  const doFetchEventSales = async (eventId: number) => {
+    setLoading(true);
+
+    try {
+      const response = await getEventSales(eventId);
+      if (!response.success) {
+        throw new Error(response.data);
+      }
+      setEventSales(response.data);
+    } catch (error: any) {
+      console.error(`Error : ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message });
+    }
+    setLoading(false);
+  };
+
   const handleOpenDrawer = () => {
     setDrawerIsOpen(true);
   };
@@ -123,6 +156,8 @@ const EventView: React.FC = () => {
   useEffect(() => {
     if (selectedEvent && selectedEvent.id) {
       doFetchEventReservations(selectedEvent.id);
+      doFetchReservationClients(selectedEvent.id);
+      doFetchEventSales(selectedEvent.id);
     }
   }, [selectedEvent]);
 
@@ -159,6 +194,23 @@ const EventView: React.FC = () => {
 
           {/* Stats */}
           <Stack my={25} spacing="24px" direction={['column', 'row']}>
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+              <Stat>
+                <StatLabel mb={2}>
+                  <Flex justifyContent={'space-between'}>
+                    <Heading as="h2" size="md">
+                      Total Clients
+                    </Heading>
+                    <Box display={{ base: 'none', md: 'flex' }} color="#FFFFFF" bg="#3182CE" p="3" borderRadius="15px">
+                      <FiUsers size={28} />
+                    </Box>
+                  </Flex>
+                </StatLabel>
+                <StatNumber>
+                  <Text fontSize="4xl">{reservationClients || 0}</Text>
+                </StatNumber>
+              </Stat>
+            </Box>
             <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
               <Stat>
                 <StatLabel mb={2}>
@@ -209,7 +261,7 @@ const EventView: React.FC = () => {
                   </Flex>
                 </StatLabel>
                 <StatNumber>
-                  <Text fontSize="4xl">$0</Text>
+                  <Text fontSize="4xl">${eventSales || 0}</Text>
                 </StatNumber>
               </Stat>
             </Box>

@@ -7,6 +7,8 @@ import { InputRightElement } from '@chakra-ui/react';
 import MessageBar from '../MessageBar';
 import { TableContainer } from '@chakra-ui/react';
 import { IColumnProps } from '../../interfaces';
+import { Button } from '@chakra-ui/react';
+import { Text } from '@chakra-ui/react';
 
 type Column = {
   header: string;
@@ -28,12 +30,23 @@ type Props = {
 
 const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRecord, onEditRecord, onDeleteRecord }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Change this value as needed
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset the current page when searching
   };
 
   const filteredItems = items.filter((item) => Object.values(item).join(' ').toLowerCase().includes(searchTerm.toLowerCase()));
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  // Get the current page's items
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filteredItems.slice(startIndex, endIndex);
 
   const renderCell = (item: any, column: IColumnProps) => {
     if (column.render) {
@@ -50,6 +63,18 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRec
             <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
           </InputRightElement>
         </InputGroup>
+      </Box>
+
+      <Box display="flex" justifyContent="end" my="20px">
+        <Button size="sm" onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))} disabled={currentPage === 1} mr="10px">
+          Previous
+        </Button>
+        <Text fontSize="sm" fontWeight="semibold" display="flex" alignItems="center">
+          Page {currentPage} of {totalPages}
+        </Text>
+        <Button size="sm" onClick={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))} disabled={currentPage === totalPages} ml="10px">
+          Next
+        </Button>
       </Box>
 
       <Box style={{ overflowY: 'scroll' }}>
@@ -71,7 +96,7 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRec
               </Tr>
             </Thead>
             <Tbody>
-              {filteredItems.map((item) => (
+              {currentItems.map((item) => (
                 <Tr key={item.id.toString()}>
                   {columns.map((column) => (
                     <Td key={column.accessor}>

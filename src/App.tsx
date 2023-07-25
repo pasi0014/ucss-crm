@@ -9,7 +9,7 @@ import SignupCard from './components/RegisterForm';
 import Events from './containers/Events';
 import EventView from './containers/EventView';
 import Reservations from './containers/Reservations';
-// import ReservationView from './containers/ReservationView';
+import ReservationView from './containers/ReservationView';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -45,7 +45,7 @@ function App() {
             path="/events/:eventId/reservation/:reservationId"
             element={
               <RequireAuth loginPath="login">
-                <>ReservationView</>
+                <ReservationView />
               </RequireAuth>
             }
           />
@@ -54,6 +54,7 @@ function App() {
           <Route path="statistics" element={<>Statistics</>} />
           <Route path="clients" element={<>Clients</>} />
           <Route path="reservations" element={<Reservations />} />
+          <Route path="profile" element={<>Profile settings</>} />
         </Route>
         <Route path="*" element={isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
         <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />

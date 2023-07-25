@@ -121,7 +121,7 @@ export const createPrice = async (price: Price) => {
   };
 
   let errorMessage = null;
-
+  console.log({ price })
   try {
     console.log('Trying to create a Price', { ...ctx });
 
