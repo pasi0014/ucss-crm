@@ -1,18 +1,19 @@
-import { useContext, useState } from 'react';
-
+import { useState } from 'react';
+import { useAtom } from 'jotai';
 import { Box, Stack, Heading, Text, Container, Input, Button, SimpleGrid, FormControl, FormLabel, useBreakpointValue, Icon } from '@chakra-ui/react';
 import { useSignIn } from 'react-auth-kit';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useColorModeValue } from '@chakra-ui/react';
 
+import { statuses } from '../../store/store';
 import MessageBar, { IMessageBar } from '../../components/MessageBar';
 
 import { loginUser } from './calls';
 
 import './styles.scss';
-import { StatusContext } from '../../context/StatusContext';
 
 export default function Login() {
+  const [status, setStatus] = useAtom(statuses);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 

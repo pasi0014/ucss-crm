@@ -3,14 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Heading, Flex, Button, Box, useToast } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { Client } from '../../types/Client';
 
 import { MAXIMUM_CLIENTS } from '../../utils/constants';
 
 import ClientInfo from '../ClientInfo';
 import SearchBar from '../SearchBar';
 import MessageBar, { IMessageBar } from '../MessageBar';
-import { Reservation } from '../../types/Reservation';
+import { ClientList, Reservation, Client } from '../../types/Reservation';
 import { Price } from '../../types/Price';
 import { AppContext } from '../../context/AppContext';
 import { updateOrSaveClient } from './calls';
@@ -24,12 +23,12 @@ interface IReservationFormProps {
 const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation, onReservationUpdate }) => {
   const { setAppLoading } = useContext<any>(AppContext);
   const toast = useToast();
-  const [clients, setClients] = useState<Client[]>(reservation.ClientLists || []);
+  const [clientLists, setClientLists] = useState<ClientList[]>(reservation.ClientLists || []);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
-  const handleAddGuest = () => {
+  const handleAddGuestList = () => {
     // Validate if we reaching the maximum event capacity
-    if (clients.length >= MAXIMUM_CLIENTS) {
+    if (clientLists.length >= MAXIMUM_CLIENTS) {
       setMessageBar({ type: 'info', message: `Warning: you have reached maximum clients (${MAXIMUM_CLIENTS}) per one reservation` });
       toast({
         title: 'Warning',
@@ -42,32 +41,38 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
       return;
     }
 
-    const newClient = {
+    const newClient: Client = {
       id: uuidv4(),
       firstName: '',
       lastName: '',
       email: '',
       phone: '',
-      isOwner: clients.length === 0,
+      isOwner: clientLists.length === 0,
     };
 
-    setClients((prevClients) => [...prevClients, newClient]);
+    const newClientList: ClientList = {
+      ClientId: newClient.id,
+      Client: { ...newClient },
+    };
+
+    setClientLists((prevClientLists) => [...prevClientLists, newClientList]);
     // Update the reservation object with the updated clients array
-    const ownerId = clients.length > 0 ? clients.find((iClient) => iClient.isOwner)?.id : newClient.id;
-    const updatedClients = clients.length > 0 ? [...clients, newClient] : [newClient];
+    // Client Entity
+    const ownerId = clientLists.length > 0 ? clientLists.find((iClient) => iClient.isOwner)?.ClientId : newClient.id;
+    const updatedClients = [...clientLists, newClientList];
     const updatedReservation: Reservation = { ...reservation, OwnerId: ownerId || '', ClientLists: updatedClients };
     onReservationUpdate(updatedReservation);
   };
 
   const handleClientInfoChange = (index: number, fieldName: string, value: string | Price) => {
-    setClients((prevClients) => {
+    setClientLists((prevClients) => {
       const updatedClients = [...prevClients];
       const clientToUpdate: any = updatedClients[index];
       clientToUpdate[fieldName] = value;
       return updatedClients;
     });
     // Update the reservation object with the updated clients array
-    const updatedReservation = { ...reservation, ClientLists: clients };
+    const updatedReservation = { ...reservation, ClientLists: clientLists };
     onReservationUpdate(updatedReservation);
   };
 
@@ -76,13 +81,13 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
     // Validate that client already exists
     let doesExist = false;
 
-    clients.map((iClient: Client) => {
-      if (iClient.id === client.id) {
+    clientLists.map((iClientList: ClientList) => {
+      if (iClientList.Client.id === client.id) {
         doesExist = true;
       }
     });
 
-    const actualClientCount = clients.length + 1;
+    const actualClientCount = clientLists.length + 1;
 
     if (actualClientCount === MAXIMUM_CLIENTS) {
       toast({
@@ -97,7 +102,7 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
     }
 
     // Validate if we reaching the maximum event capacity
-    if (clients.length >= MAXIMUM_CLIENTS) {
+    if (clientLists.length >= MAXIMUM_CLIENTS) {
       toast({
         title: 'Warning',
         description: `You have reached maximum client's capacity ${MAXIMUM_CLIENTS} per one reservation`,
@@ -121,11 +126,16 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
       return;
     }
 
-    const updatedClients = [...clients, { ...client, isOwner: clients.length === 0 }];
-    setClients(updatedClients);
+    const newClientList: ClientList = {
+      ClientId: client.id,
+      Client: { ...client },
+      isOwner: clientLists.length === 0,
+    };
+    setClientLists((prevClientLists) => [...prevClientLists, newClientList]);
 
     // Update the reservation object with the updated clients array
-    const ownerId = clients.length === 0 ? client.id : reservation.OwnerId;
+    const ownerId = clientLists.length === 0 ? client.id : reservation.OwnerId;
+    const updatedClients = [...clientLists, newClientList];
     const updatedReservation: Reservation = { ...reservation, OwnerId: ownerId || '', ClientLists: updatedClients };
     onReservationUpdate(updatedReservation);
 
@@ -140,16 +150,16 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
   };
 
   // Saves client in the DB
-  const saveClient = async (client: Client) => {
+  const saveClient = async (clientList: ClientList) => {
     setAppLoading(true);
 
     try {
-      const response = await updateOrSaveClient(client);
+      const response = await updateOrSaveClient(clientList.Client);
 
       if (response.success) {
         toast({
           title: 'Success',
-          description: `Client ${client.firstName} ${client.lastName} has been saved in the database, successfully`,
+          description: `Client ${clientList.Client.firstName} ${clientList.Client.lastName} has been saved in the database, successfully`,
           position: 'top-left',
           status: 'success',
           duration: 3000,
@@ -174,20 +184,20 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
     setAppLoading(false);
   };
 
-  const removeClient = (client: Client) => {
+  const removeClient = (clientList: ClientList) => {
     setMessageBar(null);
-    const updatedClients = clients.filter((iClient) => iClient.id !== client.id);
+    const updatedClients = clientLists.filter((iClient) => iClient.id !== clientList.id) as ClientList[];
     if (updatedClients.length > 0) {
       updatedClients[0].isOwner = true;
     }
-    setClients(updatedClients);
+    setClientLists(updatedClients);
     // Update the reservation object with the updated clients array
-    const ownerId = !!updatedClients.length && updatedClients[0].id;
+    const ownerId = !!updatedClients.length && updatedClients[0].Client.id;
     const updatedReservation: Reservation = { ...reservation, OwnerId: ownerId || '', ClientLists: updatedClients };
     onReservationUpdate(updatedReservation);
     toast({
       title: 'Client has been removed',
-      description: `You have removed ${client.firstName || 'Client'} from this reservation`,
+      description: `You have removed ${clientList.Client.firstName || 'Client'} from this reservation`,
       position: 'top-left',
       status: 'warning',
       duration: 9000,
@@ -206,7 +216,7 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
         <Heading as="h2" my={5}>
           Client's Information
         </Heading>
-        <Button variant="solid" colorScheme="teal" size="md" onClick={handleAddGuest} my="auto">
+        <Button variant="solid" colorScheme="teal" size="md" onClick={handleAddGuestList} my="auto">
           <AddIcon boxSize={3} mr={2} />
           Create Client
         </Button>
@@ -215,11 +225,11 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
         <SearchBar entity="Client" onSelect={handleSelectedClient} />
       </Box>
       <Box>
-        {clients.map((iClient: any, index: number) => (
+        {clientLists.map((iClientList: ClientList, index: number) => (
           <ClientInfo
             key={index}
             index={index}
-            client={iClient}
+            clientList={iClientList}
             onChange={handleClientInfoChange}
             eventId={eventId}
             onSave={saveClient}

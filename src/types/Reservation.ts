@@ -1,26 +1,28 @@
-import { Client } from "./Client";
+// import { Client } from "./Client";
 import { Price } from "./Price";
 
 export type Reservation = {
     id?: number;
+    reservationCode?: string;
     EventId: number;
-    OwnerId: string;
-    ClientLists?: Client[];
-    pendingPayments?: Price[],
-    // PaymentIntents?: PaymentIntent[],
+    OwnerId?: string;
     StatusId?: number;
     createdAt?: Date;
-    createdBy?: string | null;
+    createdBy?: string;
     updatedAt?: Date;
-    updatedBy?: string | null;
+    updatedBy?: string;
+    ClientLists: ClientList[];
+    Event?: Event;
+    PaymentIntents?: PaymentIntent[];
 }
 
 
 
 export type ClientList = {
-    id: number;
-    reservationCode: string;
-    ClientId: string;
+    id?: number;
+    reservationCode?: string;
+    isOwner?: boolean;
+    ClientId?: string;
     ReservationId?: number;
     PriceId?: number;
     StatusId?: number;
@@ -32,7 +34,7 @@ export type ClientList = {
     Price?: Price;
 }
 
-export type Client1 = {
+export type Client = {
     id: string;
     firstName: string;
     lastName: string;
@@ -40,6 +42,7 @@ export type Client1 = {
     phone: string;
     email: string;
     StatusId?: number;
+    isOwner?: boolean;
     createdAt?: Date;
     createdBy?: string;
     updatedAt?: Date;

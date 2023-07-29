@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Heading, Text, useColorModeValue, Spacer, Flex } from '@chakra-ui/react';
-import { Reservation } from '../../types/Reservation';
+import { ClientList, PaymentIntent, Reservation } from '../../types/Reservation';
 import { IMessageBar } from '../MessageBar';
 import { Price } from '../../types/Price';
 import PaymentFormWrapper from '../PaymentFormWraper';
@@ -14,7 +14,7 @@ interface IPaymentReviewProps {
 
 const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservationUpdate, onNext }) => {
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
-  const [pendingPayments, setPendindPayments] = useState<Price[]>(reservation.pendingPayments || []);
+  const [pendingPayments, setPendindPayments] = useState<Price[]>([]);
 
   const bgColor = useColorModeValue('white', 'gray.400');
 
@@ -42,7 +42,7 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
         {reservation.ClientLists?.map((iClient) => (
           <div key={iClient.id}>
             <Box mt={4}>
-              <Text as="b">{`${iClient.firstName} ${iClient.lastName}`}</Text>
+              <Text as="b">{`${iClient.Client.firstName} ${iClient.Client.lastName}`}</Text>
             </Box>
             {/* <span>
               <Text fontSize="sm"> at 23 June</Text>

@@ -28,7 +28,7 @@ function generateInitias(firstName: string = '', lastName: string = '') {
 const GuestCard: React.FC<IGuestCard> = ({ clientList, onClose, onEdit }) => {
   const { statuses } = useContext<any>(StatusContext);
   return (
-    <Box className="flex flex-col rounded-xl shadow-sm p-3" bg={useColorModeValue('gray.50', 'gray.600')}>
+    <Box className="flex flex-col rounded-xl shadow-md p-3" bg={useColorModeValue('gray.50', 'gray.600')}>
       {/* Details with QR */}
       <div className="flex sm:flex-row flex-col justify-space-between">
         <Box

@@ -4,7 +4,7 @@ import { Box, FormControl, Input, Button, Text, Center, useColorModeValue, Spinn
 
 import { findEventPrice } from '../EventDrawer/calls';
 
-import { Client } from '../../types/Client';
+// import { Client } from '../../types/Client';
 import { Price } from '../../types/Price';
 import { Modal } from '@chakra-ui/react';
 import { ModalOverlay } from '@chakra-ui/react';
@@ -15,22 +15,16 @@ import { ModalBody } from '@chakra-ui/react';
 import { ModalFooter } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
 import MessageBar, { IMessageBar } from '../MessageBar';
+import { Client, ClientList } from '../../types/Reservation';
 
 interface IClientProps {
   index: number;
-  client: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    isOwner: boolean;
-    Price?: Price;
-  };
+  clientList: ClientList;
+  client?: Client;
   eventId: unknown;
   onChange: (index: number, fieldName: string, value: string | Price) => void;
-  onSave: (client: Client) => void;
-  onDelete: (client: Client) => void;
+  onSave: (client: ClientList) => void;
+  onDelete: (client: ClientList) => void;
 }
 
 const listOfNames = [
@@ -56,24 +50,25 @@ const listOfNames = [
   'Uncanny',
 ];
 
-const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, onSave, onDelete }) => {
+const ClientInfo: React.FC<IClientProps> = ({ index, client, clientList, eventId, onChange, onSave, onDelete }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [funnyName, setFunnyName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(null);
   const [tickets, setTickets] = useState<Price[]>([]);
-  const [selectedTicket, setSelectedTicket] = useState<Price | null>(client.Price || null);
+  const [selectedTicket, setSelectedTicket] = useState<Price | null>(clientList.Price || null);
 
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   useEffect(() => {
-    if (client.firstName) {
-      setFunnyName(client.firstName);
+    console.log({ clientList, client });
+    if (clientList.Client.firstName) {
+      setFunnyName(clientList.Client.firstName);
     } else {
       const name = getRandomName();
       setFunnyName(name);
     }
-  }, [client.firstName]);
+  }, [clientList]);
 
   const getRandomName = () => {
     const randomIndex = Math.floor(Math.random() * listOfNames.length);
@@ -141,21 +136,21 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
     return error;
   };
 
-  const handleSave = (client: Client) => {
+  const handleSave = (clientList: ClientList) => {
     setMessageBar(null);
     // Validate Client Information
-    const errors = validateClient(client);
+    const errors = validateClient(clientList.Client);
     if (Object.keys(errors).length > 0) {
       setMessageBar({ type: 'error', message: 'Please fix the highlighted fields.' });
       return;
     }
 
     // Validate that the client has selected ticket
-    if (!client.Price) {
-      setMessageBar({ type: 'error', message: `Make sure that you have selected Ticket for ${client.firstName || 'Client'}` });
+    if (!clientList.Price) {
+      setMessageBar({ type: 'error', message: `Make sure that you have selected Ticket for ${clientList.Client.firstName || 'Client'}` });
       return;
     } else {
-      onSave(client);
+      onSave(clientList);
     }
   };
 
@@ -220,7 +215,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
               colorScheme="red"
               mr={3}
               onClick={() => {
-                onDelete(client);
+                onDelete(clientList);
                 onClose();
               }}
             >
@@ -241,7 +236,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
           </FormLabel>
           <Input
             id="first-name"
-            value={client.firstName}
+            value={clientList.Client.firstName}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'firstName', event.target.value)}
             placeholder="First name"
           />
@@ -253,7 +248,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
           </FormLabel>
           <Input
             id="last-name"
-            value={client.lastName}
+            value={clientList.Client.lastName}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'lastName', event.target.value)}
             placeholder="Last name"
           />
@@ -266,7 +261,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
         <Input
           id="email"
           type="email"
-          value={client.email}
+          value={clientList.Client.email}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'email', event.target.value)}
           placeholder="example@mail.com"
         />
@@ -279,7 +274,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
         <Input
           id="phone"
           type="phone"
-          value={client.phone}
+          value={clientList.Client.phone}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'phone', event.target.value)}
           placeholder="+1-888-5555 / 18885555"
         />
@@ -293,7 +288,7 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, eventId, onChange, 
           }}
           color={useColorModeValue('white', 'gray.100')}
           bg={useColorModeValue('green.500', 'green.600')}
-          onClick={() => handleSave(client)}
+          onClick={() => handleSave(clientList)}
         >
           Save Client
         </Button>

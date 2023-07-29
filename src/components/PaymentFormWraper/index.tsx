@@ -17,7 +17,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
 interface IPaymentFormWrapper {
   reservationId: number | unknown;
   eventId: number;
-  clientId: string;
+  clientId: string | undefined;
   pendingPayments: Price[];
   onNext: () => void;
 }

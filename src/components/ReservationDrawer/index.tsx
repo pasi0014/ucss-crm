@@ -63,7 +63,6 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     EventId: eventId,
     OwnerId: '',
     ClientLists: [],
-    pendingPayments: [],
   });
   const [completedPayment, setCompletedPayment] = useState(false);
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
@@ -117,6 +116,7 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     setMessageBar(null);
 
     try {
+      console.log('Put DRAFT');
       const response = await putDraftReservation(reservation);
       if (response.success) {
         toast({
@@ -129,7 +129,6 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
         });
         const updatedReservation: Reservation = { ...reservation, StatusId: response.data.StatusId };
         console.log({ updatedReservation });
-        setReservation(updatedReservation);
         goToNext();
       } else {
         toast({
@@ -164,7 +163,8 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           duration: 3000,
           isClosable: true,
         });
-        const updatedReservation: Reservation = { ...reservation, StatusId: response.data.StatusId, id: response.data.id };
+        const updatedReservation: Reservation = { ...reservation, ...response.data };
+        console.log({ updatedReservation });
         setReservation(updatedReservation);
         goToNext();
       } else {

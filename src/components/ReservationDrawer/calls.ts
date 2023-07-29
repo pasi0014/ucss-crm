@@ -58,7 +58,7 @@ export async function putDraftReservation(reservation: Reservation) {
     const token = getCookieValue('_auth');
 
     const response = await axios.put(
-      `${API_BASE_URL}/v1/reservations/draft`,
+      `${API_BASE_URL}/v1/reservations/draft/update`,
       { reservation },
       {
         headers: {
@@ -96,7 +96,7 @@ export async function postLightReservation(reservation: Reservation) {
     const token = getCookieValue('_auth');
 
     const response = await axios.post(
-      `${API_BASE_URL}/v1/reservations/draft`,
+      `${API_BASE_URL}/v1/reservations/draft/create`,
       { reservation },
       {
         headers: {

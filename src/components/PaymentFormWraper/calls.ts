@@ -10,7 +10,7 @@ export const createPaymentIntent = async ({
     reservationId,
     clientId,
     eventId }:
-    { pendingPayments: Price[], reservationId: number | unknown, clientId: string, eventId: number }) => {
+    { pendingPayments: Price[], reservationId: number | unknown, clientId: string | undefined, eventId: number }) => {
     const ctx = {
         component: `components/PaymentFormWrapper/calls.createPaymentIntent`,
         params: { pendingPayments, reservationId, clientId, eventId },
