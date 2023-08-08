@@ -22,13 +22,14 @@ type Item = {
 type Props = {
   columns: Column[];
   items: Item[];
+  showSearch?: boolean;
   dataDescription?: String;
   onOpenRecord: (item: Item) => void;
   onEditRecord: (item: Item) => void;
   onDeleteRecord: (item: Item) => void;
 };
 
-const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRecord, onEditRecord, onDeleteRecord }) => {
+const DataTable: React.FC<Props> = ({ columns, items, dataDescription, showSearch = false, onOpenRecord, onEditRecord, onDeleteRecord }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Change this value as needed
@@ -56,14 +57,16 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, onOpenRec
   };
   return (
     <Box>
-      <Box w="350px" my="15px" bg={useColorModeValue('gray.50', 'gray.700')}>
-        <InputGroup>
-          <Input bg={useColorModeValue('white', 'gray.700')} shadow="md" placeholder="Search" value={searchTerm} onChange={handleSearch} />
-          <InputRightElement>
-            <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
-          </InputRightElement>
-        </InputGroup>
-      </Box>
+      {showSearch && (
+        <Box w="350px" my="15px" bg={useColorModeValue('gray.50', 'gray.700')}>
+          <InputGroup>
+            <Input bg={useColorModeValue('white', 'gray.700')} shadow="md" placeholder="Search" value={searchTerm} onChange={handleSearch} />
+            <InputRightElement>
+              <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
+            </InputRightElement>
+          </InputGroup>
+        </Box>
+      )}
 
       <Box display="flex" justifyContent="end" my="20px">
         <Button size="sm" onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))} disabled={currentPage === 1} mr="10px">

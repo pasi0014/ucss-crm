@@ -3,18 +3,15 @@ import API_BASE_URL from '../../config';
 
 import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
-import { Price } from '../../types/Price';
-import { PaymentIntent } from '../../types/Reservation';
+import { InvoiceItem, } from '../../types/Reservation';
 
-export const createPaymentIntent = async ({
-    pendingPayments,
-    reservationId,
-    clientId,
-    eventId }:
-    { pendingPayments: PaymentIntent[], reservationId: number | unknown, clientId: string | undefined, eventId: number | undefined }) => {
+export const findOrCreatePaymentIntent = async ({
+    invoiceItems,
+    reservationId, }:
+    { invoiceItems: InvoiceItem[], reservationId: number }) => {
     const ctx = {
-        component: `components/PaymentFormWrapper/calls.createPaymentIntent`,
-        params: { pendingPayments, reservationId, clientId, eventId },
+        component: `components/PaymentDrawer/calls.findOrCreatePaymentIntent`,
+        params: { invoiceItems, reservationId, },
     };
 
     let errorMessage = null;
@@ -25,8 +22,8 @@ export const createPaymentIntent = async ({
         const token = getCookieValue('_auth');
 
         const response = await axios.post(
-            `${API_BASE_URL}/v1/payments/intent/reservation/${reservationId}`,
-            { pendingPayments, clientId, eventId },
+            `${API_BASE_URL}/v1/payments/intent`,
+            { invoiceItems, reservationId },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -48,5 +45,3 @@ export const createPaymentIntent = async ({
         data: errorMessage,
     };
 }
-
-export const processPayment = async (reservationId: number, eventId: number, clientId?: string) => { }

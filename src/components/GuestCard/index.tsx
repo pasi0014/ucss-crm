@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import moment from 'moment';
 import { Badge, Box, useColorModeValue, Image, Button, Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from '@chakra-ui/react';
 import { FaPhone, FaTrash } from 'react-icons/fa';
@@ -6,16 +6,16 @@ import { MdModeEdit, MdEmail } from 'react-icons/md';
 import { IoTicketSharp } from 'react-icons/io5';
 
 import { ClientList } from '../../types/Reservation';
-import { StatusContext } from '../../context/StatusContext';
 import { getStatus, getStatusColor } from '../../utils/utilities';
 
-import qr from '../../assets/qr-code.png';
 import { QRCodeSVG } from 'qrcode.react';
+import { CheckIcon } from '@chakra-ui/icons';
 
 interface IGuestCard {
   clientList: ClientList;
   onClose?: (itemId: number) => void;
   onEdit?: (item: any) => void;
+  statuses?: any;
 }
 
 function generateInitias(firstName: string = '', lastName: string = '') {
@@ -25,8 +25,7 @@ function generateInitias(firstName: string = '', lastName: string = '') {
   return `${firstInitial}${lastInitial}`;
 }
 
-const GuestCard: React.FC<IGuestCard> = ({ clientList, onClose, onEdit }) => {
-  const { statuses } = useContext<any>(StatusContext);
+const GuestCard: React.FC<IGuestCard> = ({ statuses, clientList, onClose, onEdit }) => {
   return (
     <Box className="flex flex-col rounded-xl shadow-md p-3" bg={useColorModeValue('gray.50', 'gray.600')}>
       {/* Details with QR */}
@@ -65,18 +64,25 @@ const GuestCard: React.FC<IGuestCard> = ({ clientList, onClose, onEdit }) => {
           </span>
         </div>
         <div className="flex flex-col justify-end mx-auto p-1">
-          <QRCodeSVG value={clientList.reservationCode} size={96} className="mx-auto" />
+          <QRCodeSVG value={clientList.reservationCode || ''} size={96} className="mx-auto" />
           <span className="text-center text-xs mt-2">ReservationCode: {clientList.reservationCode}</span>
         </div>
       </div>
       {/* Tickets info */}
-      <div className="flex flex-row justify-end p-3">
-        <Button className="mt-2 sm:w-1/4 w-full mr-2" colorScheme="orange" size={{ base: 'xs', md: 'sm' }}>
-          <MdModeEdit className="mr-2" /> Edit
-        </Button>
-        <Button className="mt-2 sm:w-1/4 w-full" colorScheme="red" size={{ base: 'xs', md: 'sm' }}>
-          <FaTrash className="mr-2" /> Delete Guest
-        </Button>
+      <div className="flex sm:flex-row flex-col">
+        <div className="flex flex-row justify-start p-3 sm:w-8/12 w-full">
+          <Button className="mt-2 sm:w-6/12 w-full  mr-2" colorScheme="green" size={{ base: 'xs', md: 'sm' }}>
+            <CheckIcon className="mr-2" /> Check in
+          </Button>
+        </div>
+        <div className="flex flex-row justify-end p-3 sm:w-8/12 w-full">
+          <Button className="mt-2 sm:w-6/12 w-full mr-2" colorScheme="orange" size={{ base: 'xs', md: 'sm' }}>
+            <MdModeEdit className="mr-2" /> Edit
+          </Button>
+          <Button className="mt-2 sm:w-6/12 w-full" colorScheme="red" size={{ base: 'xs', md: 'sm' }}>
+            <FaTrash className="mr-2" /> Delete Guest
+          </Button>
+        </div>
       </div>
       {/* Guest Activity */}
       {/* <div>

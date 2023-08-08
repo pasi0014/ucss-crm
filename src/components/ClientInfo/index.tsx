@@ -50,7 +50,7 @@ const listOfNames = [
   'Uncanny',
 ];
 
-const ClientInfo: React.FC<IClientProps> = ({ index, client, clientList, eventId, onChange, onSave, onDelete }) => {
+const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChange, onSave, onDelete }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [funnyName, setFunnyName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,6 @@ const ClientInfo: React.FC<IClientProps> = ({ index, client, clientList, eventId
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   useEffect(() => {
-    console.log({ clientList, client });
     if (clientList.Client.firstName) {
       setFunnyName(clientList.Client.firstName);
     } else {

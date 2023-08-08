@@ -4,28 +4,26 @@ import { Table, Badge, Button, Box, TableContainer, useColorModeValue, Thead, Tr
 
 import { RiRefund2Fill } from 'react-icons/ri';
 
-import { PaymentIntent } from '../../types/Reservation';
+import { Invoice } from '../../types/Reservation';
 import { IColumnProps } from '../../interfaces';
 import { getStatus, getStatusColor } from '../../utils/utilities';
 
-import { StatusContext } from '../../context/StatusContext';
 import { MdPayment } from 'react-icons/md';
 
 interface IPaymentTable {
-  paymentIntents: PaymentIntent[] | undefined;
+  paymentIntents: Invoice[] | [];
+  statuses?: any;
+  onPayment?: (invoice: Invoice) => void;
 }
 
-const PaymentsTable: React.FC<IPaymentTable> = ({ paymentIntents }) => {
-  const { statuses } = useContext<any>(StatusContext);
+const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) => {
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
-    { header: 'Amount', accessor: 'amount', render: (value) => <span>${value}</span> },
+    { header: 'Amount', accessor: 'totalAmount', render: (value) => <span>${value}</span> },
     {
       header: 'Status',
       accessor: 'StatusId',
-      render: (value) => (
-        <Badge colorScheme={getStatusColor(getStatus(statuses.PaymentIntent, value).tag || '')}>{getStatus(statuses.PaymentIntent, value).tag}</Badge>
-      ),
+      render: (value) => <Badge colorScheme={getStatusColor(getStatus(statuses.Invoice, value).tag || '')}>{getStatus(statuses.Invoice, value).tag}</Badge>,
     },
     { header: 'Updated At', accessor: 'updatedAt', render: (value) => moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] HH:mma') },
     { header: 'Created', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] HH:mma') },
@@ -38,7 +36,7 @@ const PaymentsTable: React.FC<IPaymentTable> = ({ paymentIntents }) => {
     }
     return item[column.accessor];
   };
-  const showPaymentButton = paymentIntents?.find((iPaymentIntent) => iPaymentIntent.StatusId === statuses.PaymentIntent.PENDING);
+  const showPaymentButton = paymentIntents?.find((iPaymentIntent) => iPaymentIntent.StatusId === statuses.Invoice.PENDING);
   return (
     <Box>
       <TableContainer>

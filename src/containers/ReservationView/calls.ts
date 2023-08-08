@@ -41,7 +41,7 @@ export async function getReservation(reservationId: any) {
     }
 }
 
-export async function confirmReservation(reservationId: number) {
+export async function confirmReservation(reservationId: string | undefined) {
     const ctx = {
         component: `components/ReservationView.calls.confirmReservation`,
         params: { reservationId }

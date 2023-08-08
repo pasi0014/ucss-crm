@@ -8,13 +8,13 @@ import { applyPayment } from './calls';
 import { useNavigate } from 'react-router-dom';
 
 interface IPaymentForm {
-  eventId: number;
+  eventId: number | undefined;
   clientSecret: string;
   reservationId: number | unknown;
-  onNext: () => void;
+  onPaymentSuccess: () => void;
 }
 
-const PaymentForm: React.FC<IPaymentForm> = ({ eventId, reservationId, clientSecret, onNext }) => {
+const PaymentForm: React.FC<IPaymentForm> = ({ eventId, reservationId, clientSecret, onPaymentSuccess }) => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const PaymentForm: React.FC<IPaymentForm> = ({ eventId, reservationId, clientSec
       if (!response.success) {
         throw new Error('There was an error while saving payment. Please try opening the reservation again');
       }
-      navigate(`/events/${eventId}/reservation/${reservationId}`);
+      onPaymentSuccess();
     } catch (error: any) {
       console.error(`Error :: ${error.message}`);
       setMessageBar({ type: 'error', message: error.message });

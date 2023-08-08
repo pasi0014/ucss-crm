@@ -10,12 +10,9 @@ import Events from './containers/Events';
 import EventView from './containers/EventView';
 import Reservations from './containers/Reservations';
 import ReservationView from './containers/ReservationView';
-import { useContext } from 'react';
-import { StatusContext } from './context/StatusContext';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
-  const { statuses } = useContext<any>(StatusContext);
   return (
     <BrowserRouter>
       <Routes>
@@ -44,7 +41,14 @@ function App() {
               </RequireAuth>
             }
           />
-          <Route path="/events/:eventId/reservation/:reservationId" element={<RequireAuth loginPath="login">{statuses && <ReservationView />}</RequireAuth>} />
+          <Route
+            path="/events/:eventId/reservation/:reservationId"
+            element={
+              <RequireAuth loginPath="login">
+                <ReservationView />
+              </RequireAuth>
+            }
+          />
           <Route path="donors" element={<Donors />} />
           <Route path="donations" element={<>Donations</>} />
           <Route path="statistics" element={<>Statistics</>} />

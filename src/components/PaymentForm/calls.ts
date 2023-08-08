@@ -4,7 +4,7 @@ import API_BASE_URL from '../../config';
 import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
 
-export const applyPayment = async (paymentIntent: any, reservationId: number | unknown, eventId: number) => {
+export const applyPayment = async (paymentIntent: any, reservationId: number | unknown, eventId: number | undefined) => {
     const ctx = {
         component: `components/PaymentForm/calls.applyPayment`,
         params: { paymentIntent, reservationId, eventId },

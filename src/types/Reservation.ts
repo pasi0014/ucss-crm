@@ -12,6 +12,7 @@ export type Reservation = {
     updatedAt?: Date;
     updatedBy?: string;
     ClientLists: ClientList[];
+    Invoices?: Invoice[];
     Event?: Event;
     PaymentIntents?: PaymentIntent[];
 }
@@ -96,7 +97,9 @@ export type PaymentIntent = {
 export type Invoice = {
     id: number;
     ClientId: string;
+    Client: Client;
     EventId: number;
+    InvoiceItems?: [],
     PaymentIntentId: number;
     payment_intent_id: string;
     totalAmount: string;
@@ -105,4 +108,19 @@ export type Invoice = {
     createdBy: string;
     updatedAt: Date;
     updatedBy: string;
+}
+
+
+export interface InvoiceItem {
+    id: number;
+    InvoiceId: number;
+    Client: Client;
+    ClientId: string;
+    PriceId: number;
+    StatusId: number;
+    createdAt: Date;
+    createdBy: string;
+    updatedAt: Date;
+    updatedBy: string;
+    Price: Price;
 }

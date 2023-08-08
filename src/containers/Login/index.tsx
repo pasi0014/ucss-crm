@@ -45,7 +45,7 @@ export default function Login() {
       if (response.success) {
         signIn({
           token: response.data.accessToken,
-          expiresIn: 10_800,
+          expiresIn: 604800,
           tokenType: 'Bearer',
           authState: { email },
         });

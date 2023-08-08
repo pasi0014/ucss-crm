@@ -19,19 +19,18 @@ import { IColumnProps } from '../../interfaces';
 import moment from 'moment';
 import { Badge } from '@chakra-ui/react';
 import { getStatus, getStatusColor } from '../../utils/utilities';
-import { StatusContext } from '../../context/StatusContext';
 import { Spinner } from '@chakra-ui/react';
 import { Center } from '@chakra-ui/react';
+import withStatusFetching from '../../context/withStatus';
 
 type EventParams = {
   eventId: any;
 };
 
-const EventView: React.FC = () => {
+const EventView: React.FC = (props: any) => {
   const { eventId } = useParams<EventParams>();
   const navigate = useNavigate();
   const { setAppLoading, appLoading } = useContext<any>(AppContext);
-  const { statuses } = useContext<any>(StatusContext);
 
   const [loading, setLoading] = useState(false);
   const [reservations, setReservations] = useState<any>([]);
@@ -68,7 +67,7 @@ const EventView: React.FC = () => {
       header: 'Status',
       accessor: 'StatusId',
       render: (value) => (
-        <Badge colorScheme={getStatusColor(getStatus(statuses.Reservation, value).tag || '')}>{getStatus(statuses.Reservation, value).tag}</Badge>
+        <Badge colorScheme={getStatusColor(getStatus(props.statuses.Reservation, value).tag || '')}>{getStatus(props.statuses.Reservation, value).tag}</Badge>
       ),
     },
     { header: 'Created At', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').format('YYYY-MM-DD HH:mm') },
@@ -86,7 +85,7 @@ const EventView: React.FC = () => {
         throw new Error(response.data);
       }
 
-      if (response.data === null) throw new Error(`An Error occurred while trying to get the Event`);
+      if (response.data === null) throw new Error(`An error occurred while trying to get the Event`);
       setSelectedEvent(response.data);
       setAppLoading(false);
     } catch (error: any) {
@@ -96,10 +95,10 @@ const EventView: React.FC = () => {
   };
 
   useEffect(() => {
-    if (eventId) {
+    if (eventId && props.statuses) {
       doFetchEvent();
     }
-  }, []);
+  }, [props.statuses]);
 
   const doFetchEventReservations = async (eventId: number) => {
     setLoading(true);
@@ -153,6 +152,7 @@ const EventView: React.FC = () => {
     setDrawerIsOpen(true);
   };
 
+  // Statistics fetching
   useEffect(() => {
     if (selectedEvent && selectedEvent.id) {
       doFetchEventReservations(selectedEvent.id);
@@ -226,7 +226,7 @@ const EventView: React.FC = () => {
                 <StatNumber>
                   <Text fontSize="4xl">
                     {reservations.length &&
-                      (reservations.filter((iReservation: Reservation) => iReservation.StatusId !== statuses.Reservation.CANCELLED).length || 0)}
+                      (reservations.filter((iReservation: Reservation) => iReservation.StatusId !== props.statuses.Reservation.CANCELLED).length || 0)}
                   </Text>
                 </StatNumber>
               </Stat>
@@ -334,4 +334,4 @@ const EventView: React.FC = () => {
   );
 };
 
-export default EventView;
+export default withStatusFetching(EventView);

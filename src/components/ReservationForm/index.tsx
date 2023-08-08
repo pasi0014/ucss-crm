@@ -68,7 +68,12 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
     setClientLists((prevClients) => {
       const updatedClients = [...prevClients];
       const clientToUpdate: any = updatedClients[index];
-      clientToUpdate[fieldName] = value;
+      if (typeof value === 'string') {
+        clientToUpdate.Client[fieldName] = value;
+      } else {
+        clientToUpdate[fieldName] = value;
+      }
+
       return updatedClients;
     });
     // Update the reservation object with the updated clients array

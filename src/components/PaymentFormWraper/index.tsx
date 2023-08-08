@@ -11,24 +11,28 @@ import { createPaymentIntent } from './calls';
 import PaymentForm from '../PaymentForm';
 import { Price } from '../../types/Price';
 import { useColorModeValue } from '@chakra-ui/react';
+import { PaymentIntent } from '../../types/Reservation';
+import { useNavigate } from 'react-router-dom';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
 
 interface IPaymentFormWrapper {
   reservationId: number | unknown;
-  eventId: number;
+  eventId: number | undefined;
   clientId: string | undefined;
-  pendingPayments: Price[];
-  onNext: () => void;
+  pendingPayments: PaymentIntent[];
+  onSuccessPayment?: () => void;
 }
 
-const PaymentFormWrapper: React.FC<IPaymentFormWrapper> = ({ reservationId, eventId, clientId, pendingPayments, onNext }) => {
-  const { setAppLoading } = useContext<any>(AppContext);
+const PaymentFormWrapper: React.FC<IPaymentFormWrapper> = ({ reservationId, eventId, clientId, pendingPayments, onSuccessPayment }) => {
   const toast = useToast();
+  const navigate = useNavigate();
+  const { setAppLoading } = useContext<any>(AppContext);
   const [clientSecret, setClientSecret] = useState('');
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
-  const doCreatePaymentIntent = async () => {
+  const doCreatePaymentIntent = async (isMounted: boolean) => {
+    if (!isMounted) return;
     setAppLoading(true);
     setMessageBar(null);
 
@@ -55,7 +59,14 @@ const PaymentFormWrapper: React.FC<IPaymentFormWrapper> = ({ reservationId, even
   };
 
   useEffect(() => {
-    doCreatePaymentIntent();
+    let isMounted = true;
+
+    if (isMounted) {
+      doCreatePaymentIntent(isMounted);
+    }
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const appearance = {
@@ -69,7 +80,12 @@ const PaymentFormWrapper: React.FC<IPaymentFormWrapper> = ({ reservationId, even
   return (
     clientSecret && (
       <Elements options={options} stripe={stripePromise}>
-        <PaymentForm eventId={eventId} clientSecret={clientSecret} reservationId={reservationId} onNext={onNext} />
+        <PaymentForm
+          onPaymentSuccess={() => navigate(`/events/${eventId}/reservation/${reservationId}`)}
+          eventId={eventId}
+          clientSecret={clientSecret}
+          reservationId={reservationId}
+        />
       </Elements>
     )
   );

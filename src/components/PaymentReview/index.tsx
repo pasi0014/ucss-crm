@@ -14,7 +14,7 @@ interface IPaymentReviewProps {
 
 const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservationUpdate, onNext }) => {
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
-  const [pendingPayments, setPendindPayments] = useState<Price[]>([]);
+  const [pendingPayments, setPendindPayments] = useState<any[]>([]);
 
   const bgColor = useColorModeValue('white', 'gray.400');
 
@@ -23,7 +23,6 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
       (iClient) => iClient.Price,
     ) as Price[];
     if (updatedPedningPayments.length > 0) {
-      console.log({ updatedPedningPayments });
       setPendindPayments(updatedPedningPayments);
       const updatedReservation = { ...reservation, pendingPayments: updatedPedningPayments };
       onReservationUpdate(updatedReservation);
@@ -76,7 +75,7 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
               reservationId={reservation.id}
               clientId={reservation.OwnerId}
               pendingPayments={pendingPayments}
-              onNext={onNext}
+              onSuccessPayment={onNext}
             />
           ) : (
             <div className="flex flex-col">

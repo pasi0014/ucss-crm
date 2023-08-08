@@ -12,15 +12,15 @@ import { deleteEvent, getEvents } from './calls';
 import { IColumnProps } from '../../interfaces';
 import { Event } from '../../types/Event';
 import ConfirmPopup from '../../components/ConfirmPopup';
-import { StatusContext } from '../../context/StatusContext';
 import { getStatus, getStatusColor } from '../../utils/utilities';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AddIcon } from '@chakra-ui/icons';
+import withStatusFetching from '../../context/withStatus';
+import MessageBar, { IMessageBar } from '../../components/MessageBar';
 
-export default function Events() {
+const Events = (props: any) => {
   const navigate = useNavigate();
   const { setAppLoading } = useContext<any>(AppContext);
-  const { statuses } = useContext<any>(StatusContext);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -31,7 +31,7 @@ export default function Events() {
 
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const [messageBar, setMessageBar] = useState<any>({});
+  const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
@@ -42,7 +42,9 @@ export default function Events() {
     {
       header: 'Status',
       accessor: 'StatusId',
-      render: (value) => <Badge colorScheme={getStatusColor(getStatus(statuses.Event, value).tag || '')}>{getStatus(statuses.Event, value).tag}</Badge>,
+      render: (value) => (
+        <Badge colorScheme={getStatusColor(getStatus(props.statuses.Event, value).tag || '')}>{getStatus(props.statuses.Event, value).tag}</Badge>
+      ),
     },
     { header: 'Created By', accessor: 'createdBy' },
   ];
@@ -98,14 +100,14 @@ export default function Events() {
 
   const doFetchEvents = async () => {
     setAppLoading(true);
-    setMessageBar({});
+    setMessageBar(null);
     setFetchEvents(false);
 
     try {
       const response = await getEvents();
 
       if (!response.success) {
-        throw new Error('Unexpected error : could not fetch the events');
+        throw new Error('There was an error while loading the Events. Please try again.');
       }
 
       setEvents(response.data);
@@ -122,24 +124,17 @@ export default function Events() {
   }, [fetchEvents]);
 
   useEffect(() => {
-    doFetchEvents();
-  }, []);
+    if (props.statuses) {
+      doFetchEvents();
+    }
+  }, [props.statuses]);
 
   return (
     <React.Fragment>
       <Box textAlign="left" my={5} p={3}>
         <Heading>Events</Heading>
       </Box>
-      <Box bg={useColorModeValue('white', 'gray.700')} px={4} width="350px" borderRadius="15px" boxShadow="base">
-        <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-          <Flex alignItems={'center'}>
-            <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer}>
-              <AddIcon boxSize={3} mr={3} />
-              Create an event
-            </Button>
-          </Flex>
-        </Flex>
-      </Box>
+
       <ConfirmPopup
         isOpen={showConfirmation}
         onClose={handleCancelDelete}
@@ -149,15 +144,34 @@ export default function Events() {
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
       />
-      <DataTable
-        columns={columns}
-        items={events}
-        onOpenRecord={onOpenRecord}
-        onEditRecord={onEditRecord}
-        onDeleteRecord={handleDeleteClick}
-        dataDescription="Events"
-      />
+      {messageBar != null ? (
+        <MessageBar type={messageBar.type} message={messageBar?.message}></MessageBar>
+      ) : (
+        <Box>
+          <Box bg={useColorModeValue('white', 'gray.700')} px={4} width="350px" borderRadius="15px" boxShadow="base">
+            <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+              <Flex alignItems={'center'}>
+                <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer}>
+                  <AddIcon boxSize={3} mr={3} />
+                  Create an event
+                </Button>
+              </Flex>
+            </Flex>
+          </Box>
+          <DataTable
+            columns={columns}
+            items={events}
+            onOpenRecord={onOpenRecord}
+            onEditRecord={onEditRecord}
+            onDeleteRecord={handleDeleteClick}
+            dataDescription="Events"
+          />
+        </Box>
+      )}
+
       <EventFormDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} eventId={selectedEventId} />
     </React.Fragment>
   );
-}
+};
+
+export default withStatusFetching(Events);
