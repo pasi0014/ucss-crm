@@ -8,6 +8,7 @@ import App from './App';
 
 import './index.scss';
 import { AppProvider } from './context/AppContext';
+import refreshApi from './utils/refreshApi';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <ChakraProvider>

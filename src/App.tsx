@@ -10,6 +10,10 @@ import Events from './containers/Events';
 import EventView from './containers/EventView';
 import Reservations from './containers/Reservations';
 import ReservationView from './containers/ReservationView';
+import Clients from './containers/Clients';
+import ClientPage from './containers/ClientPage';
+import ProfileView from './containers/ProfileView';
+import Donations from './containers/Donations';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -49,12 +53,20 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="clients" element={<Clients />} />
+          <Route
+            path="clients/:clientId"
+            element={
+              <RequireAuth loginPath="login">
+                <ClientPage />
+              </RequireAuth>
+            }
+          />
           <Route path="donors" element={<Donors />} />
-          <Route path="donations" element={<>Donations</>} />
+          <Route path="donations" element={<Donations />} />
           <Route path="statistics" element={<>Statistics</>} />
-          <Route path="clients" element={<>Clients</>} />
           <Route path="reservations" element={<Reservations />} />
-          <Route path="profile" element={<>Profile settings</>} />
+          <Route path="profile" element={<ProfileView authState={null} />} />
         </Route>
         <Route path="*" element={isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
         <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />
