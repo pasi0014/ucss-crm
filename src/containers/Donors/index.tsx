@@ -53,6 +53,7 @@ const Donors = () => {
       <DataTable
         columns={columns}
         items={items}
+        showSearch={true}
         onOpenRecord={onOpenRecord}
         onEditRecord={onEditRecord}
         onDeleteRecord={(val) => console.log({ val })}

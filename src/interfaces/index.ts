@@ -20,6 +20,7 @@ export interface DonorFormDrawerProps {
 
 export interface IColumnProps {
   header: string,
+  key?: string,
   accessor: string,
   render?: (value: any, items: any) => React.ReactNode;
 }

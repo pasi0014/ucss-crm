@@ -121,15 +121,12 @@ export const createPrice = async (price: Price) => {
   };
 
   let errorMessage = null;
-
   try {
     console.log('Trying to create a Price', { ...ctx });
 
-    const data = price;
-    const temp = { price: { ...data } };
     const token = getCookieValue('_auth');
 
-    const response = await axios.post(`${API_BASE_URL}/v1/prices`, temp, {
+    const response = await axios.post(`${API_BASE_URL}/v1/prices`, { price }, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
