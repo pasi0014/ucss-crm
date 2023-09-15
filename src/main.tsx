@@ -8,15 +8,14 @@ import App from './App';
 
 import './index.scss';
 import { AppProvider } from './context/AppContext';
+import refreshApi from './utils/refreshApi';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <ChakraProvider>
     <AuthProvider authType={'cookie'} authName="_auth" cookieDomain={window.location.hostname} cookieSecure={true}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <AppProvider>
-        <StatusContextProvider>
-          <App />
-        </StatusContextProvider>
+        <App />
       </AppProvider>
     </AuthProvider>
   </ChakraProvider>,

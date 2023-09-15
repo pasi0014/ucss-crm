@@ -2,9 +2,10 @@ import React, { useState, ChangeEvent, useEffect } from 'react';
 import { InputLeftElement, InputGroup, Input, Box, Spinner, useColorModeValue, Flex } from '@chakra-ui/react';
 import { Search2Icon } from '@chakra-ui/icons';
 
-import { Client } from '../../types/Client';
+// import { Client } from '../../types/Client';
 
 import { searchClients } from './calls';
+import { Client } from '../../types/Reservation';
 
 interface ISearchBarProps {
   entity: string;

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { useToast, useColorModeValue, Button, Heading, Box } from '@chakra-ui/react';
+import { useDisclosure, useToast, useColorModeValue, Button, Heading, Box } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 
 import { AppContext } from '../../context/AppContext';
@@ -9,45 +9,21 @@ import { createPrice, deletePrice, findEventPrice, updatePrice } from './calls';
 
 import MessageBar from '../MessageBar';
 import TicketForm from '../TicketForm';
+import PriceList from '../PriceList';
 
-export function PriceInfo(props: { onNext: () => void; eventId: any }) {
+export function PriceInfo(props: { onNext: () => void; eventId: any; statuses: any }) {
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { setAppLoading } = useContext<any>(AppContext);
   const [tickets, setTickets] = useState<any>([]);
   const [messageBar, setMessageBar] = useState<any>({});
+  const [selectedPrice, setSelectedPrice] = useState<Price | null>(null);
 
   const [error, setError] = useState(false);
 
-  const handleAddTicket = (ticketData: Price) => {
-    setTickets((prevTickets: Price[]) => [...prevTickets, ticketData]);
-  };
-
-  const handleCreateTicket = (ticketData: Price) => {
-    doCreatePrice(ticketData);
-  };
-
-  const handleUpdateTicket = (index: number, ticketData: Price) => {
-    doUpdatePrice(index, ticketData);
-  };
-
-  const handleRemoveTicket = (index: number) => {
-    const ticketToRemove = tickets[index];
-
-    if (!ticketToRemove) {
-      setError(true);
-      setMessageBar({ type: 'error', message: 'Unexpected error while deleting the Ticket' });
-      return;
-    }
-
-    if (ticketToRemove.id) {
-      doDeletePrice(ticketToRemove);
-    } else {
-      setTickets((prevTickets: Price[]) => {
-        const updatedTickets = [...prevTickets];
-        updatedTickets.splice(index, 1);
-        return updatedTickets;
-      });
-    }
+  const onEdit = (price: Price) => {
+    setSelectedPrice(price);
+    onOpen();
   };
 
   const doDeletePrice = async (price: Price) => {
@@ -101,10 +77,9 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
     setAppLoading(false);
   };
 
-  const doCreatePrice = async (price: Price) => {
+  const doUpdateOrCreatePrice = async (price: Price) => {
     setAppLoading(true);
     setError(false);
-
     try {
       const response = await createPrice(price);
 
@@ -117,54 +92,33 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
 
         throw new Error(response.data);
       }
-      toast({
-        title: 'Price Created Successfully!',
-        description: `You have created ticket ${price.name}`,
-        position: 'top-right',
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-      });
-      setMessageBar({ type: 'success', message: 'Price was successfully created' });
-    } catch (error: any) {
-      console.error('Unexpected error while trying to create Price', { ...error });
-      setMessageBar({ type: 'error', message: error.message });
-    }
-    setAppLoading(false);
-  };
+      // Find the index of the ticket in the tickets array, if it exists
+      const ticketIndex = tickets.findIndex((iPrice: Price) => iPrice.id === price.id);
 
-  const doUpdatePrice = async (index: number, price: Price) => {
-    setAppLoading(true);
-    setError(false);
-
-    try {
-      const response = await updatePrice(price);
-
-      if (!response.success) {
-        setError(true);
-        setMessageBar({
-          type: 'error',
-          message: 'Unexpected error while trying to create Price',
+      if (ticketIndex === -1) {
+        // If the ticket doesn't exist, add it to the tickets array
+        setTickets((prevTickets: Price[]) => [...prevTickets, price]);
+      } else {
+        // If the ticket exists, update it by creating a new array with the updated ticket
+        setTickets((prevTickets: Price[]) => {
+          const updatedTickets = [...prevTickets];
+          updatedTickets[ticketIndex] = price;
+          return updatedTickets;
         });
-
-        throw new Error(response.data);
       }
-      setTickets((prevTickets: Price[]) => {
-        const updatedTickets = [...prevTickets];
-        updatedTickets[index] = response.data;
-        return updatedTickets;
-      });
+
       toast({
-        title: 'Price Updated Successfully!',
-        description: `You have updated ticket ${price.name}`,
+        title: 'Price Saved Successfully!',
+        description: `You have saved ticket ${price.name}`,
         position: 'top-right',
         status: 'success',
         duration: 9000,
         isClosable: true,
       });
-      setMessageBar({ type: 'success', message: 'Price was successfully updated' });
+      onClose();
+      setMessageBar({ type: 'success', message: 'Price was successfully saved' });
     } catch (error: any) {
-      console.error('Unexpected error while trying to create Price', { ...error });
+      console.error('Unexpected error while trying to save Price', { ...error });
       setMessageBar({ type: 'error', message: error.message });
     }
     setAppLoading(false);
@@ -183,6 +137,7 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
           Create a Ticket(s) for your event
         </Heading>
       </Box>
+
       {error && (
         <Box mb={5}>
           <MessageBar type={messageBar.type} message={messageBar.message} />
@@ -195,23 +150,26 @@ export function PriceInfo(props: { onNext: () => void; eventId: any }) {
             bg: useColorModeValue('green.300', 'green.400'),
           }}
           color={useColorModeValue('white', 'gray.100')}
-          onClick={() => handleAddTicket({ ticketType: 'paid', name: '', amount: 0, EventId: props.eventId })}
+          onClick={onOpen}
         >
           <AddIcon boxSize={3} mr="5px" />
           Add a Ticket
         </Button>
       </Box>
-      {tickets.map((ticket: any, index: number) => (
-        <TicketForm
-          key={index}
-          index={index}
-          price={ticket}
-          eventId={props.eventId}
-          onCreateTicket={handleCreateTicket}
-          onUpdateTicket={handleUpdateTicket}
-          onRemoveTicket={handleRemoveTicket}
-        />
-      ))}
+      <TicketForm
+        isOpen={isOpen}
+        onClose={() => {
+          onClose();
+          setSelectedPrice(null);
+        }}
+        price={selectedPrice}
+        onCreate={(price: Price) => doUpdateOrCreatePrice(price)}
+        eventId={props.eventId}
+      />
+      <Heading size="md">Tickets</Heading>
+      <Box className="sm:w-6/12 w-full">
+        <PriceList prices={tickets} statuses={props.statuses} onDelete={doDeletePrice} onEdit={onEdit} />
+      </Box>
     </>
   );
 }

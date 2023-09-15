@@ -11,17 +11,14 @@ export interface Status {
 
 interface AppContextProps {
   statuses: Status[];
-  setFetchStatus: (val: boolean) => void;
 }
 
 export const StatusContext = createContext<AppContextProps>({
   statuses: [],
-  setFetchStatus: (val: boolean) => {},
 });
 
 const StatusContextProvider = ({ children }: any) => {
-  const [statuses, setStatuses] = useState<Status[]>([]);
-  const [fetchStatus, setFetchStatus] = useState(false);
+  const [statuses, setStatuses] = useState<any>(null);
 
   const { setAppLoading } = useContext<any>(AppContext);
 
@@ -59,12 +56,12 @@ const StatusContextProvider = ({ children }: any) => {
   };
 
   useEffect(() => {
-    if (fetchStatus) {
+    if (!statuses) {
       doGetStatuses();
     }
-  }, [fetchStatus]);
+  }, [statuses]);
 
-  return <StatusContext.Provider value={{ statuses, setFetchStatus }}>{children}</StatusContext.Provider>;
+  return <StatusContext.Provider value={{ statuses }}>{children}</StatusContext.Provider>;
 };
 
 export default StatusContextProvider;

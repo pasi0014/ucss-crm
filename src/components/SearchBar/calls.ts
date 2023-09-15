@@ -16,7 +16,7 @@ export const searchClients = async (searchTerm: string) => {
 
         const token = getCookieValue("_auth");
 
-        const response = await axios.get(`${API_BASE_URL}/v1/clients/search?searchTerm=${searchTerm}`, {
+        const response = await axios.post(`${API_BASE_URL}/v1/clients/search?searchTerm=${searchTerm}`, {}, {
             headers: {
                 "Authorization": `Bearer ${token}`,
             },
