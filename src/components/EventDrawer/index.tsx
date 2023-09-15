@@ -5,7 +5,6 @@ import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparat
 import { Button } from '@chakra-ui/react';
 
 import { Event } from '../../types/Event';
-// import { EventForm } from './EventForm';
 import { PriceInfo } from './PriceInfo';
 import { PublishEvent } from './PublishEvent';
 
@@ -18,6 +17,7 @@ interface IEventFormDrawerProps {
   eventId: number | null;
   isOpen: boolean;
   onClose: () => void;
+  statuses: object;
   variant?: 'circles' | 'circles-alt' | 'simple' | undefined;
 }
 
@@ -46,13 +46,12 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
   };
 
   const onEventUpdate = (eventId: number) => {
-    console.log(`OnEventUpdate`, { eventId });
     setEventId(eventId);
   };
 
   return (
     <>
-      <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="xl">
+      <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="full">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
@@ -63,7 +62,7 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
             <Box
               border="1px"
               borderColor={useColorModeValue('gray.100', 'gray.400')}
-              p={5}
+              p={{ base: '0px', sm: '25px' }}
               borderRadius="15px"
               shadow="md"
               bg={useColorModeValue('gray.50', 'gray.600')}
@@ -86,8 +85,8 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                 </Stepper>
                 {/* Stepper Content */}
                 {activeStep === 1 && <EventForm onNext={() => goToNext()} eventId={props.eventId} onEventUpdate={onEventUpdate} />}
-                {activeStep === 2 && <PriceInfo onNext={() => goToNext()} eventId={props.eventId} />}
-                {activeStep === 3 && <PublishEvent onNext={goToNext} entity="Event" eventId={props.eventId} />}
+                {activeStep === 2 && <PriceInfo onNext={() => goToNext()} eventId={props.eventId} statuses={props.statuses} />}
+                {activeStep === 3 && <PublishEvent onNext={goToNext} entity="Event" eventId={props.eventId} statuses={props.statuses} />}
 
                 <Flex mt="15px">
                   {activeStep !== 1 && (

@@ -12,6 +12,7 @@ import { useToast } from '@chakra-ui/react';
 import PaymentForm from '../PaymentForm';
 import { Price } from '../../types/Price';
 import { useNavigate } from 'react-router-dom';
+import { calculateFees } from '../../utils/utilities';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
 
@@ -21,7 +22,7 @@ interface IPaymentDrawer {
   invoice?: Invoice;
   reservationId: any;
   eventId: any;
-  onSuccessPayment: (invoiceId: number) => void;
+  onSuccessPayment: (invoiceId: number | undefined) => void;
 }
 
 /**
@@ -34,6 +35,7 @@ const PaymentDrawer: React.FC<IPaymentDrawer> = ({ isOpen, onClose, invoice, eve
   const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
   const [clientSecret, setClientSecret] = useState('');
+  const [fees, setFees] = useState<number>(0);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([]);
@@ -68,6 +70,8 @@ const PaymentDrawer: React.FC<IPaymentDrawer> = ({ isOpen, onClose, invoice, eve
   useEffect(() => {
     if (invoice) {
       setInvoiceItems(invoice.InvoiceItems as InvoiceItem[]);
+      const { totalFees } = calculateFees(invoice.totalAmount);
+      setFees(totalFees);
     }
   }, [invoice]);
 
@@ -133,7 +137,12 @@ const PaymentDrawer: React.FC<IPaymentDrawer> = ({ isOpen, onClose, invoice, eve
                 {invoice?.Client.firstName} {invoice?.Client.lastName}
               </Box>
               {renderGroupedItems(invoiceItems)}
-              <Box className="font-medium text-base mt-3">Total: $CAD{invoice.totalAmount}</Box>
+              <Box className="font-medium text-base my-2">
+                Payment Processing Fees: <b>$CAD{fees}</b>
+              </Box>
+              <Box className="font-medium text-base mt-3">
+                Total: $CAD<b>{parseInt(invoice.totalAmount, 10) + fees}</b>
+              </Box>
             </Box>
           )}
 

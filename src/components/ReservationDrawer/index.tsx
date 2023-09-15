@@ -38,8 +38,9 @@ import ReservationSummary from '../ReservationSummary';
 import PaymentReview from '../PaymentReview';
 
 interface IReservationDrawerProps {
-  eventId: number;
+  eventId: number | undefined;
   isOpen: boolean;
+  reservationId?: string | undefined;
   onClose: () => void;
   variant?: 'circles' | 'circles-alt' | 'simple' | undefined;
 }
@@ -64,7 +65,6 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     OwnerId: '',
     ClientLists: [],
   });
-  const [completedPayment, setCompletedPayment] = useState(false);
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
     count: steps.length,
@@ -116,7 +116,6 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     setMessageBar(null);
 
     try {
-      console.log('Put DRAFT');
       const response = await putDraftReservation(reservation);
       if (response.success) {
         toast({
@@ -128,7 +127,6 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           isClosable: true,
         });
         const updatedReservation: Reservation = { ...reservation, StatusId: response.data.StatusId };
-        console.log({ updatedReservation });
         goToNext();
       } else {
         toast({

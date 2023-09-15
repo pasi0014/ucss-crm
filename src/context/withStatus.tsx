@@ -12,7 +12,7 @@ const withStatusFetching = <P extends object>(WrappedComponent: ComponentType<P>
 
       try {
         const response = await getStatuses();
-        console.log(`Response from withStatus`, { response });
+
         if (response.resStatus === 401) {
           setAppLoading(false);
         }

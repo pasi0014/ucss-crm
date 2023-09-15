@@ -1,27 +1,22 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { Button, Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
-import { AppContext } from '../../context/AppContext';
+import { Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { getEventById, getEventClients, getEventReservation, getEventSales } from './calls';
 
 import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
-import { AddIcon } from '@chakra-ui/icons';
 
 import { Event } from '../../types/Event';
 
+import ReservationList from '../../components/ReservationList';
 import ReservationDrawer from '../../components/ReservationDrawer';
 import MessageBar, { IMessageBar } from '../../components/MessageBar';
 import { Reservation } from '../../types/Reservation';
-import DataTable from '../../components/DataTable';
-import { IColumnProps } from '../../interfaces';
-import moment from 'moment';
-import { Badge } from '@chakra-ui/react';
-import { getStatus, getStatusColor } from '../../utils/utilities';
-import { Spinner } from '@chakra-ui/react';
-import { Center } from '@chakra-ui/react';
+
 import withStatusFetching from '../../context/withStatus';
+import PriceList from '../../components/PriceList';
 
 type EventParams = {
   eventId: any;
@@ -30,7 +25,6 @@ type EventParams = {
 const EventView: React.FC = (props: any) => {
   const { eventId } = useParams<EventParams>();
   const navigate = useNavigate();
-  const { setAppLoading, appLoading } = useContext<any>(AppContext);
 
   const [loading, setLoading] = useState(false);
   const [reservations, setReservations] = useState<any>([]);
@@ -41,41 +35,10 @@ const EventView: React.FC = (props: any) => {
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   const bgColor = useColorModeValue('white', 'gray.700');
-
-  const columns: IColumnProps[] = [
-    { header: 'ID', accessor: 'id' },
-    {
-      header: 'Guest Name',
-      accessor: 'ClientLists',
-      render: (ClientLists) => {
-        const owner = ClientLists.find((iClient: any) => reservations.find((iReservation: Reservation) => iReservation.OwnerId === iClient.ClientId)).Client;
-        return `${owner.firstName} ${owner.lastName}`;
-      },
-    },
-    {
-      header: 'Phone',
-      accessor: 'OwnerId',
-      render: (OwnerId) => {
-        const owner = reservations.find((iReservation: any) =>
-          iReservation.ClientLists.find((iCLientList: any) => iCLientList.Client.id === OwnerId),
-        ).ClientLists;
-        const client = owner.find((iClient: any) => iClient.Client.id === OwnerId);
-        return `${client.Client.phone}`;
-      },
-    },
-    {
-      header: 'Status',
-      accessor: 'StatusId',
-      render: (value) => (
-        <Badge colorScheme={getStatusColor(getStatus(props.statuses.Reservation, value).tag || '')}>{getStatus(props.statuses.Reservation, value).tag}</Badge>
-      ),
-    },
-    { header: 'Created At', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').format('YYYY-MM-DD HH:mm') },
-    { header: 'Created By', accessor: 'createdBy' },
-  ];
+  const infoBg = useColorModeValue('gray.50', 'gray.700');
 
   const doFetchEvent = async () => {
-    setAppLoading(true);
+    setLoading(true);
     setMessageBar(null);
 
     try {
@@ -87,11 +50,11 @@ const EventView: React.FC = (props: any) => {
 
       if (response.data === null) throw new Error(`An error occurred while trying to get the Event`);
       setSelectedEvent(response.data);
-      setAppLoading(false);
     } catch (error: any) {
       console.error(`Unexpected error while getting the Event : ${error.message}`, { ...error });
       setMessageBar({ type: 'error', message: error.message });
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -170,7 +133,7 @@ const EventView: React.FC = (props: any) => {
         </Stack>
       )}
 
-      {!selectedEvent && !appLoading && (
+      {!selectedEvent && !loading && (
         <Box textAlign="center" py={10} px={6}>
           <Heading display="inline-block" as="h2" size="2xl" bgGradient="linear(to-r, teal.400, teal.600)" backgroundClip="text">
             404
@@ -193,8 +156,8 @@ const EventView: React.FC = (props: any) => {
           </Stack>
 
           {/* Stats */}
-          <Stack my={25} spacing="24px" direction={['column', 'row']}>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+          <Flex flexDirection={{ base: 'column', md: 'row' }} justifyContent="space-between">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -211,7 +174,7 @@ const EventView: React.FC = (props: any) => {
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -231,7 +194,7 @@ const EventView: React.FC = (props: any) => {
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -248,7 +211,7 @@ const EventView: React.FC = (props: any) => {
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg">
+            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
@@ -265,56 +228,84 @@ const EventView: React.FC = (props: any) => {
                 </StatNumber>
               </Stat>
             </Box>
-          </Stack>
+          </Flex>
 
           {/* Event Description */}
-          <Stack>
-            <Box bg={bgColor} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="sm">
-              <Heading as="h3" size="lg">
-                Event Description
+          <div className="flex lg:flex-row flex-col w-full">
+            <Box bg={bgColor} className="shadow-md rounded-xl p-5 lg:w-6/12 w-full mx-3 my-5">
+              <Heading as="h3" size="lg" mx={1} mb={4}>
+                Event Info
               </Heading>
 
-              <Box my={2} mx={2}>
-                <Text>{selectedEvent.description}</Text>
-              </Box>
+              <div className="flex flex-row justify-between w-full my-10">
+                <div className="text-left w-full ml-3 flex flex-col">
+                  <span className="font-bold text-sm ">Start Time</span>
+                  <span className="text-base font-medium tracking-wide">
+                    {moment(selectedEvent.startTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                  </span>
+                </div>
+                <div className="text-left w-full ml-10 flex flex-col">
+                  <span className="font-bold text-sm tracking-wide leading-relaxed">End Time</span>
+                  <span className="text-base font-medium tracking-wide">
+                    {moment(selectedEvent.endTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                  </span>
+                </div>
+              </div>
+              <div className="w-full h-96">
+                <Box
+                  as="iframe"
+                  className="w-full h-full"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBxr53jBD1xjSQcESLr86hAkmBpDJ4R690&q=${selectedEvent.location}`}
+                ></Box>
+              </div>
             </Box>
-          </Stack>
+            <Box bg={bgColor} className="shadow-md rounded-xl p-5 lg:w-6/12  w-full mx-3 my-5">
+              <Heading as="h3" size="lg" className="mb-5">
+                Tickets
+              </Heading>
+              {selectedEvent.saleStart && selectedEvent.saleEnd && (
+                <div className="flex flex-row justify-between w-full my-10">
+                  <div className="text-left w-full ml-3 flex flex-col">
+                    <span className="font-bold text-sm ">Tickets Sale Start</span>
+                    <span className="text-base font-medium tracking-wide">
+                      {moment(selectedEvent.startTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                    </span>
+                  </div>
+                  <div className="text-left w-full ml-10 flex flex-col">
+                    <span className="font-bold text-sm tracking-wide leading-relaxed">Ticket Sale End:</span>
+                    <span className="text-base font-medium tracking-wide">
+                      {moment(selectedEvent.endTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div className="w-full h-full">
+                {props.statuses && selectedEvent.Prices && (
+                  <PriceList prices={selectedEvent.Prices.filter((iPrice) => iPrice.StatusId === props.statuses.Price.ACTIVE)} />
+                )}
+              </div>
+            </Box>
+          </div>
 
           {/* Reservations */}
           <Stack>
             <Box bg={bgColor} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="s">
               <Heading as="h3" size="lg">
-                Reservations
+                Reservations for event
               </Heading>
 
-              {/* Action Buttons */}
-              <Box mt="3">
-                <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-                  <Flex alignItems={'center'}>
-                    <Button variant={'solid'} colorScheme={'teal'} size={'md'} onClick={handleOpenDrawer}>
-                      <AddIcon boxSize={3} mr={3} />
-                      Create a Reservation
-                    </Button>
-                  </Flex>
-                </Flex>
-              </Box>
-
-              {/* DataTable */}
-              {loading && (
-                <Center>
-                  <Spinner />
-                </Center>
-              )}
-              {reservations.length > 0 && !loading && (
-                <DataTable
-                  columns={columns}
-                  items={reservations}
-                  onOpenRecord={(val: any) => {
+              {props.statuses && (
+                <ReservationList
+                  eventId={eventId}
+                  onCreate={handleOpenDrawer}
+                  statuses={props.statuses}
+                  onOpen={(val: Reservation) => {
                     navigate(`/events/${eventId}/reservation/${val.id}`);
                   }}
-                  onEditRecord={(val: any) => console.log({ val })}
-                  onDeleteRecord={(val: any) => console.log({ val })}
-                  dataDescription="Reservations"
                 />
               )}
             </Box>

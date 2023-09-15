@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { useToast } from '@chakra-ui/react';
+import { useToast, useColorModeValue } from '@chakra-ui/react';
 
 import { AppContext } from '../../context/AppContext';
 import { IMessageBar } from '../MessageBar';
+import { PaymentIntent } from '../../types/Reservation';
 
 import { createPaymentIntent } from './calls';
 
 import PaymentForm from '../PaymentForm';
-import { Price } from '../../types/Price';
-import { useColorModeValue } from '@chakra-ui/react';
-import { PaymentIntent } from '../../types/Reservation';
-import { useNavigate } from 'react-router-dom';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
 
@@ -21,10 +19,9 @@ interface IPaymentFormWrapper {
   eventId: number | undefined;
   clientId: string | undefined;
   pendingPayments: PaymentIntent[];
-  onSuccessPayment?: () => void;
 }
 
-const PaymentFormWrapper: React.FC<IPaymentFormWrapper> = ({ reservationId, eventId, clientId, pendingPayments, onSuccessPayment }) => {
+const PaymentFormWrapper = ({ reservationId, eventId, clientId, pendingPayments }: any) => {
   const toast = useToast();
   const navigate = useNavigate();
   const { setAppLoading } = useContext<any>(AppContext);
@@ -77,18 +74,16 @@ const PaymentFormWrapper: React.FC<IPaymentFormWrapper> = ({ reservationId, even
     appearance,
   } as any;
 
-  return (
-    clientSecret && (
-      <Elements options={options} stripe={stripePromise}>
-        <PaymentForm
-          onPaymentSuccess={() => navigate(`/events/${eventId}/reservation/${reservationId}`)}
-          eventId={eventId}
-          clientSecret={clientSecret}
-          reservationId={reservationId}
-        />
-      </Elements>
-    )
-  );
+  return clientSecret ? (
+    <Elements options={options} stripe={stripePromise}>
+      <PaymentForm
+        onPaymentSuccess={() => navigate(`/events/${eventId}/reservation/${reservationId}`)}
+        eventId={eventId}
+        clientSecret={clientSecret}
+        reservationId={reservationId}
+      />
+    </Elements>
+  ) : null;
 };
 
 export default PaymentFormWrapper;

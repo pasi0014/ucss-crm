@@ -15,7 +15,7 @@ import { AppContext } from '../../context/AppContext';
 import { updateOrSaveClient } from './calls';
 
 interface IReservationFormProps {
-  eventId: number;
+  eventId: number | undefined;
   reservation: Reservation;
   onReservationUpdate: (reservation: Reservation) => void;
 }

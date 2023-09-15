@@ -38,6 +38,8 @@ import GuestCard from '../../components/GuestCard';
 import PaymentDrawer from '../../components/PaymentDrawer';
 import withStatusFetching from '../../context/withStatus';
 import { useToast } from '@chakra-ui/react';
+import ReservationDrawer from '../../components/ReservationDrawer';
+import { MAXIMUM_CLIENTS } from '../../utils/constants';
 
 const ReservationView: React.FC = (props: any) => {
   const toast = useToast();
@@ -48,6 +50,7 @@ const ReservationView: React.FC = (props: any) => {
   const [paymentDrawer, setPaymentDrawer] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>();
   const [pendingInvoices, setPendingInvoices] = useState<Invoice[]>([]);
+  const [enableGuestDelete, setEnableGuestDelete] = useState(true);
 
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
@@ -63,11 +66,17 @@ const ReservationView: React.FC = (props: any) => {
    * Check if current reservation has any outstanding invoices
    */
   useEffect(() => {
-    if (props.statuses && reservation && reservation.Invoices?.length) {
+    if (!props.statuses) return;
+
+    if (reservation && reservation.Invoices?.length) {
       if (reservation.StatusId === props.statuses.Reservation.AWAITING_PAYMENT) {
         const tempInvoices = reservation?.Invoices.filter((iInvoice) => iInvoice.StatusId === props.statuses.Invoice.PENDING);
         setPendingInvoices(tempInvoices);
       }
+    }
+
+    if (reservation && reservation.ClientLists.length <= 1) {
+      setEnableGuestDelete(false);
     }
   }, [reservation, props.statuses]);
 
@@ -147,20 +156,13 @@ const ReservationView: React.FC = (props: any) => {
         </ModalContent>
       </Modal>
       {/* Guest Drawer */}
-      <Drawer
+      <ReservationDrawer
         isOpen={showAddGuest}
         onClose={() => {
           setShowAddGuest(false);
         }}
-        size="md"
-      >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>Add Guest</DrawerHeader>
-          <DrawerBody>{showAddGuest && <>GuestForm here</>}</DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        eventId={reservation?.EventId}
+      />
       {/* Payment Drawer */}
       {reservation && (
         <PaymentDrawer
@@ -188,17 +190,22 @@ const ReservationView: React.FC = (props: any) => {
                 </Badge>
               )}
             </div>
-            <div className="flex flex-col space-y-1">
-              <div className="text-sm">
-                Created:
-                <span className="ml-2 font-bold">
-                  {moment(reservation?.createdAt)
-                    .tz('America/Toronto')
-                    .format('DD MMM, YYYY [at] HH:mma')}
-                </span>
+            <div className="flex flex-row justify-between">
+              <div className="flex flex-col">
+                <div className="text-sm">
+                  Created:
+                  <span className="ml-2 font-bold">
+                    {moment(reservation?.createdAt)
+                      .tz('America/Toronto')
+                      .format('DD MMM, YYYY [at] HH:mma')}
+                  </span>
+                </div>
+                <div className="text-sm">
+                  Created By:<span className="ml-2 font-bold">{reservation?.createdBy}</span>
+                </div>
               </div>
-              <div className="text-sm">
-                Created By:<span className="ml-2 font-bold">{reservation?.createdBy}</span>
+              <div className="w-4/12 flex">
+                People on reservation: <b>{reservation?.ClientLists.length}</b>
               </div>
             </div>
             {!!pendingInvoices.length && (
@@ -217,11 +224,14 @@ const ReservationView: React.FC = (props: any) => {
               </div>
             )}
             <div className="flex sm:flex-row flex-col mt-3">
-              <div className="flex flex-row justify-start sm:w-8/12 w-full">
-                <Button className="mt-2 sm:w-6/12 w-full" colorScheme="orange" size={{ base: 'xs', md: 'sm' }} onClick={() => setShowAddGuest(true)}>
-                  <BsPersonFillAdd className="mr-2" /> Add Guest
-                </Button>
-              </div>
+              {reservation && reservation?.ClientLists.length < MAXIMUM_CLIENTS && (
+                <div className="flex flex-row justify-start sm:w-8/12 w-full">
+                  <Button className="mt-2 sm:w-6/12 w-full" colorScheme="orange" size={{ base: 'xs', md: 'sm' }} onClick={() => setShowAddGuest(true)}>
+                    <BsPersonFillAdd className="mr-2" /> Add Guest
+                  </Button>
+                </div>
+              )}
+
               <div className="flex sm:flex-row flex-col justify-end w-full">
                 {reservation && props.statuses && reservation.StatusId === props.statuses.Reservation.ACTIVE && (
                   <Button className="mt-2 sm:w-6/12 w-full mr-2" colorScheme="blue" size={{ base: 'xs', md: 'sm' }}>
@@ -250,7 +260,13 @@ const ReservationView: React.FC = (props: any) => {
             <div className="flex flex-col w-full space-y-3">
               {props.statuses &&
                 reservation?.ClientLists?.map((iClientList: any) => (
-                  <GuestCard key={iClientList.reservationCode} statuses={props.statuses} clientList={iClientList} />
+                  <GuestCard
+                    key={iClientList.reservationCode}
+                    statuses={props.statuses}
+                    clientList={iClientList}
+                    enableDelete={enableGuestDelete}
+                    onCheckIn={(clientList) => console.log({ clientList })}
+                  />
                 ))}
             </div>
           </Box>

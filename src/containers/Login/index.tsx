@@ -45,9 +45,11 @@ export default function Login() {
       if (response.success) {
         signIn({
           token: response.data.accessToken,
-          expiresIn: 604800,
+          // refreshToken: response.data.refreshToken,
+          expiresIn: 180, // Minutes
+          // refreshTokenExpireIn: 10080, // Minutes
           tokenType: 'Bearer',
-          authState: { email },
+          authState: response.data.user,
         });
       }
 

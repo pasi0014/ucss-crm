@@ -5,6 +5,7 @@ import { IMessageBar } from '../MessageBar';
 import { Price } from '../../types/Price';
 import PaymentFormWrapper from '../PaymentFormWraper';
 import { Button } from '@chakra-ui/react';
+import { calculateFees } from '../../utils/utilities';
 
 interface IPaymentReviewProps {
   reservation: Reservation;
@@ -36,6 +37,7 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
     let totalPrice = reservation.ClientLists?.reduce((acc, iClient) => {
       return acc + (iClient.Price?.amount || 0);
     }, 0);
+    const { totalFees } = calculateFees(totalPrice);
     return (
       <Box>
         {reservation.ClientLists?.map((iClient) => (
@@ -54,8 +56,11 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
             <hr />
           </div>
         ))}
+        <Box my={5} className="text-sm">
+          Payment Processing Fees: <b>$CAD{totalFees}</b>
+        </Box>
         <Box mt={5}>
-          <Text fontSize="md">Reservation Total: $CAD ${totalPrice}</Text>
+          <Text fontSize="md">Reservation Total: $CAD {totalPrice}</Text>
         </Box>
       </Box>
     );
@@ -70,13 +75,7 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
       <div className="flex md:flex-row flex-col-reverse">
         <Box className="w-6/12 p-5 rounded-xl shadow-xl mx-auto" bg={useColorModeValue('gray.50', 'gray.700')}>
           {pendingPayments.length > 0 ? (
-            <PaymentFormWrapper
-              eventId={reservation.EventId}
-              reservationId={reservation.id}
-              clientId={reservation.OwnerId}
-              pendingPayments={pendingPayments}
-              onSuccessPayment={onNext}
-            />
+            <PaymentFormWrapper eventId={reservation.EventId} reservationId={reservation.id} clientId={reservation.OwnerId} pendingPayments={pendingPayments} />
           ) : (
             <div className="flex flex-col">
               <span className="text-xl font-bold">This Reservation doesn't require payment</span>

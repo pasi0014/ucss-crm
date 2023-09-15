@@ -7,6 +7,39 @@ import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
 
 
+export const fetchLocationSuggestions = async (location: string) => {
+    const ctx = {
+        component: `component/EventForm.fetchLocationSuggestions`,
+        params: { location }
+    }
+
+    let errorMessage = null;
+
+    try {
+        console.log('Getting locaiton autosuggestion', { ...ctx });
+        const token = getCookieValue('_auth');
+
+        const response = await axios.get(`${API_BASE_URL}/v1/locations?query=${location}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+            return { success: true, data: response.data.content };
+        }
+
+        errorMessage = getAnErrorMessage(response);
+    } catch (error) {
+        console.error('Unexpected error while trying to get Location suggestions', { ...ctx, error });
+    }
+    return {
+        success: false,
+        data: errorMessage,
+    };
+};
+
 export const updateEvent = async (event: Event) => {
     const ctx = {
         component: 'components/EventForm/calls.updateEvent',

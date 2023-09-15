@@ -56,6 +56,7 @@ export async function confirmReservation(reservationId: string | undefined) {
 
         const response = await axios.put(
             `${API_BASE_URL}/v1/reservations/${reservationId}`,
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${token}`,

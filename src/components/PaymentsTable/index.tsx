@@ -19,7 +19,7 @@ interface IPaymentTable {
 const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) => {
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
-    { header: 'Amount', accessor: 'totalAmount', render: (value) => <span>${value}</span> },
+    { header: 'Amount', accessor: 'totalWithFees', render: (value) => <span>${value}</span> },
     {
       header: 'Status',
       accessor: 'StatusId',
@@ -40,11 +40,18 @@ const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) =>
   return (
     <Box>
       <TableContainer>
-        <Table bg={useColorModeValue('white', 'gray.800')} color={useColorModeValue('gray.800', 'white')} borderRadius="15px" shadow="sm" overflowY={'scroll'}>
+        <Table
+          bg={useColorModeValue('white', 'gray.800')}
+          color={useColorModeValue('gray.800', 'white')}
+          borderRadius="15px"
+          shadow="sm"
+          overflowY={'scroll'}
+          size={{ base: 'sm', md: 'md' }}
+        >
           <Thead>
             <Tr>
               {columns.map((column) => (
-                <Th key={column.accessor}>{column.header}</Th>
+                <Th key={column.accessor}>{column.header} </Th>
               ))}
               <Th>Actions</Th>
             </Tr>
@@ -59,13 +66,13 @@ const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) =>
                 ))}
                 {showPaymentButton ? (
                   <Td>
-                    <Button colorScheme="orange" size="md" className="ml-2">
+                    <Button colorScheme="orange" size={{ base: 'sm', md: 'md' }} className="ml-2">
                       <MdPayment className="mr-2" /> <span>Pay</span>
                     </Button>
                   </Td>
                 ) : (
                   <Td>
-                    <Button size="md" colorScheme="teal">
+                    <Button size={{ base: 'sm', md: 'md' }} colorScheme="teal">
                       <RiRefund2Fill className="mr-2" /> Refund
                     </Button>
                   </Td>

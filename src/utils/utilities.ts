@@ -65,3 +65,16 @@ export function getStatusColor(status: string) {
   if (status === 'INACTIVE' || status === 'CANCELLED') return 'red';
   if (status === 'COMPLETED' || status === 'REFUNDED') return 'teal';
 }
+
+export function calculateFees(amount: any) {
+  const totalPercentageFee = amount * 0.029;
+  const totalFixedFee = 1;
+
+  const totalFees = totalPercentageFee + totalFixedFee;
+  const totalAmountWithFees = amount + totalFees;
+
+  return {
+    totalFees: totalFees,
+    totalAmountWithFees: totalAmountWithFees,
+  };
+}

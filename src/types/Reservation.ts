@@ -4,7 +4,7 @@ import { Price } from "./Price";
 export type Reservation = {
     id?: number;
     reservationCode?: string;
-    EventId: number;
+    EventId?: number;
     OwnerId?: string;
     StatusId?: number;
     createdAt?: Date;

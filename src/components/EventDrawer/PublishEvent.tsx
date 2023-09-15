@@ -9,18 +9,17 @@ import { getStatus } from '../../utils/utilities';
 import { findEventById } from '../EventForm/calls';
 import { updateEventStatus } from './calls';
 
-export function PublishEvent(props: { onNext: () => void; entity: string; eventId: number | undefined | null }) {
+export function PublishEvent(props: { onNext: () => void; entity: string; eventId: number | undefined | null; statuses: any }) {
   const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
-  const { statuses } = useContext<any>(StatusContext);
 
-  const [selectedStatus, setSelectedStatus] = useState<any>(statuses.Event.DRAFT);
+  const [selectedStatus, setSelectedStatus] = useState<any>(props.statuses.Event.DRAFT);
 
   const statusItems = useMemo(
     () =>
-      Object.keys(statuses.Event).map((statusKey) => ({
-        key: statuses.Event[statusKey],
-        text: getStatus(statuses.Event, statuses.Event[statusKey]).tag,
+      Object.keys(props.statuses.Event).map((statusKey) => ({
+        key: props.statuses.Event[statusKey],
+        text: getStatus(props.statuses.Event, props.statuses.Event[statusKey]).tag,
       })),
     [],
   );
@@ -65,7 +64,7 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventI
 
       toast({
         title: 'Event Status updated!',
-        description: `The Event status has been set to ${getStatus(statuses.Event, response.data.StatusId).tag}.`,
+        description: `The Event status has been set to ${getStatus(props.statuses.Event, response.data.StatusId).tag}.`,
         position: 'top-right',
         status: 'success',
         duration: 9000,

@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { Badge, Box, useColorModeValue, Image, Button, Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from '@chakra-ui/react';
+import { Badge, Box, useColorModeValue, Button } from '@chakra-ui/react';
 import { FaPhone, FaTrash } from 'react-icons/fa';
 import { MdModeEdit, MdEmail } from 'react-icons/md';
 import { IoTicketSharp } from 'react-icons/io5';
@@ -13,9 +13,11 @@ import { CheckIcon } from '@chakra-ui/icons';
 
 interface IGuestCard {
   clientList: ClientList;
-  onClose?: (itemId: number) => void;
-  onEdit?: (item: any) => void;
+  onDelete?: (clientListId: number) => void;
+  onEdit?: (clientList: ClientList) => void;
+  onCheckIn: (clientList: ClientList) => void;
   statuses?: any;
+  enableDelete: boolean;
 }
 
 function generateInitias(firstName: string = '', lastName: string = '') {
@@ -25,7 +27,8 @@ function generateInitias(firstName: string = '', lastName: string = '') {
   return `${firstInitial}${lastInitial}`;
 }
 
-const GuestCard: React.FC<IGuestCard> = ({ statuses, clientList, onClose, onEdit }) => {
+const GuestCard: React.FC<IGuestCard> = ({ statuses, clientList, enableDelete = true, onDelete, onEdit, onCheckIn }) => {
+  const handleDelete = (clientList: ClientList) => {};
   return (
     <Box className="flex flex-col rounded-xl shadow-md p-3" bg={useColorModeValue('gray.50', 'gray.600')}>
       {/* Details with QR */}
@@ -60,7 +63,7 @@ const GuestCard: React.FC<IGuestCard> = ({ statuses, clientList, onClose, onEdit
         <div className="flex flex-row sm:w-4/12 w-full sm:my-auto my-5 h-full items-center align-baseline text-base">
           <IoTicketSharp className="mr-2" />{' '}
           <span>
-            {clientList.Price?.name} | {clientList.Price?.ticketType === 'free' ? 'Free' : `${clientList.Price?.amount}`}
+            {clientList.Price?.name} | {clientList.Price?.ticketType === 'free' ? 'Free' : `$${clientList.Price?.amount}`}
           </span>
         </div>
         <div className="flex flex-col justify-end mx-auto p-1">
@@ -71,38 +74,21 @@ const GuestCard: React.FC<IGuestCard> = ({ statuses, clientList, onClose, onEdit
       {/* Tickets info */}
       <div className="flex sm:flex-row flex-col">
         <div className="flex flex-row justify-start p-3 sm:w-8/12 w-full">
-          <Button className="mt-2 sm:w-6/12 w-full  mr-2" colorScheme="green" size={{ base: 'xs', md: 'sm' }}>
+          <Button className="mt-2 sm:w-6/12 w-full  mr-2" colorScheme="green" size={{ base: 'xs', md: 'sm' }} onClick={() => onCheckIn(clientList)}>
             <CheckIcon className="mr-2" /> Check in
           </Button>
         </div>
         <div className="flex flex-row justify-end p-3 sm:w-8/12 w-full">
-          <Button className="mt-2 sm:w-6/12 w-full mr-2" colorScheme="orange" size={{ base: 'xs', md: 'sm' }}>
+          <Button className="mt-2 sm:w-6/12 w-full mr-2" colorScheme="orange" size={{ base: 'xs', md: 'sm' }} onClick={() => onEdit && onEdit(clientList)}>
             <MdModeEdit className="mr-2" /> Edit
           </Button>
-          <Button className="mt-2 sm:w-6/12 w-full" colorScheme="red" size={{ base: 'xs', md: 'sm' }}>
-            <FaTrash className="mr-2" /> Delete Guest
-          </Button>
+          {enableDelete && (
+            <Button className="mt-2 sm:w-6/12 w-full" colorScheme="red" size={{ base: 'xs', md: 'sm' }} onClick={() => handleDelete(clientList)}>
+              <FaTrash className="mr-2" /> Delete Guest
+            </Button>
+          )}
         </div>
       </div>
-      {/* Guest Activity */}
-      {/* <div>
-        <Accordion allowMultiple>
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box as="span" flex="1" textAlign="left">
-                  Section 1 title
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-              veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
-      </div> */}
     </Box>
   );
 };

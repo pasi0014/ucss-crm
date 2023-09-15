@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableCaption, IconButton, Tooltip, Box, useColorModeValue } from '@chakra-ui/react';
 import { EditIcon, SearchIcon, ViewIcon, DeleteIcon } from '@chakra-ui/icons';
 import { InputGroup } from '@chakra-ui/react';
@@ -24,15 +24,31 @@ type Props = {
   items: Item[];
   showSearch?: boolean;
   dataDescription?: String;
-  onOpenRecord: (item: Item) => void;
-  onEditRecord: (item: Item) => void;
-  onDeleteRecord: (item: Item) => void;
+  onOpenRecord?: (item: Item) => void;
+  onEditRecord?: (item: Item) => void;
+  onDeleteRecord?: (item: Item) => void;
+  disableEdit?: boolean;
+  disableDelete?: boolean;
+  disableOpen?: boolean;
 };
 
-const DataTable: React.FC<Props> = ({ columns, items, dataDescription, showSearch = false, onOpenRecord, onEditRecord, onDeleteRecord }) => {
+const DataTable: React.FC<Props> = ({
+  columns,
+  items,
+  dataDescription,
+  showSearch = false,
+  onOpenRecord,
+  onEditRecord,
+  onDeleteRecord,
+  disableOpen = false,
+  disableDelete = true,
+  disableEdit = true,
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Change this value as needed
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const itemsPerPage = 15; // Change this value as needed
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -49,12 +65,32 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, showSearc
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredItems.slice(startIndex, endIndex);
 
+  const sortedItems = [...currentItems].sort((a, b) => {
+    if (sortColumn) {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const handleColumnSort = (accessor: string) => {
+    if (sortColumn === accessor) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(accessor);
+      setSortOrder('asc');
+    }
+  };
+
   const renderCell = (item: any, column: IColumnProps) => {
     if (column.render) {
       return column.render(item[column.accessor], item);
     }
     return item[column.accessor];
   };
+
   return (
     <Box>
       {showSearch && (
@@ -88,34 +124,52 @@ const DataTable: React.FC<Props> = ({ columns, items, dataDescription, showSearc
             borderRadius="15px"
             shadow="sm"
             overflowY={'scroll'}
+            size={{ base: 'sm', md: 'md' }}
           >
             <TableCaption>{!!filteredItems.length && dataDescription}</TableCaption>
             <Thead>
               <Tr>
                 {columns.map((column) => (
-                  <Th key={column.accessor}>{column.header}</Th>
+                  <Th key={crypto.randomUUID()}>
+                    <button onClick={() => handleColumnSort(column.accessor)} className="py-3">
+                      {column.header} {sortColumn === column.accessor && <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                    </button>
+                  </Th>
                 ))}
                 <Th>Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {currentItems.map((item) => (
+              {sortedItems.map((item) => (
                 <Tr key={item.id.toString()}>
                   {columns.map((column) => (
-                    <Td key={column.accessor}>
+                    <Td key={crypto.randomUUID()}>
                       <div>{renderCell(item, column)}</div>
                     </Td>
                   ))}
                   <Td>
-                    <Tooltip label="View" placement="top">
-                      <IconButton aria-label="View" icon={<ViewIcon />} size="sm" mx="5px" my="3px" onClick={() => onOpenRecord(item)} />
-                    </Tooltip>
-                    <Tooltip label="Edit" placement="top">
-                      <IconButton aria-label="Edit" icon={<EditIcon />} size="sm" mx="5px" my="3px" onClick={() => onEditRecord(item)} />
-                    </Tooltip>
-                    <Tooltip label="Delete" placement="top">
-                      <IconButton aria-label="Delete" icon={<DeleteIcon />} size="sm" mx="5px" my="3px" onClick={() => onDeleteRecord(item)} />
-                    </Tooltip>
+                    {!disableOpen && (
+                      <Tooltip label="View" placement="top">
+                        <IconButton aria-label="View" icon={<ViewIcon />} size="sm" mx="5px" my="3px" onClick={() => onOpenRecord && onOpenRecord(item)} />
+                      </Tooltip>
+                    )}
+                    {!disableEdit && (
+                      <Tooltip label="Edit" placement="top">
+                        <IconButton aria-label="Edit" icon={<EditIcon />} size="sm" mx="5px" my="3px" onClick={() => onEditRecord && onEditRecord(item)} />
+                      </Tooltip>
+                    )}
+                    {!disableDelete && (
+                      <Tooltip label="Delete" placement="top">
+                        <IconButton
+                          aria-label="Delete"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          mx="5px"
+                          my="3px"
+                          onClick={() => onDeleteRecord && onDeleteRecord(item)}
+                        />
+                      </Tooltip>
+                    )}
                   </Td>
                 </Tr>
               ))}
