@@ -1,0 +1,15 @@
+/* CSS Transition */
+.hide-sticky {
+  opacity: 0; /* Set opacity to 0 to fade out */
+  visibility: hidden; /* Hide the element without affecting layout */
+  transition:
+    opacity 0.3s ease,
+    visibility 0s 0.3s; /* Add a smooth fade-out transition */
+}
+
+/* Apply a transition delay when showing the sticky element */
+.show-sticky {
+  opacity: 1; /* Set opacity to 1 to fade in */
+  visibility: visible; /* Show the element */
+  transition: opacity 0.3s ease; /* Add a smooth fade-in transition */
+}

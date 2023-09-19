@@ -21,8 +21,12 @@ import { IconButton } from '@chakra-ui/react';
 
 import 'react-datetime/css/react-datetime.css';
 import { Text } from '@chakra-ui/react';
-import { Select } from '@chakra-ui/react';
 import EventList from '../../components/EventList';
+import { Tabs } from '@chakra-ui/react';
+import { TabList } from '@chakra-ui/react';
+import { Tab } from '@chakra-ui/react';
+
+import './styles.scss';
 
 const Events = (props: any) => {
   const navigate = useNavigate();
@@ -33,6 +37,8 @@ const Events = (props: any) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [eventDate, setEventDate] = useState<any>(null);
   const [selectedStatus, setSelectedStatus] = useState<any>('');
+
+  const [scrollDirection, setScrollDirection] = useState('down');
 
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
@@ -55,6 +61,7 @@ const Events = (props: any) => {
   const calendarBg = useColorModeValue('white', 'gray.600');
   const wrapperBg = useColorModeValue('white', 'gray.700');
   const inputBg = useColorModeValue('gray.500', 'gray.400');
+  const bg = useColorModeValue('', '');
 
   const handleOpenDrawer = () => {
     setIsDrawerOpen(true);
@@ -163,6 +170,7 @@ const Events = (props: any) => {
       </Box>
     );
   };
+
   return (
     <React.Fragment>
       <Box textAlign="left" my={5} p={3}>
@@ -178,86 +186,115 @@ const Events = (props: any) => {
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
       />
-      {messageBar != null ? (
-        <MessageBar type={messageBar.type} message={messageBar?.message}></MessageBar>
-      ) : (
-        <Box>
-          <Box bg={wrapperBg} p={3} borderRadius="10px" boxShadow="sm" mb={5}>
-            {/* Wrapper */}
-            <div className="w-full flex lg:flex-row flex-col items-center">
-              {/* Filters */}
-              <div className="flex lg:flex-row flex-col lg:space-x-4 w-full">
-                <Box className="lg:w-8/12 w-full mb-3 flex flex-col">
-                  <Text className="text-relaxed font-medium ml-1 mb-2" color={inputBg}>
-                    Search for an event
-                  </Text>
-                  <InputGroup>
-                    <Input
-                      bg={wrapperBg}
-                      shadow="md"
-                      placeholder="Search"
-                      value={searchTerm}
-                      onChange={(val: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(val.target.value)}
-                    />
-                    <InputRightElement>
-                      <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
-                    </InputRightElement>
-                  </InputGroup>
-                </Box>
-                <div className="w-full flex sm:flex-row flex-col">
-                  <Flex className="lg:w-4/12 w-full flex flex-col sm:mr-4 m-0">
-                    <Text className="font-medium ml-1 mb-2" color={inputBg}>
-                      Date
-                    </Text>
-                    <Datetime
-                      inputProps={{ className: 'border-2 p-2 rounded-lg w-full', placeholder: 'Select a date' }}
-                      className="border-1 border-gray-600 rounded-lg shadow-sm w-full "
-                      renderInput={onRenderInput}
-                      timeFormat={false}
-                      renderView={renderCalendar}
-                      dateFormat={'DD MMM, YYYY'}
-                      value={eventDate}
-                    />
-                  </Flex>
-                  {statusItems && statusItems.length && (
-                    <Box className="sm:w-4/12 w-full flex flex-col">
-                      <Text className="font-medium ml-1 mb-2" color={inputBg}>
-                        Status
-                      </Text>
-                      <Select
-                        placeholder="Select a status"
-                        className="text-gray-400"
-                        value={selectedStatus}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                          setSelectedStatus(e.target.value);
-                        }}
-                      >
-                        {statusItems.map((status: any) => (
-                          <option key={status.key} value={status.key}>
-                            {status.text}
-                          </option>
-                        ))}
-                      </Select>
-                    </Box>
-                  )}
-                </div>
-              </div>
+      {messageBar && <MessageBar type={messageBar.type} message={messageBar?.message}></MessageBar>}
 
-              <div className="lg:w-4/12 justify-end w-full mt-3 flex sm:flex-row flex-col">
-                <Button variant={'solid'} colorScheme={'blue'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
-                  <SearchIcon boxSize={3} mr={3} />
-                  Search
-                </Button>
-                <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
-                  <AddIcon boxSize={3} mr={3} />
-                  Create an event
-                </Button>
-              </div>
-            </div>
+      {/* Will be hidden on mobile */}
+      <Box className="hidden lg:block">
+        <Tabs className="mb-5">
+          <TabList>
+            <Tab onClick={() => setSelectedStatus(-1)}>All</Tab>
+            {props.statuses &&
+              Object.entries(props.statuses.Event).map(([key, value]) => (
+                <Tab key={value} onClick={() => setSelectedStatus(value)} isDisabled={!events.length}>
+                  {key}
+                </Tab>
+              ))}
+          </TabList>
+        </Tabs>
+      </Box>
+
+      {/* Event List and filtering */}
+      <Box className="flex lg:flex-row flex-col-reverse w-full h-full relative">
+        {props.statuses && !!events.length ? (
+          <Box className="lg:w-8/12 w-full">
+            <EventList onEdit={onEditRecord} onOpen={onOpenRecord} statuses={props.statuses} events={events} />
           </Box>
-          {props.statuses && !!events.length && <EventList onEdit={onEditRecord} onOpen={onOpenRecord} statuses={props.statuses} events={events} />}
+        ) : (
+          <Box className="lg:w-8/12 w-full">
+            <Box bg={useColorModeValue('white', 'gray.600')} className="p-20 flex-col items-center items-top justify-between rounded-xl shadow justify-between">
+              <Text fontSize="xl" className="font-bold">
+                There are no Events :/
+              </Text>
+              <Text>Yet we encourage you to create one</Text>
+              <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
+                {/* <AddIcon boxSize={3} mr={3} /> */}
+                Create event
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {/* Mobile Filtering - Make this Box stick to the top of the page when scrolling */}
+        <Box
+          className={`lg:w-4/12 w-full p-3 h-full flex flex-col rounded-xl shadow lg:ml-5 mb-10 ${scrollDirection === 'up' ? 'hide-sticky' : 'show-sticky'}`}
+          bg={wrapperBg}
+          style={{
+            position: 'sticky',
+            top: 5,
+            right: 5,
+          }}
+        >
+          <Box className="block lg:hidden overflow-scroll">
+            <Tabs className="mb-5">
+              <TabList>
+                {props.statuses &&
+                  Object.keys(props.statuses.Event).map((iStatusKey: string) => (
+                    <Tab key={iStatusKey} onClick={() => console.log('ONE')}>
+                      {iStatusKey}
+                    </Tab>
+                  ))}
+              </TabList>
+            </Tabs>
+          </Box>
+          <Flex className="w-full mb-3 flex lg:flex-col flex-row">
+            <div className="lg:mx-0 mx-3 lg:w-full w-6/12">
+              <Text className="text-relaxed font-medium ml-1 mb-2" color={inputBg}>
+                Search for an event
+              </Text>
+              <InputGroup>
+                <Input
+                  bg={wrapperBg}
+                  shadow="sm"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(val: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(val.target.value)}
+                />
+                <InputRightElement>
+                  <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
+                </InputRightElement>
+              </InputGroup>
+            </div>
+
+            <div className="lg:w-full w-6/12 flex sm:flex-row flex-col mt-5">
+              <Flex className="w-full flex flex-col">
+                <Text className="font-medium ml-1 mb-2" color={inputBg}>
+                  Date
+                </Text>
+                <Datetime
+                  inputProps={{ className: 'border-2 p-2 rounded-lg w-full', placeholder: 'Select a date' }}
+                  className="border-1 border-gray-600 rounded-lg shadow-sm w-full "
+                  renderInput={onRenderInput}
+                  timeFormat={false}
+                  renderView={renderCalendar}
+                  dateFormat={'DD MMM, YYYY'}
+                  value={eventDate}
+                />
+              </Flex>
+            </div>
+          </Flex>
+
+          <div className="w-full justify-end mt-3 flex sm:flex-row flex-col">
+            <Button variant={'solid'} colorScheme={'blue'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
+              <SearchIcon boxSize={3} mr={3} />
+              Search
+            </Button>
+            <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
+              <AddIcon boxSize={3} mr={3} />
+              Create an event
+            </Button>
+          </div>
         </Box>
-      )}
+      </Box>
 
       {props.statuses && <EventFormDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} eventId={selectedEventId} statuses={props.statuses} />}
     </React.Fragment>
