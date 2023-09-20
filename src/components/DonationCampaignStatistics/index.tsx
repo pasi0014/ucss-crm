@@ -1,23 +1,19 @@
-import { Button } from '@chakra-ui/react';
-import { useColorModeValue } from '@chakra-ui/react';
-import { Text } from '@chakra-ui/react';
-import { Icon } from '@chakra-ui/react';
-import { Flex } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { IoCheckmarkCircle } from 'react-icons/io5';
-import { MdBarChart, MdOutlineCalendarToday } from 'react-icons/md';
-import { RiArrowUpSFill } from 'react-icons/ri';
-import LineChart from '../LineChart';
-import { Box } from '@chakra-ui/react';
-import { lineChartDataTotalSpent, lineChartOptionsTotalSpent } from './chartData';
-import { Heading } from '@chakra-ui/react';
-import DataTable from '../DataTable';
 import moment from 'moment';
+
+import { Heading, Box, Text, Flex, Icon, useColorModeValue, Button } from '@chakra-ui/react';
+import { MdOutlineCalendarToday } from 'react-icons/md';
+
+import { lineChartDataTotalSpent, lineChartOptionsTotalSpent } from './chartData';
 import { IColumnProps } from '../../interfaces';
 import { Donor } from '../../types/Donor';
-import MessageBar, { IMessageBar } from '../MessageBar';
-import { getCampaignDonors } from './calls';
 import { DonationCampaign } from '../../types/DonationCampaign';
+
+import { getCampaignDonors } from './calls';
+
+import MessageBar, { IMessageBar } from '../MessageBar';
+import LineChart from '../LineChart';
+import DataTable from '../DataTable';
 
 // Purpose:
 // 1. Needs to show a donation statistics

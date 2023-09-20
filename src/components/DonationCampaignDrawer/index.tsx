@@ -1,22 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { DonationCampaign } from '../../types/DonationCampaign';
-import { IMessageBar } from '../MessageBar';
-import { Box } from '@chakra-ui/react';
-import { Drawer } from '@chakra-ui/react';
-import { DrawerOverlay } from '@chakra-ui/react';
-import { DrawerContent } from '@chakra-ui/react';
-import { useColorModeValue } from '@chakra-ui/react';
-import { DrawerHeader } from '@chakra-ui/react';
-import { Heading } from '@chakra-ui/react';
-import { DrawerBody } from '@chakra-ui/react';
+import React, { useState, Suspense } from 'react';
+
+import {
+  DrawerCloseButton,
+  Button,
+  Flex,
+  Heading,
+  useColorModeValue,
+  Box,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+} from '@chakra-ui/react';
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, Stepper, useSteps } from '@chakra-ui/stepper';
-import { Flex } from '@chakra-ui/react';
-import useIsMobile from '../../hooks/useMobile';
-import { Button } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
-import DonationCampaignForm from '../DonationCampaignForm';
-import DonationCampaignPrices from '../DonationCampaignPrices';
-import { DrawerCloseButton } from '@chakra-ui/react';
+import useIsMobile from '../../hooks/useMobile';
+
+import { IMessageBar } from '../MessageBar';
+import { DonationCampaign } from '../../types/DonationCampaign';
+
+const DonationCampaignForm = React.lazy(() => import('../DonationCampaignForm'));
+const DonationCampaignPrices = React.lazy(() => import('../DonationCampaignPrices'));
 
 interface IDonationCampaignDrawerProps {
   donationCampaignId?: number;
@@ -82,8 +87,16 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({ donati
                   ))}
                 </Stepper>
 
-                {activeStep === 1 && <DonationCampaignForm campaignId={donationCampaignId} onNext={() => goToNext()} />}
-                {activeStep === 2 && <DonationCampaignPrices donationCampaignId={donationCampaignId} />}
+                {activeStep === 1 && (
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <DonationCampaignForm campaignId={donationCampaignId} onNext={() => goToNext()} />
+                  </Suspense>
+                )}
+                {activeStep === 2 && (
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <DonationCampaignPrices donationCampaignId={donationCampaignId} />
+                  </Suspense>
+                )}
 
                 <Flex mt="15px">
                   {activeStep !== 1 && (

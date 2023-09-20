@@ -1,5 +1,8 @@
 import { Spinner } from '@chakra-ui/react';
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState } from 'react';
+import { Center } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import LoadingPage from '../components/LoadingPage';
 
 export const AppContext = createContext({});
 
@@ -11,24 +14,11 @@ export const AppProvider = ({ children }: any) => {
     setAppLoading,
   } as any;
 
-  // Block all clicks when app is loading
-  useEffect(() => {
-    document.body.classList.remove('is-loading');
-
-    if (appLoading) {
-      document.body.classList.add('is-loading');
-    }
-  }, [appLoading]);
-
   return (
     <AppContext.Provider value={appContext}>
       {children}
 
-      {appLoading && (
-        <div className="loading_screen loading_screen--fullscreen">
-          <Spinner size="md" />
-        </div>
-      )}
+      {appLoading && <LoadingPage />}
     </AppContext.Provider>
   );
 };

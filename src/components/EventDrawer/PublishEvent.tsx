@@ -9,7 +9,7 @@ import { getStatus } from '../../utils/utilities';
 import { findEventById } from '../EventForm/calls';
 import { updateEventStatus } from './calls';
 
-export function PublishEvent(props: { onNext: () => void; entity: string; eventId: number | undefined | null; statuses: any }) {
+const PublishEvent = (props: { onNext: () => void; entity: string; eventId: number | undefined | null; statuses: any }) => {
   const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
 
@@ -131,4 +131,6 @@ export function PublishEvent(props: { onNext: () => void; entity: string; eventI
       </Flex>
     </>
   );
-}
+};
+
+export default PublishEvent;

@@ -37,7 +37,7 @@ export default function SidebarWithHeader({ children }: { children: ReactNode })
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
       <SidebarContent onClose={() => onClose} display={{ base: 'none', lg: 'block' }} />
-      <Drawer autoFocus={false} isOpen={isOpen} placement="left" onClose={onClose} returnFocusOnClose={false} onOverlayClick={onClose} size="full">
+      <Drawer autoFocus={false} isOpen={isOpen} placement="left" onClose={onClose} returnFocusOnClose={false} onOverlayClick={onClose} size="xs">
         <DrawerContent>
           <SidebarContent onClose={onClose} />
         </DrawerContent>

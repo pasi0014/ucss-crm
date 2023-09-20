@@ -13,7 +13,7 @@ import { Spinner } from '@chakra-ui/react';
 import { Fade } from '@chakra-ui/react';
 import { Divider } from '@chakra-ui/react';
 
-export function EventForm(props: { onNext: () => void; event?: Event; eventId?: number | null; onEventUpdate: (eventId: number) => void }) {
+export default function EventForm(props: { onNext: () => void; event?: Event; eventId?: number | null; onEventUpdate: (eventId: number) => void }) {
   const { appLoading, setAppLoading } = useContext<any>(AppContext);
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [isLocationFetching, setIsLocationFetching] = useState(false);

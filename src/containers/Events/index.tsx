@@ -1,4 +1,4 @@
-import React, { ReactHTMLElement, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Heading, Flex, Button, Badge, useColorModeValue, Spacer, Input } from '@chakra-ui/react';
 import Datetime from 'react-datetime';
@@ -6,7 +6,7 @@ import { AddIcon, CalendarIcon, SearchIcon } from '@chakra-ui/icons';
 
 import { AppContext } from '../../context/AppContext';
 
-import EventFormDrawer from '../../components/EventDrawer';
+const EventFormDrawer = React.lazy(() => import('../../components/EventDrawer'));
 import ConfirmPopup from '../../components/ConfirmPopup';
 import MessageBar, { IMessageBar } from '../../components/MessageBar';
 
@@ -27,6 +27,14 @@ import { TabList } from '@chakra-ui/react';
 import { Tab } from '@chakra-ui/react';
 
 import './styles.scss';
+import { ScaleFade } from '@chakra-ui/react';
+import moment, { Moment } from 'moment';
+
+interface FilterOptions {
+  statusId?: number;
+  searchTerm?: string;
+  eventDate?: Moment | string; // Assuming eventDate is a Date object or null
+}
 
 const Events = (props: any) => {
   const navigate = useNavigate();
@@ -35,15 +43,18 @@ const Events = (props: any) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [eventDate, setEventDate] = useState<any>(null);
-  const [selectedStatus, setSelectedStatus] = useState<any>('');
+  const [eventDate, setEventDate] = useState<Moment | string>('');
+  const [selectedStatus, setSelectedStatus] = useState<number>(-1);
 
   const [scrollDirection, setScrollDirection] = useState('down');
 
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [eventToDelete, setEventToDelete] = useState<any>(null);
   const [fetchEvents, setFetchEvents] = useState(false);
+
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -58,10 +69,10 @@ const Events = (props: any) => {
     }
   }, [props.statuses]);
 
-  const calendarBg = useColorModeValue('white', 'gray.600');
   const wrapperBg = useColorModeValue('white', 'gray.700');
   const inputBg = useColorModeValue('gray.500', 'gray.400');
-  const bg = useColorModeValue('', '');
+  const bg = useColorModeValue('white', 'gray.600');
+  const iconBg = useColorModeValue('gray.600', 'gray.50');
 
   const handleOpenDrawer = () => {
     setIsDrawerOpen(true);
@@ -82,23 +93,19 @@ const Events = (props: any) => {
     handleOpenDrawer();
   };
 
-  const handleDeleteClick = (item: any) => {
-    setShowConfirmation(true);
-    setEventToDelete(item.id);
-  };
-
-  const handleConfirmDelete = () => {
-    setShowConfirmation(false);
-    onDeleteRecord();
-  };
-
   const handleCancelDelete = () => {
     setEventToDelete(null);
     setShowConfirmation(false);
   };
 
-  const handleSearch = (term: string) => {
-    console.log({ term });
+  const handleSearch = () => {
+    console.log({ searchTerm });
+  };
+
+  const resetFilters = () => {
+    setEventDate('');
+    setSearchTerm('');
+    setSelectedStatus(-1);
   };
 
   const onDeleteRecord = async () => {
@@ -116,6 +123,46 @@ const Events = (props: any) => {
     setAppLoading(false);
   };
 
+  const filterEvents = ({ statusId = -1, searchTerm = '', eventDate }: FilterOptions = {}) => {
+    // Create a function to filter events by statusId
+    const filterByStatus = (event: Event) => {
+      // If statusId is -1, select all events, otherwise filter by statusId
+      return statusId === -1 || event.StatusId === statusId;
+    };
+
+    // Create a function to filter events by name (if searchTerm is provided)
+    const filterByName = (event: Event) => {
+      // If searchTerm is empty or undefined, skip the name filter
+      if (!searchTerm) {
+        return true;
+      }
+
+      // Convert event name and searchTerm to lowercase for case-insensitive comparison
+      const eventName = event.name.toLowerCase();
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+      // Check if the event name contains the searchTerm
+      return eventName.includes(lowerCaseSearchTerm);
+    };
+
+    // Create a function to filter events by date (if date is provided)
+    const filterByDate = (event: Event) => {
+      // If date is not provided, skip the date filter
+      if (!eventDate) {
+        return true;
+      }
+
+      // Compare event startDate with the selected date using moment.js
+      return moment(event.startTime).isSame(eventDate, 'day');
+    };
+
+    // Use filter to apply status, name, and date filters
+    const filteredItems = events.filter((event) => filterByStatus(event) && filterByName(event) && filterByDate(event));
+
+    setFilteredEvents(filteredItems);
+    return filteredItems;
+  };
+
   const doFetchEvents = async () => {
     setAppLoading(true);
     setMessageBar(null);
@@ -129,11 +176,12 @@ const Events = (props: any) => {
       }
 
       setEvents(response.data);
+      setFilteredEvents(response.data);
     } catch (error: any) {
       setMessageBar({ type: 'error', message: error.message });
       console.error(`Error: ${error.message}`, { ...error });
     }
-
+    setDataLoaded(true);
     setAppLoading(false);
   };
 
@@ -147,11 +195,15 @@ const Events = (props: any) => {
     }
   }, [props.statuses]);
 
+  useEffect(() => {
+    filterEvents({ statusId: selectedStatus, searchTerm, eventDate });
+  }, [searchTerm, selectedStatus, eventDate]);
+
   const onRenderInput = (props: any, openCalendar: any, closeCalendar: any) => {
     return (
       <Flex direction="row">
         <InputGroup>
-          <Input {...props} />
+          <Input {...props} value={eventDate} />
           <InputRightElement>
             <IconButton aria-label="Search" icon={<CalendarIcon />} onClick={() => openCalendar()} />
           </InputRightElement>
@@ -165,7 +217,7 @@ const Events = (props: any) => {
     if (mode === 'time') return renderDefault();
 
     return (
-      <Box className="" bg={calendarBg}>
+      <Box className="" bg={bg}>
         {renderDefault()}
       </Box>
     );
@@ -177,7 +229,8 @@ const Events = (props: any) => {
         <Heading>My Events</Heading>
       </Box>
 
-      <ConfirmPopup
+      {/* TODO: look into this later on - NP */}
+      {/* <ConfirmPopup
         isOpen={showConfirmation}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
@@ -185,7 +238,7 @@ const Events = (props: any) => {
         message="Are you sure you want to delete this item?"
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
-      />
+      /> */}
       {messageBar && <MessageBar type={messageBar.type} message={messageBar?.message}></MessageBar>}
 
       {/* Will be hidden on mobile */}
@@ -193,10 +246,10 @@ const Events = (props: any) => {
         <Tabs className="mb-5">
           <TabList>
             <Tab onClick={() => setSelectedStatus(-1)}>All</Tab>
-            {props.statuses &&
-              Object.entries(props.statuses.Event).map(([key, value]) => (
-                <Tab key={value} onClick={() => setSelectedStatus(value)} isDisabled={!events.length}>
-                  {key}
+            {statusItems &&
+              statusItems.map((iStatus) => (
+                <Tab key={iStatus.key} onClick={() => setSelectedStatus(iStatus.key)} isDisabled={!events.length}>
+                  {iStatus.text}
                 </Tab>
               ))}
           </TabList>
@@ -205,22 +258,39 @@ const Events = (props: any) => {
 
       {/* Event List and filtering */}
       <Box className="flex lg:flex-row flex-col-reverse w-full h-full relative">
-        {props.statuses && !!events.length ? (
+        {props.statuses && !!filteredEvents.length && (
+          <ScaleFade initialScale={0.9} in={true} className="lg:w-8/12 w-full">
+            <EventList onEdit={onEditRecord} onOpen={onOpenRecord} statuses={props.statuses} events={filteredEvents} />
+          </ScaleFade>
+        )}
+
+        {!filteredEvents.length && (
           <Box className="lg:w-8/12 w-full">
-            <EventList onEdit={onEditRecord} onOpen={onOpenRecord} statuses={props.statuses} events={events} />
+            <ScaleFade initialScale={0.9} in={true}>
+              <Box bg={bg} className="p-28 flex-col items-center items-top justify-between rounded-xl shadow justify-between">
+                <Text fontSize="xl" className="font-bold">
+                  There are no Events :/
+                </Text>
+                <Text>Could not find any events matching your search</Text>
+              </Box>
+            </ScaleFade>
           </Box>
-        ) : (
+        )}
+
+        {dataLoaded && !events.length && (
           <Box className="lg:w-8/12 w-full">
-            <Box bg={useColorModeValue('white', 'gray.600')} className="p-20 flex-col items-center items-top justify-between rounded-xl shadow justify-between">
-              <Text fontSize="xl" className="font-bold">
-                There are no Events :/
-              </Text>
-              <Text>Yet we encourage you to create one</Text>
-              <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
-                {/* <AddIcon boxSize={3} mr={3} /> */}
-                Create event
-              </Button>
-            </Box>
+            <ScaleFade initialScale={0.9} in={true}>
+              <Box bg={bg} className="p-20 flex-col items-center items-top justify-between rounded-xl shadow justify-between">
+                <Text fontSize="xl" className="font-bold">
+                  There are no Events :/
+                </Text>
+                <Text>Yet we encourage you to create one</Text>
+                <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
+                  {/* <AddIcon boxSize={3} mr={3} /> */}
+                  Create event
+                </Button>
+              </Box>
+            </ScaleFade>
           </Box>
         )}
 
@@ -230,24 +300,25 @@ const Events = (props: any) => {
           bg={wrapperBg}
           style={{
             position: 'sticky',
-            top: 5,
+            top: 0,
             right: 5,
           }}
         >
           <Box className="block lg:hidden overflow-scroll">
             <Tabs className="mb-5">
               <TabList>
-                {props.statuses &&
-                  Object.keys(props.statuses.Event).map((iStatusKey: string) => (
-                    <Tab key={iStatusKey} onClick={() => console.log('ONE')}>
-                      {iStatusKey}
+                <Tab onClick={() => setSelectedStatus(-1)}>All</Tab>
+                {statusItems &&
+                  statusItems.map((iStatus) => (
+                    <Tab key={iStatus.key} onClick={() => setSelectedStatus(iStatus.key)}>
+                      {iStatus.text}
                     </Tab>
                   ))}
               </TabList>
             </Tabs>
           </Box>
-          <Flex className="w-full mb-3 flex lg:flex-col flex-row">
-            <div className="lg:mx-0 mx-3 lg:w-full w-6/12">
+          <Flex className="w-full mb-3 flex lg:flex-col md:flex-row flex-col">
+            <div className="lg:mx-0 md:mx-3 lg:w-full md:w-6/12 w-full">
               <Text className="text-relaxed font-medium ml-1 mb-2" color={inputBg}>
                 Search for an event
               </Text>
@@ -260,12 +331,12 @@ const Events = (props: any) => {
                   onChange={(val: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(val.target.value)}
                 />
                 <InputRightElement>
-                  <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
+                  <IconButton color={iconBg} aria-label="Search" icon={<SearchIcon />} onClick={() => handleSearch()} />
                 </InputRightElement>
               </InputGroup>
             </div>
 
-            <div className="lg:w-full w-6/12 flex sm:flex-row flex-col mt-5">
+            <div className="lg:w-full md:w-6/12 w-full flex sm:flex-row flex-col lg:mt-5 md:mt-0 mt-3">
               <Flex className="w-full flex flex-col">
                 <Text className="font-medium ml-1 mb-2" color={inputBg}>
                   Date
@@ -276,7 +347,8 @@ const Events = (props: any) => {
                   renderInput={onRenderInput}
                   timeFormat={false}
                   renderView={renderCalendar}
-                  dateFormat={'DD MMM, YYYY'}
+                  dateFormat={'YYYY-MM-DD'}
+                  onChange={(date) => setEventDate(moment(date).format('YYYY-MM-DD').toString())}
                   value={eventDate}
                 />
               </Flex>
@@ -284,9 +356,8 @@ const Events = (props: any) => {
           </Flex>
 
           <div className="w-full justify-end mt-3 flex sm:flex-row flex-col">
-            <Button variant={'solid'} colorScheme={'blue'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
-              <SearchIcon boxSize={3} mr={3} />
-              Search
+            <Button variant={'solid'} colorScheme={'red'} size={'md'} mr={4} onClick={() => resetFilters()} my={{ base: 5, sm: 15 }}>
+              Reset Filters
             </Button>
             <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
               <AddIcon boxSize={3} mr={3} />

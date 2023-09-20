@@ -5,11 +5,11 @@ import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparat
 import { Button } from '@chakra-ui/react';
 
 import { Event } from '../../types/Event';
-import { PriceInfo } from './PriceInfo';
-import { PublishEvent } from './PublishEvent';
+import PriceInfo from './PriceInfo';
+import PublishEvent from './PublishEvent';
 
 import useMobile from '../../hooks/useMobile';
-import { EventForm } from '../EventForm';
+import EventForm from '../EventForm';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
 interface IEventFormDrawerProps {

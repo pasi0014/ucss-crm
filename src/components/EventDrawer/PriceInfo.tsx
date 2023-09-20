@@ -11,7 +11,7 @@ import MessageBar from '../MessageBar';
 import TicketForm from '../TicketForm';
 import PriceList from '../PriceList';
 
-export function PriceInfo(props: { onNext: () => void; eventId: any; statuses: any }) {
+export default function PriceInfo(props: { onNext: () => void; eventId: any; statuses: any }) {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { setAppLoading } = useContext<any>(AppContext);

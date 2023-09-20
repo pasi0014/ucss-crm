@@ -1,21 +1,17 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { DonationCampaign } from '../../types/DonationCampaign';
+import React, { Suspense, useContext, useEffect, useState } from 'react';
 import moment from 'moment';
-import { getDonationCampaignById } from './calls';
-import { AppContext } from '../../context/AppContext';
-import MessageBar, { IMessageBar } from '../MessageBar';
-import { Box } from '@chakra-ui/react';
-import { Heading } from '@chakra-ui/react';
-import { useColorModeValue } from '@chakra-ui/react';
-import { Flex } from '@chakra-ui/react';
-import { FormControl } from '@chakra-ui/react';
-import { FormLabel } from '@chakra-ui/react';
-import { Input } from '@chakra-ui/react';
-import RichTextEditor from '../RichTextEditor';
-
 import imageCompression from 'browser-image-compression';
-import { Divider } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/react';
+
+import { AppContext } from '../../context/AppContext';
+
+import { Button, Divider, Input, FormLabel, FormControl, Flex, useColorModeValue, Heading, Box } from '@chakra-ui/react';
+
+import MessageBar, { IMessageBar } from '../MessageBar';
+import { DonationCampaign } from '../../types/DonationCampaign';
+import { getDonationCampaignById } from './calls';
+import { Spinner } from '@chakra-ui/react';
+
+const RichTextEditor = React.lazy(() => import('../RichTextEditor'));
 
 interface IDonationCampaignForm {
   onNext: () => void;
@@ -182,7 +178,9 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donatio
             <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between" mt={5}>
               <FormControl mr="5%" isRequired>
                 <FormLabel>Campaign Description</FormLabel>
-                <RichTextEditor initialContent={formValues.contentEn} onSave={handleDescriptionChange} />
+                <Suspense fallback={<Spinner size="xs" />}>
+                  <RichTextEditor initialContent={formValues.contentEn} onSave={handleDescriptionChange} />
+                </Suspense>
               </FormControl>
             </Flex>
           </Box>

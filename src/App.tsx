@@ -1,19 +1,22 @@
+import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { RequireAuth, useIsAuthenticated } from 'react-auth-kit';
 import Login from './containers/Login';
 import Dashboard from './containers/Dashboard';
-import Donors from './containers/Donors';
-import './App.scss';
-import { RequireAuth, useIsAuthenticated } from 'react-auth-kit';
-import Admin from './Admin';
+const Donors = React.lazy(() => import('./containers/Donors'));
+const Admin = React.lazy(() => import('./Admin'));
 import SignupCard from './components/RegisterForm';
-import Events from './containers/Events';
-import EventView from './containers/EventView';
-import Reservations from './containers/Reservations';
-import ReservationView from './containers/ReservationView';
-import Clients from './containers/Clients';
-import ClientPage from './containers/ClientPage';
-import ProfileView from './containers/ProfileView';
-import Donations from './containers/Donations';
+const Events = React.lazy(() => import('./containers/Events'));
+const EventView = React.lazy(() => import('./containers/EventView'));
+const Reservations = React.lazy(() => import('./containers/Reservations'));
+const ReservationView = React.lazy(() => import('./containers/ReservationView'));
+const Clients = React.lazy(() => import('./containers/Clients'));
+const ClientPage = React.lazy(() => import('./containers/ClientPage'));
+const ProfileView = React.lazy(() => import('./containers/ProfileView'));
+const Donations = React.lazy(() => import('./containers/Donations'));
+
+import './App.scss';
+import LoadingPage from './components/LoadingPage';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -28,12 +31,21 @@ function App() {
             </RequireAuth>
           }
         >
-          <Route path="/" element={<Dashboard />} />
+          <Route
+            path="/"
+            element={
+              <Suspense>
+                <Dashboard />
+              </Suspense>
+            }
+          />
           <Route
             path="events"
             element={
               <RequireAuth loginPath="login">
-                <Events />
+                <Suspense fallback={<LoadingPage />}>
+                  <Events />
+                </Suspense>
               </RequireAuth>
             }
           />
@@ -41,7 +53,9 @@ function App() {
             path="events/:eventId"
             element={
               <RequireAuth loginPath="login">
-                <EventView />
+                <Suspense fallback={<LoadingPage />}>
+                  <EventView />
+                </Suspense>
               </RequireAuth>
             }
           />
@@ -49,24 +63,63 @@ function App() {
             path="/events/:eventId/reservation/:reservationId"
             element={
               <RequireAuth loginPath="login">
-                <ReservationView />
+                <Suspense fallback={<LoadingPage />}>
+                  <ReservationView />
+                </Suspense>
               </RequireAuth>
             }
           />
-          <Route path="clients" element={<Clients />} />
+          <Route
+            path="clients"
+            element={
+              <Suspense fallback={<LoadingPage />}>
+                <Clients />
+              </Suspense>
+            }
+          />
           <Route
             path="clients/:clientId"
             element={
               <RequireAuth loginPath="login">
-                <ClientPage />
+                <Suspense fallback={<LoadingPage />}>
+                  <ClientPage />
+                </Suspense>
               </RequireAuth>
             }
           />
-          <Route path="donors" element={<Donors />} />
-          <Route path="donations" element={<Donations />} />
+          <Route
+            path="donors"
+            element={
+              <Suspense fallback={<LoadingPage />}>
+                <Donors />
+              </Suspense>
+            }
+          />
+          <Route
+            path="donations"
+            element={
+              <Suspense fallback={<LoadingPage />}>
+                <Donations />
+              </Suspense>
+            }
+          />
           <Route path="statistics" element={<>Statistics</>} />
-          <Route path="reservations" element={<Reservations />} />
-          <Route path="profile" element={<ProfileView authState={null} />} />
+          <Route
+            path="reservations"
+            element={
+              <Suspense fallback={<LoadingPage />}>
+                <Reservations />
+              </Suspense>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <Suspense fallback={<LoadingPage />}>
+                <ProfileView authState={null} />
+              </Suspense>
+            }
+          />
         </Route>
         <Route path="*" element={isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
         <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />

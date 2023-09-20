@@ -2,22 +2,19 @@ import { AddIcon, Search2Icon } from '@chakra-ui/icons';
 import { Heading } from '@chakra-ui/react';
 import { InputGroup } from '@chakra-ui/react';
 import { useColorModeValue } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/react';
-import { Input } from '@chakra-ui/react';
-import { InputLeftElement } from '@chakra-ui/react';
-import { Flex } from '@chakra-ui/react';
-import { Box } from '@chakra-ui/react';
 import React, { useEffect, useMemo, useState } from 'react';
-import DonationCampaignCard from '../../components/DonationCampaignCard';
-import withStatusFetching from '../../context/withStatus';
-import { getStatus } from '../../utils/utilities';
-import { IMessageBar } from '../../components/MessageBar';
-import { getDonationCampaigns } from './calls';
-import { Fade } from '@chakra-ui/react';
-import { ScaleFade } from '@chakra-ui/react';
-import DonationCampaignDrawer from '../../components/DonationCampaignDrawer';
-import DonationCampaignStatistics from '../../components/DonationCampaignStatistics';
+import { ScaleFade, Box, Flex, InputLeftElement, Button, Input } from '@chakra-ui/react';
+
 import { DonationCampaign } from '../../types/DonationCampaign';
+import { getStatus } from '../../utils/utilities';
+import { getDonationCampaigns } from './calls';
+
+import { IMessageBar } from '../../components/MessageBar';
+const DonationCampaignDrawer = React.lazy(() => import('../../components/DonationCampaignDrawer'));
+import DonationCampaignCard from '../../components/DonationCampaignCard';
+import DonationCampaignStatistics from '../../components/DonationCampaignStatistics';
+
+import withStatusFetching from '../../context/withStatus';
 
 const Donations = (props: any) => {
   const [donationCampaigns, setDonationCampaigns] = useState<any[]>([]);

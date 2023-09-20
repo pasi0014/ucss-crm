@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import { Heading, Text, Badge, Button, Box, useColorModeValue } from '@chakra-ui/react';
 import { FiUsers } from 'react-icons/fi';
@@ -17,12 +17,37 @@ const EventList: React.FC<IEventList> = ({ events, statuses, onOpen, onEdit }) =
   const eventDateBG = useColorModeValue('blue.600', 'blue.900');
   const eventDateColor = useColorModeValue('orange.200', 'orange.300');
   const muted = useColorModeValue('gray.400', 'gray.500');
+  const cardBg = useColorModeValue('white', 'gray.600');
+  const itemsPerPage = 5; // Number of items per page
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calculate start and end indexes for the current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  // Slice the events array to display only the events for the current page
+  const eventsForCurrentPage = events.slice(startIndex, endIndex);
+
+  // Function to handle previous page click
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Function to handle next page click
+  const handleNextPage = () => {
+    if (endIndex < events.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <div className="flex flex-col rounded">
-      {events.map((iEvent) => (
+      {eventsForCurrentPage.map((iEvent) => (
         <Box
           key={iEvent.id}
-          bg={useColorModeValue('white', 'gray.600')}
+          bg={cardBg}
           className="flex md:flex-row flex-col items-center items-top justify-between rounded-xl shadow justify-between mb-5 p-3"
         >
           {/* Title and image */}
@@ -78,6 +103,15 @@ const EventList: React.FC<IEventList> = ({ events, statuses, onOpen, onEdit }) =
           </div>
         </Box>
       ))}
+      {/* Pagination buttons */}
+      <div className="flex justify-center">
+        <Button onClick={handlePreviousPage} disabled={currentPage === 1} className="mr-5" variant={'solid'} colorScheme={'linkedin'}>
+          Previous Page
+        </Button>
+        <Button onClick={handleNextPage} disabled={endIndex >= events.length} className="ml-5" variant={'solid'} colorScheme={'linkedin'}>
+          Next Page
+        </Button>
+      </div>
     </div>
   );
 };

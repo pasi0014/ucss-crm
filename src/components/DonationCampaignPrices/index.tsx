@@ -1,32 +1,31 @@
-import { Heading } from '@chakra-ui/react';
-import { Box } from '@chakra-ui/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
+
+import {
+  InputLeftElement,
+  InputGroup,
+  Checkbox,
+  Input,
+  FormLabel,
+  FormControl,
+  Flex,
+  Button,
+  useToast,
+  ScaleFade,
+  useColorModeValue,
+  Heading,
+  Box,
+} from '@chakra-ui/react';
+
 import { IMessageBar } from '../MessageBar';
 import { getDonationCampaignPrices } from './calls';
-import { Button } from '@chakra-ui/react';
-import { useColorModeValue } from '@chakra-ui/react';
-import { useToast } from '@chakra-ui/react';
-import { useDisclosure } from '@chakra-ui/react';
-import { AddIcon, CheckIcon } from '@chakra-ui/icons';
-import PriceList from '../PriceList';
-import { ScaleFade } from '@chakra-ui/react';
-import { Flex } from '@chakra-ui/react';
-import { FormControl } from '@chakra-ui/react';
-import { FormLabel } from '@chakra-ui/react';
-import { Input } from '@chakra-ui/react';
-import { Divider } from '@chakra-ui/react';
-import { Checkbox } from '@chakra-ui/react';
-import { InputGroup } from '@chakra-ui/react';
-import { InputLeftElement } from '@chakra-ui/react';
-import { InputRightElement } from '@chakra-ui/react';
 
 interface IDonationCampaignPriceProps {
   donationCampaignId: number | undefined;
 }
 
 const DonationCampaignPrices: React.FC<IDonationCampaignPriceProps> = ({ donationCampaignId }) => {
-  const toast = useToast();
+  // const toast = useToast();
   const { setAppLoading } = useContext<any>(AppContext);
   const [prices, setPrices] = useState<any[]>([]);
   const [price, setPrice] = useState<any>({
