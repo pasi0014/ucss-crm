@@ -3,15 +3,15 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { RequireAuth, useIsAuthenticated } from 'react-auth-kit';
 import Login from './containers/Login';
 import Dashboard from './containers/Dashboard';
-const Donors = React.lazy(() => import('./containers/Donors'));
-const Admin = React.lazy(() => import('./Admin'));
 import SignupCard from './components/RegisterForm';
+import EventView from './containers/EventView';
+import ReservationView from './containers/ReservationView';
+import ClientPage from './containers/ClientPage';
+import Admin from './Admin';
+const Donors = React.lazy(() => import('./containers/Donors'));
 const Events = React.lazy(() => import('./containers/Events'));
-const EventView = React.lazy(() => import('./containers/EventView'));
 const Reservations = React.lazy(() => import('./containers/Reservations'));
-const ReservationView = React.lazy(() => import('./containers/ReservationView'));
 const Clients = React.lazy(() => import('./containers/Clients'));
-const ClientPage = React.lazy(() => import('./containers/ClientPage'));
 const ProfileView = React.lazy(() => import('./containers/ProfileView'));
 const Donations = React.lazy(() => import('./containers/Donations'));
 
@@ -53,9 +53,7 @@ function App() {
             path="events/:eventId"
             element={
               <RequireAuth loginPath="login">
-                <Suspense fallback={<LoadingPage />}>
-                  <EventView />
-                </Suspense>
+                <EventView />
               </RequireAuth>
             }
           />
@@ -63,9 +61,7 @@ function App() {
             path="/events/:eventId/reservation/:reservationId"
             element={
               <RequireAuth loginPath="login">
-                <Suspense fallback={<LoadingPage />}>
-                  <ReservationView />
-                </Suspense>
+                <ReservationView />
               </RequireAuth>
             }
           />
@@ -81,9 +77,7 @@ function App() {
             path="clients/:clientId"
             element={
               <RequireAuth loginPath="login">
-                <Suspense fallback={<LoadingPage />}>
-                  <ClientPage />
-                </Suspense>
+                <ClientPage />
               </RequireAuth>
             }
           />
