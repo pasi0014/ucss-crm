@@ -4,8 +4,24 @@ import 'moment-timezone';
 
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber, Button } from '@chakra-ui/react';
-import { getEventById, getEventClients, getEventReservation, getEventSales } from './calls';
+import {
+  Text,
+  Flex,
+  useColorModeValue,
+  Box,
+  Heading,
+  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+  Button,
+} from '@chakra-ui/react';
+import {
+  getEventById,
+  getEventClients,
+  getEventReservation,
+  getEventSales,
+} from './calls';
 
 import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
@@ -31,13 +47,15 @@ const EventView: React.FC = (props: any) => {
 
   const [loading, setLoading] = useState(false);
   const [reservations, setReservations] = useState<any>([]);
-  const [reservationClients, setReservationClients] = useState<number | null>(null);
+  const [reservationClients, setReservationClients] = useState<number | null>(
+    null,
+  );
   const [eventSales, setEventSales] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
-  const [scanner, setScanner] = useState(false);
+  const [reservationCode, setReservationCode] = useState('');
 
   const bgColor = useColorModeValue('white', 'gray.700');
   const infoBg = useColorModeValue('gray.50', 'gray.700');
@@ -53,10 +71,14 @@ const EventView: React.FC = (props: any) => {
         throw new Error(response.data);
       }
 
-      if (response.data === null) throw new Error(`An error occurred while trying to get the Event`);
+      if (response.data === null)
+        throw new Error(`An error occurred while trying to get the Event`);
       setSelectedEvent(response.data);
     } catch (error: any) {
-      console.error(`Unexpected error while getting the Event : ${error.message}`, { ...error });
+      console.error(
+        `Unexpected error while getting the Event : ${error.message}`,
+        { ...error },
+      );
       setMessageBar({ type: 'error', message: error.message });
     }
     setLoading(false);
@@ -140,7 +162,13 @@ const EventView: React.FC = (props: any) => {
 
       {!selectedEvent && !loading && (
         <Box textAlign="center" py={10} px={6}>
-          <Heading display="inline-block" as="h2" size="2xl" bgGradient="linear(to-r, teal.400, teal.600)" backgroundClip="text">
+          <Heading
+            display="inline-block"
+            as="h2"
+            size="2xl"
+            bgGradient="linear(to-r, teal.400, teal.600)"
+            backgroundClip="text"
+          >
             404
           </Heading>
           <Text fontSize="18px" mt={3} mb={2}>
@@ -161,15 +189,32 @@ const EventView: React.FC = (props: any) => {
           </Stack>
 
           {/* Stats */}
-          <Flex flexDirection={{ base: 'column', md: 'row' }} justifyContent="space-between">
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
+          <Flex
+            flexDirection={{ base: 'column', md: 'row' }}
+            justifyContent="space-between"
+          >
+            <Box
+              bg={bgColor}
+              width={{ md: `350px`, sm: '100%' }}
+              p="5"
+              borderRadius="15px"
+              boxShadow="lg"
+              my={{ base: 5, md: 0 }}
+              mx={{ base: 0, md: 2 }}
+            >
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
                     <Heading as="h2" size="md">
                       Total Clients
                     </Heading>
-                    <Box display={{ base: 'none', md: 'flex' }} color="#FFFFFF" bg="#3182CE" p="3" borderRadius="15px">
+                    <Box
+                      display={{ base: 'none', md: 'flex' }}
+                      color="#FFFFFF"
+                      bg="#3182CE"
+                      p="3"
+                      borderRadius="15px"
+                    >
                       <FiUsers size={28} />
                     </Box>
                   </Flex>
@@ -179,14 +224,28 @@ const EventView: React.FC = (props: any) => {
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
+            <Box
+              bg={bgColor}
+              width={{ md: `350px`, sm: '100%' }}
+              p="5"
+              borderRadius="15px"
+              boxShadow="lg"
+              my={{ base: 5, md: 0 }}
+              mx={{ base: 0, md: 2 }}
+            >
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
                     <Heading as="h2" size="md">
                       Total Reservations
                     </Heading>
-                    <Box display={{ base: 'none', md: 'flex' }} color="#FFFFFF" bg="#3182CE" p="3" borderRadius="15px">
+                    <Box
+                      display={{ base: 'none', md: 'flex' }}
+                      color="#FFFFFF"
+                      bg="#3182CE"
+                      p="3"
+                      borderRadius="15px"
+                    >
                       <FiUsers size={28} />
                     </Box>
                   </Flex>
@@ -194,19 +253,38 @@ const EventView: React.FC = (props: any) => {
                 <StatNumber>
                   <Text fontSize="4xl">
                     {reservations.length &&
-                      (reservations.filter((iReservation: Reservation) => iReservation.StatusId !== props.statuses.Reservation.CANCELLED).length || 0)}
+                      (reservations.filter(
+                        (iReservation: Reservation) =>
+                          iReservation.StatusId !==
+                          props.statuses.Reservation.CANCELLED,
+                      ).length ||
+                        0)}
                   </Text>
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
+            <Box
+              bg={bgColor}
+              width={{ md: `350px`, sm: '100%' }}
+              p="5"
+              borderRadius="15px"
+              boxShadow="lg"
+              my={{ base: 5, md: 0 }}
+              mx={{ base: 0, md: 2 }}
+            >
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
                     <Heading as="h2" size="md">
                       Event Capacity
                     </Heading>
-                    <Box display={{ base: 'none', md: 'flex' }} color="#FFFFFF" bg="#3182CE" p="3" borderRadius="15px">
+                    <Box
+                      display={{ base: 'none', md: 'flex' }}
+                      color="#FFFFFF"
+                      bg="#3182CE"
+                      p="3"
+                      borderRadius="15px"
+                    >
                       <FiUsers size={28} />
                     </Box>
                   </Flex>
@@ -216,14 +294,28 @@ const EventView: React.FC = (props: any) => {
                 </StatNumber>
               </Stat>
             </Box>
-            <Box bg={bgColor} width={{ md: `350px`, sm: '100%' }} p="5" borderRadius="15px" boxShadow="lg" my={{ base: 5, md: 0 }} mx={{ base: 0, md: 2 }}>
+            <Box
+              bg={bgColor}
+              width={{ md: `350px`, sm: '100%' }}
+              p="5"
+              borderRadius="15px"
+              boxShadow="lg"
+              my={{ base: 5, md: 0 }}
+              mx={{ base: 0, md: 2 }}
+            >
               <Stat>
                 <StatLabel mb={2}>
                   <Flex justifyContent={'space-between'}>
                     <Heading as="h2" size="md">
                       Total Sales
                     </Heading>
-                    <Box display={{ base: 'none', md: 'flex' }} color="#FFFFFF" bg="#3182CE" p="3" borderRadius="15px">
+                    <Box
+                      display={{ base: 'none', md: 'flex' }}
+                      color="#FFFFFF"
+                      bg="#3182CE"
+                      p="3"
+                      borderRadius="15px"
+                    >
                       <FaMoneyBillWave size={28} />
                     </Box>
                   </Flex>
@@ -237,7 +329,10 @@ const EventView: React.FC = (props: any) => {
 
           {/* Event Description */}
           <div className="flex lg:flex-row flex-col w-full">
-            <Box bg={bgColor} className="shadow-md rounded-xl p-5 lg:w-6/12 w-full mx-3 my-5">
+            <Box
+              bg={bgColor}
+              className="shadow-md rounded-xl p-5 lg:w-6/12 w-full mx-3 my-5"
+            >
               <Heading as="h3" size="lg" mx={1} mb={4}>
                 Event Info
               </Heading>
@@ -246,13 +341,21 @@ const EventView: React.FC = (props: any) => {
                 <div className="text-left w-full ml-3 flex flex-col">
                   <span className="font-bold text-sm ">Start Time</span>
                   <span className="text-base font-medium tracking-wide">
-                    {moment(selectedEvent.startTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                    {moment(selectedEvent.startTime)
+                      .tz('America/Toronto')
+                      .utc()
+                      .format('DD MMM, YYYY [at] HH:mma')}
                   </span>
                 </div>
                 <div className="text-left w-full ml-10 flex flex-col">
-                  <span className="font-bold text-sm tracking-wide leading-relaxed">End Time</span>
+                  <span className="font-bold text-sm tracking-wide leading-relaxed">
+                    End Time
+                  </span>
                   <span className="text-base font-medium tracking-wide">
-                    {moment(selectedEvent.endTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                    {moment(selectedEvent.endTime)
+                      .tz('America/Toronto')
+                      .utc()
+                      .format('DD MMM, YYYY [at] HH:mma')}
                   </span>
                 </div>
               </div>
@@ -268,29 +371,47 @@ const EventView: React.FC = (props: any) => {
                 ></Box>
               </div>
             </Box>
-            <Box bg={bgColor} className="shadow-md rounded-xl p-5 lg:w-6/12  w-full mx-3 my-5">
+            <Box
+              bg={bgColor}
+              className="shadow-md rounded-xl p-5 lg:w-6/12  w-full mx-3 my-5"
+            >
               <Heading as="h3" size="lg" className="mb-5">
                 Tickets
               </Heading>
               {selectedEvent.saleStart && selectedEvent.saleEnd && (
                 <div className="flex flex-row justify-between w-full my-10">
                   <div className="text-left w-full ml-3 flex flex-col">
-                    <span className="font-bold text-sm ">Tickets Sale Start</span>
+                    <span className="font-bold text-sm ">
+                      Tickets Sale Start
+                    </span>
                     <span className="text-base font-medium tracking-wide">
-                      {moment(selectedEvent.startTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                      {moment(selectedEvent.startTime)
+                        .tz('America/Toronto')
+                        .utc()
+                        .format('DD MMM, YYYY [at] HH:mma')}
                     </span>
                   </div>
                   <div className="text-left w-full ml-10 flex flex-col">
-                    <span className="font-bold text-sm tracking-wide leading-relaxed">Ticket Sale End:</span>
+                    <span className="font-bold text-sm tracking-wide leading-relaxed">
+                      Ticket Sale End:
+                    </span>
                     <span className="text-base font-medium tracking-wide">
-                      {moment(selectedEvent.endTime).tz('America/Toronto').utc().format('DD MMM, YYYY [at] HH:mma')}
+                      {moment(selectedEvent.endTime)
+                        .tz('America/Toronto')
+                        .utc()
+                        .format('DD MMM, YYYY [at] HH:mma')}
                     </span>
                   </div>
                 </div>
               )}
               <div className="w-full h-full">
                 {props.statuses && selectedEvent.Prices && (
-                  <PriceList prices={selectedEvent.Prices.filter((iPrice) => iPrice.StatusId === props.statuses.Price.ACTIVE)} />
+                  <PriceList
+                    prices={selectedEvent.Prices.filter(
+                      (iPrice) =>
+                        iPrice.StatusId === props.statuses.Price.ACTIVE,
+                    )}
+                  />
                 )}
               </div>
             </Box>
@@ -298,16 +419,28 @@ const EventView: React.FC = (props: any) => {
 
           {/* Reservations */}
           <Stack>
-            <Box bg={bgColor} textAlign="left" my={5} p={5} borderRadius="15px" boxShadow="s">
+            <Box
+              bg={bgColor}
+              textAlign="left"
+              my={5}
+              p={5}
+              borderRadius="15px"
+              boxShadow="s"
+            >
               <Heading as="h3" size="lg">
                 Reservations for event
               </Heading>
 
-              <QRScanner />
+              <QRScanner
+                onSuccess={(reservationCode) =>
+                  setReservationCode(reservationCode)
+                }
+              />
 
               {props.statuses && (
                 <ReservationList
                   eventId={eventId}
+                  reservationCode={reservationCode}
                   onCreate={handleOpenDrawer}
                   statuses={props.statuses}
                   onOpen={(val: Reservation) => {

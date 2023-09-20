@@ -11,12 +11,15 @@ import { ModalFooter } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 
-function QRScanner(): JSX.Element {
+interface QRScannerProps {
+  onSuccess: (code: string) => void;
+}
+
+const QRScanner: React.FC<QRScannerProps> = ({ onSuccess }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [scannedData, setScannedData] = useState<string | null>(null);
-  const [showVideo, setShowVideo] = useState(false);
+  const [scannedData, setScannedData] = useState<string>('');
 
   const startCamera = async () => {
     try {
@@ -24,14 +27,10 @@ function QRScanner(): JSX.Element {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: {
-            min: 1280,
-            ideal: 1920,
-            max: 2560,
+            max: 1280,
           },
           height: {
-            min: 720,
-            ideal: 1080,
-            max: 1440,
+            max: 720,
           },
           facingMode: 'environment',
         },
@@ -40,8 +39,8 @@ function QRScanner(): JSX.Element {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (error) {
-      console.error('Error accessing camera:', error);
+    } catch (error: any) {
+      console.error('Error accessing camera:', { ...error });
       toast({
         title: 'Camera error!',
         description: `There was an error while trying to initialize camera`,
@@ -55,7 +54,6 @@ function QRScanner(): JSX.Element {
 
   const handleScan = async () => {
     const video = videoRef.current;
-
     if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
@@ -81,6 +79,7 @@ function QRScanner(): JSX.Element {
         if (code) {
           setScannedData(code.data);
           onClose();
+          onSuccess(code.data);
         }
       }
     }
@@ -89,7 +88,6 @@ function QRScanner(): JSX.Element {
   const stopCamera = () => {
     onClose();
     const stream = videoRef.current?.srcObject as MediaStream | null;
-
     if (stream) {
       const tracks = stream.getTracks();
       tracks.forEach((track) => track.stop());
@@ -99,9 +97,8 @@ function QRScanner(): JSX.Element {
   return (
     <div>
       <Button onClick={startCamera} colorScheme="green">
-        Start Camera
+        Scan QR via Camera
       </Button>
-      {scannedData && <div>{scannedData}</div>}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -111,16 +108,16 @@ function QRScanner(): JSX.Element {
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader>QR Scan</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Box className="w-full h-full flex flex-col">
               <Box className="mb-5 w-full">
                 Once QR code is in the camera. Press <b>Scan</b>
               </Box>
-              <Box className="w-full h-full">
+              <Box className="w-full h-full mx-auto">
                 <video
-                  className="w-full h-full block"
+                  className="w-10/12 h-92 block"
                   ref={videoRef}
                   autoPlay
                   playsInline
@@ -131,6 +128,8 @@ function QRScanner(): JSX.Element {
           </ModalBody>
 
           <ModalFooter>
+            {scannedData && <div>{scannedData}</div>}
+
             <Button variant="green" onClick={handleScan}>
               Scan
             </Button>
@@ -142,6 +141,6 @@ function QRScanner(): JSX.Element {
       </Modal>
     </div>
   );
-}
+};
 
 export default QRScanner;

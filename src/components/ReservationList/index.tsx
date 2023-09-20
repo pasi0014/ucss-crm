@@ -2,7 +2,18 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Reservation } from '../../types/Reservation';
 import { getEventReservation } from '../../containers/EventView/calls';
 import { IMessageBar } from '../MessageBar';
-import { Button, Flex, useColorModeValue, IconButton, InputRightElement, Input, InputGroup, Text, Spinner, Box } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  useColorModeValue,
+  IconButton,
+  InputRightElement,
+  Input,
+  InputGroup,
+  Text,
+  Spinner,
+  Box,
+} from '@chakra-ui/react';
 import withStatusFetching from '../../context/withStatus';
 
 import { AddIcon, CalendarIcon, SearchIcon } from '@chakra-ui/icons';
@@ -15,6 +26,7 @@ import DataTable from '../DataTable';
 
 interface ReservationListProps {
   eventId: number;
+  reservationCode?: string;
   onOpen?: (reservation: any) => void;
   onCreate?: () => void;
   statuses: any;
@@ -29,22 +41,19 @@ interface ReservationListProps {
  *      - status
  *      - created at
  */
-const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, onOpen, onCreate }) => {
+const ReservationList: React.FC<ReservationListProps> = ({
+  eventId,
+  statuses,
+  reservationCode = '',
+  onOpen,
+  onCreate,
+}) => {
   const [reservations, setReservations] = useState<Array<any>>([]);
   const [filteredReservations, setFilteredReservations] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(reservationCode);
   const [selectedStatus, setSelectedStatus] = useState<any>('');
-
-  const statusItems = useMemo(() => {
-    if (statuses) {
-      return Object.keys(statuses.Reservation).map((statusKey) => ({
-        key: statuses.Reservation[statusKey],
-        text: getStatus(statuses.Reservation, statuses.Reservation[statusKey]).tag,
-      }));
-    }
-  }, [statuses]);
 
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
@@ -52,7 +61,12 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
       header: 'Host Name',
       accessor: 'ClientLists',
       render: (ClientLists) => {
-        const owner = ClientLists.find((iClient: any) => reservations.find((iReservation: Reservation) => iReservation.OwnerId === iClient.ClientId)).Client;
+        const owner = ClientLists.find((iClient: any) =>
+          reservations.find(
+            (iReservation: Reservation) =>
+              iReservation.OwnerId === iClient.ClientId,
+          ),
+        ).Client;
         return `${owner.firstName} ${owner.lastName}`;
       },
     },
@@ -61,9 +75,13 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
       accessor: 'OwnerId',
       render: (OwnerId) => {
         const owner = reservations.find((iReservation: Reservation) =>
-          iReservation.ClientLists.find((iCLientList: any) => iCLientList.Client.id === OwnerId),
+          iReservation.ClientLists.find(
+            (iCLientList: any) => iCLientList.Client.id === OwnerId,
+          ),
         ).ClientLists;
-        const client = owner.find((iClient: any) => iClient.Client.id === OwnerId);
+        const client = owner.find(
+          (iClient: any) => iClient.Client.id === OwnerId,
+        );
         return `${client.Client.phone}`;
       },
     },
@@ -72,28 +90,36 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
       accessor: 'OwnerId',
       render: (OwnerId) => {
         const owner = reservations.find((iReservation: Reservation) =>
-          iReservation.ClientLists.find((iCLientList: any) => iCLientList.Client.id === OwnerId),
+          iReservation.ClientLists.find(
+            (iCLientList: any) => iCLientList.Client.id === OwnerId,
+          ),
         ).ClientLists;
-        const client = owner.find((iClient: any) => iClient.Client.id === OwnerId);
+        const client = owner.find(
+          (iClient: any) => iClient.Client.id === OwnerId,
+        );
         return `${client.Client.email}`;
       },
     },
-    // {
-    //   header: 'People on reservation',
-    //   accessor: 'ClientLists',
-    //   render(value, items) {
-    //     return items.ClientLists.length;
-    //   },
-    // },
 
     {
       header: 'Status',
       accessor: 'StatusId',
       render: (value) => (
-        <Badge colorScheme={getStatusColor(getStatus(statuses.Reservation, value).tag || '')}>{getStatus(statuses.Reservation, value).tag}</Badge>
+        <Badge
+          colorScheme={getStatusColor(
+            getStatus(statuses.Reservation, value).tag || '',
+          )}
+        >
+          {getStatus(statuses.Reservation, value).tag}
+        </Badge>
       ),
     },
-    { header: 'Created At', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').format('YYYY-MM-DD HH:mm') },
+    {
+      header: 'Created At',
+      accessor: 'createdAt',
+      render: (value) =>
+        moment(value).tz('America/Toronto').format('YYYY-MM-DD HH:mm'),
+    },
     { header: 'Created By', accessor: 'createdBy' },
   ];
 
@@ -104,7 +130,12 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
     const filteredItems: Reservation[] = [];
     reservations.forEach((iReservation: Reservation) => {
       iReservation.ClientLists.forEach((iClientList) => {
-        if (Object.values(iClientList.Client).join(' ').toLowerCase().includes(searchTerm.toLowerCase())) {
+        if (
+          Object.values(iClientList.Client)
+            .join(' ')
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        ) {
           filteredItems.push(iReservation);
         }
       });
@@ -138,10 +169,17 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
   useEffect(() => {
     if (searchTerm.length === 0) {
       setFilteredReservations(reservations);
+    } else if (reservationCode.length) {
+      setFilteredReservations(
+        reservations.filter(
+          (iReservation: Reservation) =>
+            iReservation.reservationCode === reservationCode,
+        ),
+      );
     } else {
       handleSearch();
     }
-  }, [searchTerm, selectedStatus]);
+  }, [searchTerm, selectedStatus, reservationCode]);
 
   return (
     <div className="w-full h-full">
@@ -156,7 +194,10 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
           {/* Filters */}
           <div className="flex lg:flex-row flex-col lg:space-x-4 w-full">
             <Box className="lg:w-8/12 w-full mb-3 flex flex-col">
-              <Text className="text-relaxed font-medium ml-1 mb-2" color={inputBg}>
+              <Text
+                className="text-relaxed font-medium ml-1 mb-2"
+                color={inputBg}
+              >
                 Search reservation
               </Text>
               <InputGroup>
@@ -165,10 +206,17 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
                   shadow="md"
                   placeholder="Search"
                   value={searchTerm}
-                  onChange={(val: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(val.target.value)}
+                  onChange={(val: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchTerm(val.target.value)
+                  }
                 />
                 <InputRightElement>
-                  <IconButton color={useColorModeValue('gray.600', 'gray.50')} aria-label="Search" icon={<SearchIcon />} onClick={handleSearch} />
+                  <IconButton
+                    color={useColorModeValue('gray.600', 'gray.50')}
+                    aria-label="Search"
+                    icon={<SearchIcon />}
+                    onClick={handleSearch}
+                  />
                 </InputRightElement>
               </InputGroup>
             </Box>
@@ -199,11 +247,25 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
           </div>
 
           <div className="lg:w-4/12 justify-end w-full mt-3 flex sm:flex-row flex-col">
-            <Button variant={'solid'} colorScheme={'green'} size={{ base: 'sm', md: 'md' }} onClick={onCreate} my={{ base: 5, sm: 15 }} mr={5}>
+            <Button
+              variant={'solid'}
+              colorScheme={'green'}
+              size={{ base: 'sm', md: 'md' }}
+              onClick={onCreate}
+              my={{ base: 5, sm: 15 }}
+              mr={5}
+            >
               <AddIcon boxSize={3} mr={3} />
               Create a Reservation
             </Button>
-            <Button variant={'solid'} colorScheme={'blue'} size={{ base: 'sm', md: 'md' }} mr={4} onClick={handleSearch} my={{ base: 5, sm: 15 }}>
+            <Button
+              variant={'solid'}
+              colorScheme={'blue'}
+              size={{ base: 'sm', md: 'md' }}
+              mr={4}
+              onClick={handleSearch}
+              my={{ base: 5, sm: 15 }}
+            >
               <SearchIcon boxSize={3} mr={3} />
               Search
             </Button>
@@ -211,7 +273,11 @@ const ReservationList: React.FC<ReservationListProps> = ({ eventId, statuses, on
         </div>
       </Box>
 
-      <DataTable columns={columns} items={filteredReservations} onOpenRecord={onOpen} />
+      <DataTable
+        columns={columns}
+        items={filteredReservations}
+        onOpenRecord={onOpen}
+      />
     </div>
   );
 };
