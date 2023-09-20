@@ -78,8 +78,8 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess }) => {
 
         if (code) {
           setScannedData(code.data);
-          onClose();
           onSuccess(code.data);
+          stopCamera();
         }
       }
     }
@@ -96,8 +96,8 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess }) => {
 
   return (
     <div>
-      <Button onClick={startCamera} colorScheme="green">
-        Scan QR via Camera
+      <Button onClick={startCamera} colorScheme="yellow">
+        Search by QR code
       </Button>
       <Modal
         isOpen={isOpen}
@@ -130,7 +130,12 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess }) => {
           <ModalFooter>
             {scannedData && <div>{scannedData}</div>}
 
-            <Button variant="green" onClick={handleScan}>
+            <Button
+              variant="solid"
+              colorScheme="green"
+              mr={3}
+              onClick={() => handleScan()}
+            >
               Scan
             </Button>
             <Button colorScheme="blue" mr={3} onClick={stopCamera}>

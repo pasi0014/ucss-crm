@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Reservation } from '../../types/Reservation';
 import { getEventReservation } from '../../containers/EventView/calls';
 import { IMessageBar } from '../MessageBar';
 import {
   Button,
-  Flex,
   useColorModeValue,
   IconButton,
   InputRightElement,
@@ -16,17 +15,17 @@ import {
 } from '@chakra-ui/react';
 import withStatusFetching from '../../context/withStatus';
 
-import { AddIcon, CalendarIcon, SearchIcon } from '@chakra-ui/icons';
+import { AddIcon, SearchIcon } from '@chakra-ui/icons';
 import { getStatus, getStatusColor } from '../../utils/utilities';
 import { Select } from '@chakra-ui/react';
 import { IColumnProps } from '../../interfaces';
 import { Badge } from '@chakra-ui/react';
 import moment from 'moment';
 import DataTable from '../DataTable';
+const QRScanner = React.lazy(() => import('../QRScanner'));
 
 interface ReservationListProps {
   eventId: number;
-  reservationCode?: string;
   onOpen?: (reservation: any) => void;
   onCreate?: () => void;
   statuses: any;
@@ -44,7 +43,6 @@ interface ReservationListProps {
 const ReservationList: React.FC<ReservationListProps> = ({
   eventId,
   statuses,
-  reservationCode = '',
   onOpen,
   onCreate,
 }) => {
@@ -52,8 +50,9 @@ const ReservationList: React.FC<ReservationListProps> = ({
   const [filteredReservations, setFilteredReservations] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
-  const [searchTerm, setSearchTerm] = useState(reservationCode);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<any>('');
+  const [reservationCode, setReservationCode] = useState('');
 
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
@@ -100,7 +99,6 @@ const ReservationList: React.FC<ReservationListProps> = ({
         return `${client.Client.email}`;
       },
     },
-
     {
       header: 'Status',
       accessor: 'StatusId',
@@ -127,19 +125,27 @@ const ReservationList: React.FC<ReservationListProps> = ({
   const inputBg = useColorModeValue('gray.500', 'gray.400');
 
   const handleSearch = () => {
-    const filteredItems: Reservation[] = [];
-    reservations.forEach((iReservation: Reservation) => {
-      iReservation.ClientLists.forEach((iClientList) => {
-        if (
-          Object.values(iClientList.Client)
-            .join(' ')
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-        ) {
-          filteredItems.push(iReservation);
+    // Convert the searchTerm to lowercase just once to avoid multiple conversions
+    const searchTermLower = searchTerm.toLowerCase();
+
+    // Use the Array.prototype.filter method to filter the reservations array
+    const filteredItems = reservations.filter((iReservation: Reservation) => {
+      // Use the Array.prototype.some method to check if any client's name contains the searchTerm
+      return iReservation.ClientLists.some((iClientList) => {
+        if (reservationCode.length > 0) {
+          return iClientList.reservationCode === reservationCode;
         }
+        // TODO: if reservationCode State is set, skip Client search and filter by iClientList.reservationCode else continue with the regular flow
+        // Extract the client's name and convert it to lowercase for comparison
+        const clientName = Object.values(iClientList.Client)
+          .join(' ')
+          .toLowerCase();
+
+        // Check if the client's name contains the searchTermLower
+        return clientName.includes(searchTermLower);
       });
     });
+    // Update the filtered reservations state
     setFilteredReservations(filteredItems);
   };
 
@@ -169,18 +175,10 @@ const ReservationList: React.FC<ReservationListProps> = ({
   useEffect(() => {
     if (searchTerm.length === 0) {
       setFilteredReservations(reservations);
-    } else if (reservationCode.length) {
-      setFilteredReservations(
-        reservations.filter((iReservation: Reservation) =>
-          iReservation.ClientLists.filter(
-            (iClientList) => iClientList.reservationCode === reservationCode,
-          ),
-        ),
-      );
     } else {
       handleSearch();
     }
-  }, [searchTerm, selectedStatus, reservationCode]);
+  }, [searchTerm, selectedStatus]);
 
   return (
     <div className="w-full h-full">
@@ -221,44 +219,9 @@ const ReservationList: React.FC<ReservationListProps> = ({
                 </InputRightElement>
               </InputGroup>
             </Box>
-            {/* <div className="w-full flex sm:flex-row flex-col">
-              {statusItems && statusItems.length && (
-                <Box className="sm:w-4/12 w-full flex flex-col">
-                  <Text className="font-medium ml-1 mb-2" color={inputBg}>
-                    Status
-                  </Text>
-                  <Select
-                    key={crypto.randomUUID()}
-                    placeholder="Select a status"
-                    className={`shadow-md ${selectedStatus} ? 'text-gray-700' : 'text-gray-400'`}
-                    value={selectedStatus}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                      setSelectedStatus(e.target.value);
-                    }}
-                  >
-                    {statusItems.map((status: any) => (
-                      <option key={status.key} value={status.key}>
-                        {status.text}
-                      </option>
-                    ))}
-                  </Select>
-                </Box>
-              )}
-            </div> */}
           </div>
 
-          <div className="lg:w-4/12 justify-end w-full mt-3 flex sm:flex-row flex-col">
-            <Button
-              variant={'solid'}
-              colorScheme={'green'}
-              size={{ base: 'sm', md: 'md' }}
-              onClick={onCreate}
-              my={{ base: 5, sm: 15 }}
-              mr={5}
-            >
-              <AddIcon boxSize={3} mr={3} />
-              Create a Reservation
-            </Button>
+          <div className="lg:w-6/12 justify-end w-full mt-3 flex sm:flex-row flex-col">
             <Button
               variant={'solid'}
               colorScheme={'blue'}
@@ -269,6 +232,32 @@ const ReservationList: React.FC<ReservationListProps> = ({
             >
               <SearchIcon boxSize={3} mr={3} />
               Search
+            </Button>
+            <Box
+              size={{ base: 'sm', md: 'md' }}
+              my={{ base: 5, sm: 15 }}
+              mr={5}
+            >
+              <Suspense fallback={<>loading...</>}>
+                <QRScanner
+                  onSuccess={(reservationCode) => {
+                    setReservationCode(reservationCode);
+                    setSearchTerm(reservationCode);
+                  }}
+                />
+              </Suspense>
+            </Box>
+
+            <Button
+              variant={'solid'}
+              colorScheme={'green'}
+              size={{ base: 'sm', md: 'md' }}
+              onClick={onCreate}
+              my={{ base: 5, sm: 15 }}
+              mr={5}
+            >
+              <AddIcon boxSize={3} mr={3} />
+              Create a Reservation
             </Button>
           </div>
         </div>

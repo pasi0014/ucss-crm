@@ -331,14 +331,14 @@ const EventView: React.FC = (props: any) => {
           <div className="flex lg:flex-row flex-col w-full">
             <Box
               bg={bgColor}
-              className="shadow-md rounded-xl p-5 lg:w-6/12 w-full mx-3 my-5"
+              className="shadow-md rounded-xl p-5 lg:w-6/12 w-full lg:mx-3 my-5"
             >
               <Heading as="h3" size="lg" mx={1} mb={4}>
                 Event Info
               </Heading>
 
               <div className="flex flex-row justify-between w-full my-10">
-                <div className="text-left w-full ml-3 flex flex-col">
+                <div className="text-left w-full lg:ml-3 flex flex-col">
                   <span className="font-bold text-sm ">Start Time</span>
                   <span className="text-base font-medium tracking-wide">
                     {moment(selectedEvent.startTime)
@@ -371,9 +371,10 @@ const EventView: React.FC = (props: any) => {
                 ></Box>
               </div>
             </Box>
+            {/* Tickets */}
             <Box
               bg={bgColor}
-              className="shadow-md rounded-xl p-5 lg:w-6/12  w-full mx-3 my-5"
+              className="shadow-md rounded-xl p-5 lg:w-6/12  w-full lg:mx-3 my-5"
             >
               <Heading as="h3" size="lg" className="mb-5">
                 Tickets
@@ -431,16 +432,9 @@ const EventView: React.FC = (props: any) => {
                 Reservations for event
               </Heading>
 
-              <QRScanner
-                onSuccess={(reservationCode) =>
-                  setReservationCode(reservationCode)
-                }
-              />
-
               {props.statuses && (
                 <ReservationList
                   eventId={eventId}
-                  reservationCode={reservationCode}
                   onCreate={handleOpenDrawer}
                   statuses={props.statuses}
                   onOpen={(val: Reservation) => {
