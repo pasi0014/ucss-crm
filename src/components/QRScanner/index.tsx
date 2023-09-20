@@ -9,9 +9,11 @@ import { ModalCloseButton } from '@chakra-ui/react';
 import { ModalBody } from '@chakra-ui/react';
 import { ModalFooter } from '@chakra-ui/react';
 import { Box } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 
 function QRScanner(): JSX.Element {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [showVideo, setShowVideo] = useState(false);
@@ -20,15 +22,25 @@ function QRScanner(): JSX.Element {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
+          width: {
+            min: 1280,
+            ideal: 1920,
+            max: 2560,
+          },
+          height: {
+            min: 720,
+            ideal: 1080,
+            max: 1440,
+          },
           facingMode: {
-            ideal: 'environment', // Use the back camera if available
+            exact: 'environment', // Use the back camera if available
           },
         },
       });
 
-      onOpen();
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        onOpen();
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -99,10 +111,10 @@ function QRScanner(): JSX.Element {
               </Box>
               <Box className="w-full h-full">
                 <video
+                  className="w-full h-full block"
                   ref={videoRef}
                   autoPlay
                   playsInline
-                  style={{ display: 'block' }}
                 />
               </Box>
             </Box>
