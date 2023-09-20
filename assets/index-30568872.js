@@ -1,0 +1,1 @@
+import{r as t,j as e,V as a,m as s,H as r}from"./index-6291f3e9.js";const i=()=>(t.useState(!1),e(a.Fragment,{children:e(s,{textAlign:"left",my:5,p:3,children:e(r,{children:"Reservations"})})}));export{i as default};
