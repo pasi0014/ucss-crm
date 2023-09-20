@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.17",
@@ -20,6 +20,7 @@
     "browser-image-compression": "^2.0.2",
     "framer-motion": "^10.3.4",
     "jotai": "^2.2.2",
+    "jsqr": "^1.4.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "qrcode.react": "^3.1.0",

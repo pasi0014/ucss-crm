@@ -4,7 +4,7 @@ import 'moment-timezone';
 
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
+import { Text, Flex, useColorModeValue, Box, Heading, Stack, Stat, StatLabel, StatNumber, Button } from '@chakra-ui/react';
 import { getEventById, getEventClients, getEventReservation, getEventSales } from './calls';
 
 import { FiUsers } from 'react-icons/fi';
@@ -19,6 +19,7 @@ import { Reservation } from '../../types/Reservation';
 
 import withStatusFetching from '../../context/withStatus';
 import PriceList from '../../components/PriceList';
+import QRScanner from '../../components/QRScanner';
 
 type EventParams = {
   eventId: any;
@@ -35,6 +36,8 @@ const EventView: React.FC = (props: any) => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
+
+  const [scanner, setScanner] = useState(false);
 
   const bgColor = useColorModeValue('white', 'gray.700');
   const infoBg = useColorModeValue('gray.50', 'gray.700');
@@ -299,6 +302,8 @@ const EventView: React.FC = (props: any) => {
               <Heading as="h3" size="lg">
                 Reservations for event
               </Heading>
+
+              <QRScanner />
 
               {props.statuses && (
                 <ReservationList

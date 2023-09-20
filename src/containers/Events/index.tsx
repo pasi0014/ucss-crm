@@ -7,7 +7,7 @@ import { AddIcon, CalendarIcon, SearchIcon } from '@chakra-ui/icons';
 import { AppContext } from '../../context/AppContext';
 
 const EventFormDrawer = React.lazy(() => import('../../components/EventDrawer'));
-import ConfirmPopup from '../../components/ConfirmPopup';
+// import ConfirmPopup from '../../components/ConfirmPopup';
 import MessageBar, { IMessageBar } from '../../components/MessageBar';
 
 import { deleteEvent, getEvents } from './calls';
