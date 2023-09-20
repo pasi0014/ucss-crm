@@ -1,25 +1,35 @@
 import React, { useRef, useState } from 'react';
 import jsQR, { QRCode } from 'jsqr';
-import { Button } from '@chakra-ui/react';
-
-// interface QRScannerState {
-//   scannedData: string | null;
-// }
+import { Button, useDisclosure } from '@chakra-ui/react';
+import { Modal } from '@chakra-ui/react';
+import { ModalOverlay } from '@chakra-ui/react';
+import { ModalContent } from '@chakra-ui/react';
+import { ModalHeader } from '@chakra-ui/react';
+import { ModalCloseButton } from '@chakra-ui/react';
+import { ModalBody } from '@chakra-ui/react';
+import { ModalFooter } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 
 function QRScanner(): JSX.Element {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [scannedData, setScannedData] = useState<string | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
 
   const startCamera = async () => {
     try {
-      console.log('Start Camera');
-      console.log({ test: navigator.mediaDevices });
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      console.log({ stream });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            ideal: 'environment', // Use the back camera if available
+          },
+        },
+      });
+
+      onOpen();
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-      console.log({ videoRef });
     } catch (error) {
       console.error('Error accessing camera:', error);
     }
@@ -27,7 +37,6 @@ function QRScanner(): JSX.Element {
 
   const handleScan = async () => {
     const video = videoRef.current;
-    console.log({ video });
 
     if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
       const canvas = document.createElement('canvas');
@@ -39,11 +48,21 @@ function QRScanner(): JSX.Element {
       if (context) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const code: QRCode | null = jsQR(imageData.data, canvas.width, canvas.height);
+        const imageData = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+        );
+        const code: QRCode | null = jsQR(
+          imageData.data,
+          canvas.width,
+          canvas.height,
+        );
 
         if (code) {
           setScannedData(code.data);
+          onClose();
         }
       }
     }
@@ -51,21 +70,54 @@ function QRScanner(): JSX.Element {
 
   const stopCamera = () => {
     const stream = videoRef.current?.srcObject as MediaStream | null;
-    console.log({ stream });
+
     if (stream) {
       const tracks = stream.getTracks();
       tracks.forEach((track) => track.stop());
+      onClose();
     }
   };
 
   return (
     <div>
-      <h1>QR Code Scanner</h1>
       <Button onClick={startCamera}>Start Camera</Button>
-      <Button onClick={handleScan}>Scan QR Code</Button>
-      <Button onClick={stopCamera}>Stop Camera</Button>
-      {scannedData && <p>Scanned Data: {scannedData}</p>}
-      <video ref={videoRef} autoPlay playsInline style={{ display: 'block' }} />
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="xl"
+        isCentered
+        motionPreset="slideInBottom"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Modal Title</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box className="w-full h-full flex flex-col">
+              <Box className="mb-5 w-full">
+                Once QR code is in the camera. Press <b>Scan</b>
+              </Box>
+              <Box className="w-full h-full">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  style={{ display: 'block' }}
+                />
+              </Box>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={stopCamera}>
+              Stop Scanning
+            </Button>
+            <Button variant="green" onClick={handleScan}>
+              Scan
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
