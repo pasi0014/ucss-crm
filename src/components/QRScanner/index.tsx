@@ -20,6 +20,7 @@ function QRScanner(): JSX.Element {
 
   const startCamera = async () => {
     try {
+      onOpen();
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: {
@@ -32,18 +33,23 @@ function QRScanner(): JSX.Element {
             ideal: 1080,
             max: 1440,
           },
-          facingMode: {
-            exact: 'environment', // Use the back camera if available
-          },
+          facingMode: 'environment',
         },
       });
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        onOpen();
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
+      toast({
+        title: 'Camera error!',
+        description: `There was an error while trying to initialize camera`,
+        position: 'top-right',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
     }
   };
 
@@ -81,18 +87,21 @@ function QRScanner(): JSX.Element {
   };
 
   const stopCamera = () => {
+    onClose();
     const stream = videoRef.current?.srcObject as MediaStream | null;
 
     if (stream) {
       const tracks = stream.getTracks();
       tracks.forEach((track) => track.stop());
-      onClose();
     }
   };
 
   return (
     <div>
-      <Button onClick={startCamera}>Start Camera</Button>
+      <Button onClick={startCamera} colorScheme="green">
+        Start Camera
+      </Button>
+      {scannedData && <div>{scannedData}</div>}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -115,17 +124,18 @@ function QRScanner(): JSX.Element {
                   ref={videoRef}
                   autoPlay
                   playsInline
+                  style={{ display: 'block' }}
                 />
               </Box>
             </Box>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={stopCamera}>
-              Stop Scanning
-            </Button>
             <Button variant="green" onClick={handleScan}>
               Scan
+            </Button>
+            <Button colorScheme="blue" mr={3} onClick={stopCamera}>
+              Stop Scanning
             </Button>
           </ModalFooter>
         </ModalContent>
