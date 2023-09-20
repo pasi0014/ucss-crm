@@ -171,9 +171,10 @@ const ReservationList: React.FC<ReservationListProps> = ({
       setFilteredReservations(reservations);
     } else if (reservationCode.length) {
       setFilteredReservations(
-        reservations.filter(
-          (iReservation: Reservation) =>
-            iReservation.reservationCode === reservationCode,
+        reservations.filter((iReservation: Reservation) =>
+          iReservation.ClientLists.filter(
+            (iClientList) => iClientList.reservationCode === reservationCode,
+          ),
         ),
       );
     } else {
