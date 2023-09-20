@@ -65,7 +65,7 @@ function QRScanner(): JSX.Element {
       <Button onClick={handleScan}>Scan QR Code</Button>
       <Button onClick={stopCamera}>Stop Camera</Button>
       {scannedData && <p>Scanned Data: {scannedData}</p>}
-      <video ref={videoRef} autoPlay playsInline style={{ display: 'none' }} />
+      <video ref={videoRef} autoPlay playsInline style={{ display: 'block' }} />
     </div>
   );
 }
