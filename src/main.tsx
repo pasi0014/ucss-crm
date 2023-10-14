@@ -12,11 +12,16 @@ import refreshApi from './utils/refreshApi';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <ChakraProvider>
-    <AuthProvider authType={'cookie'} authName="_auth" cookieDomain={window.location.hostname} cookieSecure={true}>
+    <AuthProvider
+      authType={'cookie'}
+      authName="_auth"
+      cookieDomain={window.location.hostname}
+      cookieSecure={true}
+    >
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <AppProvider>
         <App />
       </AppProvider>
     </AuthProvider>
-  </ChakraProvider>,
+  </ChakraProvider>
 );

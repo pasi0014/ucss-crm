@@ -1,5 +1,16 @@
 import React, { ReactNode, useEffect } from 'react';
-import { IconButton, Box, CloseButton, Flex, Icon, useColorModeValue, Drawer, DrawerContent, Text, useDisclosure } from '@chakra-ui/react';
+import {
+  IconButton,
+  Box,
+  CloseButton,
+  Flex,
+  Icon,
+  useColorModeValue,
+  Drawer,
+  DrawerContent,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { FiHome, FiMenu, FiCalendar, FiUsers } from 'react-icons/fi';
@@ -8,6 +19,8 @@ import { IconType } from 'react-icons';
 
 import ProfileCard from '../ProfileCard';
 import { ILoggedInUser } from '../../interfaces';
+import { Button } from '@chakra-ui/react';
+import { DrawerOverlay } from '@chakra-ui/react';
 
 interface LinkItemProps {
   name: string;
@@ -32,12 +45,28 @@ const user: ILoggedInUser = {
   email: 'nazar.pasika1@gmail.com',
 };
 
-export default function SidebarWithHeader({ children }: { children: ReactNode }) {
+export default function SidebarWithHeader({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
-      <SidebarContent onClose={() => onClose} display={{ base: 'none', lg: 'block' }} />
-      <Drawer autoFocus={false} isOpen={isOpen} placement="left" onClose={onClose} returnFocusOnClose={false} onOverlayClick={onClose} size="xs">
+      <SidebarContent
+        onClose={() => onClose()}
+        display={{ base: 'none', lg: 'block' }}
+      />
+      <Drawer
+        autoFocus={false}
+        isOpen={isOpen}
+        placement="left"
+        onClose={onClose}
+        returnFocusOnClose={false}
+        onOverlayClick={onClose}
+        size="xs"
+      >
+        <DrawerOverlay />
         <DrawerContent>
           <SidebarContent onClose={onClose} />
         </DrawerContent>
@@ -76,7 +105,12 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         <CloseButton display={{ base: 'flex', lg: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} url={link.url} currentPath={pathname}>
+        <NavItem
+          key={link.name}
+          icon={link.icon}
+          url={link.url}
+          currentPath={pathname}
+        >
           {link.name}
         </NavItem>
       ))}
@@ -90,7 +124,13 @@ interface NavItemProps {
   url: any;
   currentPath: string;
 }
-const NavItem = ({ icon, url, children, currentPath, ...rest }: NavItemProps) => {
+const NavItem = ({
+  icon,
+  url,
+  children,
+  currentPath,
+  ...rest
+}: NavItemProps) => {
   const isActive = currentPath === url;
 
   return (
@@ -142,8 +182,19 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       justifyContent={{ base: 'space-between', lg: 'flex-end' }}
       {...rest}
     >
-      <IconButton display={{ base: 'flex', lg: 'none' }} onClick={onOpen} variant="outline" aria-label="open menu" icon={<FiMenu />} />
-      <Text display={{ base: 'flex', lg: 'none' }} fontSize="2xl" fontFamily="monospace" fontWeight="bold">
+      <IconButton
+        display={{ base: 'flex', lg: 'none' }}
+        onClick={onOpen}
+        variant="outline"
+        aria-label="open menu"
+        icon={<FiMenu />}
+      />
+      <Text
+        display={{ base: 'flex', lg: 'none' }}
+        fontSize="2xl"
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
         Logo
       </Text>
 

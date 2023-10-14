@@ -1,10 +1,10 @@
 export function getAnErrorMessage(response: any) {
-  if (typeof response === "string") {
+  if (typeof response === 'string') {
     return response;
   }
 
   const potentialMessage = [response.error, response.message, response.errors];
-  if (typeof response === "object") {
+  if (typeof response === 'object') {
     if (Array.isArray(response.errors) && response.errors.length >= 0) {
       potentialMessage.push(response.errors[0]);
     }
@@ -17,15 +17,14 @@ export function getAnErrorMessage(response: any) {
 
   // Try to find an error message. If we can't, show a generic message
   return (
-    potentialMessage.find((message) => typeof message === "string") ||
-    "An error occurred. Please try again."
+    potentialMessage.find(message => typeof message === 'string') ||
+    'An error occurred. Please try again.'
   );
 }
 
-
 export function getCookieValue(name: string) {
   // Split the cookie string into an array of individual cookies
-  const cookies = document.cookie.split(";");
+  const cookies = document.cookie.split(';');
 
   // Loop through the cookies to find the one with the specified name
   for (let i = 0; i < cookies.length; i++) {
@@ -43,17 +42,16 @@ export function getStatus(domain: any, statusId: any) {
 
     return {
       id: statusId,
-      tag,
+      tag
     };
   } catch (error: any) {
-    console.error({ ...error })
+    console.error({ ...error });
   }
   return {
     id: null,
-    tag: "",
-  }
+    tag: ''
+  };
 }
-
 
 export function getStatusColor(status: string) {
   if (!status) {
@@ -64,6 +62,7 @@ export function getStatusColor(status: string) {
   if (status === 'DRAFT' || status === 'PENDING' || status === 'AWAITING_PAYMENT') return 'orange';
   if (status === 'INACTIVE' || status === 'CANCELLED') return 'red';
   if (status === 'COMPLETED' || status === 'REFUNDED') return 'teal';
+  if (status === 'REDEEMED') return 'purple';
 }
 
 export function calculateFees(amount: any) {
@@ -75,6 +74,6 @@ export function calculateFees(amount: any) {
 
   return {
     totalFees: totalFees,
-    totalAmountWithFees: totalAmountWithFees,
+    totalAmountWithFees: totalAmountWithFees
   };
 }

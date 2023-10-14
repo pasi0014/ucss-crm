@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ClientList } from '../../types/Reservation';
+import { ClientList } from '../../data/types/Reservation';
 
 interface IAddGuestDrawer {
   statuses: object | undefined;

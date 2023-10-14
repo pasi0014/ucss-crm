@@ -1,17 +1,28 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Heading, Flex, Button, Badge, useColorModeValue, Spacer, Input } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Flex,
+  Button,
+  Badge,
+  useColorModeValue,
+  Spacer,
+  Input,
+} from '@chakra-ui/react';
 import Datetime from 'react-datetime';
 import { AddIcon, CalendarIcon, SearchIcon } from '@chakra-ui/icons';
 
 import { AppContext } from '../../context/AppContext';
 
-const EventFormDrawer = React.lazy(() => import('../../components/EventDrawer'));
+const EventFormDrawer = React.lazy(
+  () => import('../../components/EventDrawer'),
+);
 // import ConfirmPopup from '../../components/ConfirmPopup';
 import MessageBar, { IMessageBar } from '../../components/MessageBar';
 
 import { deleteEvent, getEvents } from './calls';
-import { Event } from '../../types/Event';
+import { Event } from '../../data/types/Event';
 import { getStatus } from '../../utils/utilities';
 
 import withStatusFetching from '../../context/withStatus';
@@ -64,7 +75,8 @@ const Events = (props: any) => {
     if (props.statuses) {
       return Object.keys(props.statuses.Event).map((statusKey) => ({
         key: props.statuses.Event[statusKey],
-        text: getStatus(props.statuses.Event, props.statuses.Event[statusKey]).tag,
+        text: getStatus(props.statuses.Event, props.statuses.Event[statusKey])
+          .tag,
       }));
     }
   }, [props.statuses]);
@@ -115,7 +127,9 @@ const Events = (props: any) => {
       const response = await deleteEvent(eventToDelete);
 
       if (response.success) {
-        setEvents(events.filter((iEvent: Event) => iEvent.id !== eventToDelete));
+        setEvents(
+          events.filter((iEvent: Event) => iEvent.id !== eventToDelete),
+        );
       }
     } catch (error: any) {
       console.error('Error : ', { error });
@@ -123,7 +137,11 @@ const Events = (props: any) => {
     setAppLoading(false);
   };
 
-  const filterEvents = ({ statusId = -1, searchTerm = '', eventDate }: FilterOptions = {}) => {
+  const filterEvents = ({
+    statusId = -1,
+    searchTerm = '',
+    eventDate,
+  }: FilterOptions = {}) => {
     // Create a function to filter events by statusId
     const filterByStatus = (event: Event) => {
       // If statusId is -1, select all events, otherwise filter by statusId
@@ -157,7 +175,10 @@ const Events = (props: any) => {
     };
 
     // Use filter to apply status, name, and date filters
-    const filteredItems = events.filter((event) => filterByStatus(event) && filterByName(event) && filterByDate(event));
+    const filteredItems = events.filter(
+      (event) =>
+        filterByStatus(event) && filterByName(event) && filterByDate(event),
+    );
 
     setFilteredEvents(filteredItems);
     return filteredItems;
@@ -172,7 +193,9 @@ const Events = (props: any) => {
       const response = await getEvents();
 
       if (!response.success) {
-        throw new Error('There was an error while loading the Events. Please try again.');
+        throw new Error(
+          'There was an error while loading the Events. Please try again.',
+        );
       }
 
       setEvents(response.data);
@@ -205,7 +228,11 @@ const Events = (props: any) => {
         <InputGroup>
           <Input {...props} value={eventDate} />
           <InputRightElement>
-            <IconButton aria-label="Search" icon={<CalendarIcon />} onClick={() => openCalendar()} />
+            <IconButton
+              aria-label="Search"
+              icon={<CalendarIcon />}
+              onClick={() => openCalendar()}
+            />
           </InputRightElement>
         </InputGroup>
       </Flex>
@@ -239,7 +266,12 @@ const Events = (props: any) => {
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
       /> */}
-      {messageBar && <MessageBar type={messageBar.type} message={messageBar?.message}></MessageBar>}
+      {messageBar && (
+        <MessageBar
+          type={messageBar.type}
+          message={messageBar?.message}
+        ></MessageBar>
+      )}
 
       {/* Will be hidden on mobile */}
       <Box className="hidden lg:block">
@@ -248,7 +280,11 @@ const Events = (props: any) => {
             <Tab onClick={() => setSelectedStatus(-1)}>All</Tab>
             {statusItems &&
               statusItems.map((iStatus) => (
-                <Tab key={iStatus.key} onClick={() => setSelectedStatus(iStatus.key)} isDisabled={!events.length}>
+                <Tab
+                  key={iStatus.key}
+                  onClick={() => setSelectedStatus(iStatus.key)}
+                  isDisabled={!events.length}
+                >
                   {iStatus.text}
                 </Tab>
               ))}
@@ -260,14 +296,22 @@ const Events = (props: any) => {
       <Box className="flex lg:flex-row flex-col-reverse w-full h-full relative">
         {props.statuses && !!filteredEvents.length && (
           <ScaleFade initialScale={0.9} in={true} className="lg:w-8/12 w-full">
-            <EventList onEdit={onEditRecord} onOpen={onOpenRecord} statuses={props.statuses} events={filteredEvents} />
+            <EventList
+              onEdit={onEditRecord}
+              onOpen={onOpenRecord}
+              statuses={props.statuses}
+              events={filteredEvents}
+            />
           </ScaleFade>
         )}
 
-        {!filteredEvents.length && (
+        {!filteredEvents.length && (!!searchTerm.length || selectedStatus) && (
           <Box className="lg:w-8/12 w-full">
             <ScaleFade initialScale={0.9} in={true}>
-              <Box bg={bg} className="p-28 flex-col items-center items-top justify-between rounded-xl shadow justify-between">
+              <Box
+                bg={bg}
+                className="p-28 flex-col items-center items-top justify-between rounded-xl shadow justify-between"
+              >
                 <Text fontSize="xl" className="font-bold">
                   There are no Events :/
                 </Text>
@@ -280,13 +324,22 @@ const Events = (props: any) => {
         {dataLoaded && !events.length && (
           <Box className="lg:w-8/12 w-full">
             <ScaleFade initialScale={0.9} in={true}>
-              <Box bg={bg} className="p-20 flex-col items-center items-top justify-between rounded-xl shadow justify-between">
+              <Box
+                bg={bg}
+                className="p-20 flex-col items-center items-top justify-between rounded-xl shadow justify-between"
+              >
                 <Text fontSize="xl" className="font-bold">
                   There are no Events :/
                 </Text>
                 <Text>Yet we encourage you to create one</Text>
-                <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
-                  {/* <AddIcon boxSize={3} mr={3} /> */}
+                <Button
+                  variant={'solid'}
+                  colorScheme={'teal'}
+                  size={'md'}
+                  mr={4}
+                  onClick={handleOpenDrawer}
+                  my={{ base: 5, sm: 15 }}
+                >
                   Create event
                 </Button>
               </Box>
@@ -296,10 +349,9 @@ const Events = (props: any) => {
 
         {/* Mobile Filtering - Make this Box stick to the top of the page when scrolling */}
         <Box
-          className={`lg:w-4/12 w-full p-3 h-full flex flex-col rounded-xl shadow lg:ml-5 mb-10 ${scrollDirection === 'up' ? 'hide-sticky' : 'show-sticky'}`}
+          className={`lg:w-4/12 w-full p-3 h-full flex flex-col rounded-xl shadow lg:ml-5 mb-10 lg:sticky block`}
           bg={wrapperBg}
           style={{
-            position: 'sticky',
             top: 0,
             right: 5,
           }}
@@ -310,7 +362,10 @@ const Events = (props: any) => {
                 <Tab onClick={() => setSelectedStatus(-1)}>All</Tab>
                 {statusItems &&
                   statusItems.map((iStatus) => (
-                    <Tab key={iStatus.key} onClick={() => setSelectedStatus(iStatus.key)}>
+                    <Tab
+                      key={iStatus.key}
+                      onClick={() => setSelectedStatus(iStatus.key)}
+                    >
                       {iStatus.text}
                     </Tab>
                   ))}
@@ -319,7 +374,10 @@ const Events = (props: any) => {
           </Box>
           <Flex className="w-full mb-3 flex lg:flex-col md:flex-row flex-col">
             <div className="lg:mx-0 md:mx-3 lg:w-full md:w-6/12 w-full">
-              <Text className="text-relaxed font-medium ml-1 mb-2" color={inputBg}>
+              <Text
+                className="text-relaxed font-medium ml-1 mb-2"
+                color={inputBg}
+              >
                 Search for an event
               </Text>
               <InputGroup>
@@ -328,10 +386,17 @@ const Events = (props: any) => {
                   shadow="sm"
                   placeholder="Search"
                   value={searchTerm}
-                  onChange={(val: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(val.target.value)}
+                  onChange={(val: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchTerm(val.target.value)
+                  }
                 />
                 <InputRightElement>
-                  <IconButton color={iconBg} aria-label="Search" icon={<SearchIcon />} onClick={() => handleSearch()} />
+                  <IconButton
+                    color={iconBg}
+                    aria-label="Search"
+                    icon={<SearchIcon />}
+                    onClick={() => handleSearch()}
+                  />
                 </InputRightElement>
               </InputGroup>
             </div>
@@ -342,13 +407,18 @@ const Events = (props: any) => {
                   Date
                 </Text>
                 <Datetime
-                  inputProps={{ className: 'border-2 p-2 rounded-lg w-full', placeholder: 'Select a date' }}
+                  inputProps={{
+                    className: 'border-2 p-2 rounded-lg w-full',
+                    placeholder: 'Select a date',
+                  }}
                   className="border-1 border-gray-600 rounded-lg shadow-sm w-full "
                   renderInput={onRenderInput}
                   timeFormat={false}
                   renderView={renderCalendar}
                   dateFormat={'YYYY-MM-DD'}
-                  onChange={(date) => setEventDate(moment(date).format('YYYY-MM-DD').toString())}
+                  onChange={(date) =>
+                    setEventDate(moment(date).format('YYYY-MM-DD').toString())
+                  }
                   value={eventDate}
                 />
               </Flex>
@@ -356,10 +426,23 @@ const Events = (props: any) => {
           </Flex>
 
           <div className="w-full justify-end mt-3 flex sm:flex-row flex-col">
-            <Button variant={'solid'} colorScheme={'red'} size={'md'} mr={4} onClick={() => resetFilters()} my={{ base: 5, sm: 15 }}>
+            <Button
+              variant={'solid'}
+              colorScheme={'red'}
+              size={'md'}
+              mr={{ base: 0, md: 4 }}
+              onClick={() => resetFilters()}
+              my={{ base: 5, sm: 15 }}
+            >
               Reset Filters
             </Button>
-            <Button variant={'solid'} colorScheme={'teal'} size={'md'} mr={4} onClick={handleOpenDrawer} my={{ base: 5, sm: 15 }}>
+            <Button
+              variant={'solid'}
+              colorScheme={'teal'}
+              size={'md'}
+              onClick={handleOpenDrawer}
+              my={{ base: 5, sm: 15 }}
+            >
               <AddIcon boxSize={3} mr={3} />
               Create an event
             </Button>
@@ -367,7 +450,14 @@ const Events = (props: any) => {
         </Box>
       </Box>
 
-      {props.statuses && <EventFormDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} eventId={selectedEventId} statuses={props.statuses} />}
+      {props.statuses && (
+        <EventFormDrawer
+          isOpen={isDrawerOpen}
+          onClose={handleDrawerClose}
+          eventId={selectedEventId}
+          statuses={props.statuses}
+        />
+      )}
     </React.Fragment>
   );
 };

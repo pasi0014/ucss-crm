@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Client } from '../../types/Reservation';
+import { Client } from '../../data/types/Reservation';
 import { IMessageBar } from '../../components/MessageBar';
 import { Box } from '@chakra-ui/react';
 import { Heading } from '@chakra-ui/react';

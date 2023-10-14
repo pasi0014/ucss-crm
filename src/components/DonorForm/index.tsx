@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Button, FormControl, FormLabel, Input } from '@chakra-ui/react';
-import { Donor } from '../../types/Donor';
+import {
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+} from '@chakra-ui/react';
+import { Donor } from '../../data/types/Donor';
 import { createDonor } from './calls';
 import MessageBar from '../MessageBar';
 import { useColorModeValue } from '@chakra-ui/react';
@@ -73,15 +84,30 @@ const DonorFormDrawer = (props: IDonorFormDrawerProps) => {
             {error && <MessageBar type={error.type} message={error.message} />}
             <FormControl>
               <FormLabel>Name</FormLabel>
-              <Input type="text" name="name" value={formValues.name} onChange={handleInputChange} />
+              <Input
+                type="text"
+                name="name"
+                value={formValues.name}
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Location</FormLabel>
-              <Input type="text" name="location" value={formValues.location} onChange={handleInputChange} />
+              <Input
+                type="text"
+                name="location"
+                value={formValues.location}
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Best Contact</FormLabel>
-              <Input type="text" name="best_contact" value={formValues.best_contact} onChange={handleInputChange} />
+              <Input
+                type="text"
+                name="best_contact"
+                value={formValues.best_contact}
+                onChange={handleInputChange}
+              />
             </FormControl>
             <Button
               mt={4}

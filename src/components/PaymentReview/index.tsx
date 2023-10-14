@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Heading, Text, useColorModeValue, Spacer, Flex } from '@chakra-ui/react';
-import { ClientList, PaymentIntent, Reservation } from '../../types/Reservation';
+import {
+  Box,
+  Heading,
+  Text,
+  useColorModeValue,
+  Spacer,
+  Flex,
+} from '@chakra-ui/react';
+import {
+  ClientList,
+  PaymentIntent,
+  Reservation,
+} from '../../data/types/Reservation';
 import { IMessageBar } from '../MessageBar';
-import { Price } from '../../types/Price';
+import { Price } from '../../data/types/Price';
 import PaymentFormWrapper from '../PaymentFormWraper';
 import { Button } from '@chakra-ui/react';
 import { calculateFees } from '../../utils/utilities';
@@ -13,19 +24,26 @@ interface IPaymentReviewProps {
   onNext: () => void;
 }
 
-const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservationUpdate, onNext }) => {
+const PaymentReview: React.FC<IPaymentReviewProps> = ({
+  reservation,
+  onReservationUpdate,
+  onNext,
+}) => {
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
   const [pendingPayments, setPendindPayments] = useState<any[]>([]);
 
   const bgColor = useColorModeValue('white', 'gray.400');
 
   const calculatePendingPayments = () => {
-    const updatedPedningPayments = reservation.ClientLists?.filter((iClient) => iClient.Price?.ticketType === 'paid').map(
-      (iClient) => iClient.Price,
-    ) as Price[];
+    const updatedPedningPayments = reservation.ClientLists?.filter(
+      (iClient) => iClient.Price?.ticketType === 'paid',
+    ).map((iClient) => iClient.Price) as Price[];
     if (updatedPedningPayments.length > 0) {
       setPendindPayments(updatedPedningPayments);
-      const updatedReservation = { ...reservation, pendingPayments: updatedPedningPayments };
+      const updatedReservation = {
+        ...reservation,
+        pendingPayments: updatedPedningPayments,
+      };
       onReservationUpdate(updatedReservation);
     }
   };
@@ -50,7 +68,10 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
             </span> */}
             <Box mb={3}>
               <Text fontSize="sm" as="u">
-                Ticket: {iClient.Price?.name} - {iClient.Price?.ticketType === 'paid' ? `$CAD ${iClient.Price.amount}` : 'free'}
+                Ticket: {iClient.Price?.name} -{' '}
+                {iClient.Price?.ticketType === 'paid'
+                  ? `$CAD ${iClient.Price.amount}`
+                  : 'free'}
               </Text>
             </Box>
             <hr />
@@ -73,13 +94,25 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
   return (
     <Box className="w-full" my={10}>
       <div className="flex md:flex-row flex-col-reverse">
-        <Box className="w-6/12 p-5 rounded-xl shadow-xl mx-auto" bg={useColorModeValue('gray.50', 'gray.700')}>
+        <Box
+          className="w-6/12 p-5 rounded-xl shadow-xl mx-auto"
+          bg={useColorModeValue('gray.50', 'gray.700')}
+        >
           {pendingPayments.length > 0 ? (
-            <PaymentFormWrapper eventId={reservation.EventId} reservationId={reservation.id} clientId={reservation.OwnerId} pendingPayments={pendingPayments} />
+            <PaymentFormWrapper
+              eventId={reservation.EventId}
+              reservationId={reservation.id}
+              clientId={reservation.OwnerId}
+              pendingPayments={pendingPayments}
+            />
           ) : (
             <div className="flex flex-col">
-              <span className="text-xl font-bold">This Reservation doesn't require payment</span>
-              <span className="text-xl font-medium my-3">You can proceed to the next step</span>
+              <span className="text-xl font-bold">
+                This Reservation doesn't require payment
+              </span>
+              <span className="text-xl font-medium my-3">
+                You can proceed to the next step
+              </span>
               <Button
                 className="p-3 rounded-xl bg-green-500 my-4 w-full font-bold text-white transition-all duration-300s ease hover:bg-green-600"
                 onClick={() => console.log('hey')}
@@ -90,12 +123,26 @@ const PaymentReview: React.FC<IPaymentReviewProps> = ({ reservation, onReservati
           )}
         </Box>
         <Spacer />
-        <Box bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="10px" className="w-5/12 h-full" p={3} boxShadow="lg">
+        <Box
+          bg={useColorModeValue('gray.50', 'gray.700')}
+          borderRadius="10px"
+          className="w-5/12 h-full"
+          p={3}
+          boxShadow="lg"
+        >
           <Heading as="h2" size="md" my={2} p={1}>
             Reservation Summary
           </Heading>
           {/* <hr className={`border-t-1 ${useColorModeValue('border-gray-700', 'border-white')}`} /> */}
-          <Flex my={3} borderRadius="10px" p={5} justify-content="start" direction="column" boxShadow="md" bg={useColorModeValue('gray.100', 'gray.600')}>
+          <Flex
+            my={3}
+            borderRadius="10px"
+            p={5}
+            justify-content="start"
+            direction="column"
+            boxShadow="md"
+            bg={useColorModeValue('gray.100', 'gray.600')}
+          >
             {buildReservationSummary()}
           </Flex>
         </Box>

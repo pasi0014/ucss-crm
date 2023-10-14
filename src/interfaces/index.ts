@@ -12,15 +12,14 @@ export interface ILoggedInUser {
   role?: String;
 }
 
-
 export interface DonorFormDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export interface IColumnProps {
-  header: string,
-  key?: string,
-  accessor: string,
+  header: string;
+  key?: string;
+  accessor: string;
   render?: (value: any, items: any) => React.ReactNode;
 }

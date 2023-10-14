@@ -1,6 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Invoice, InvoiceItem, PaymentIntent } from '../../types/Reservation';
-import { Box, Drawer, DrawerOverlay, DrawerHeader, DrawerContent, DrawerCloseButton, DrawerBody, useColorModeValue } from '@chakra-ui/react';
+import {
+  Invoice,
+  InvoiceItem,
+  PaymentIntent,
+} from '../../data/types/Reservation';
+import {
+  Box,
+  Drawer,
+  DrawerOverlay,
+  DrawerHeader,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerBody,
+  useColorModeValue,
+} from '@chakra-ui/react';
 
 import { findOrCreatePaymentIntent } from './calls';
 
@@ -10,7 +23,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { useToast } from '@chakra-ui/react';
 import PaymentForm from '../PaymentForm';
-import { Price } from '../../types/Price';
+import { Price } from '../../data/types/Price';
 import { useNavigate } from 'react-router-dom';
 import { calculateFees } from '../../utils/utilities';
 
@@ -29,7 +42,14 @@ interface IPaymentDrawer {
  * PaymentDrawer is used in the Reservation View
  * It's purpose to pay a single Invoice
  */
-const PaymentDrawer: React.FC<IPaymentDrawer> = ({ isOpen, onClose, invoice, eventId, reservationId, onSuccessPayment }) => {
+const PaymentDrawer: React.FC<IPaymentDrawer> = ({
+  isOpen,
+  onClose,
+  invoice,
+  eventId,
+  reservationId,
+  onSuccessPayment,
+}) => {
   const bgColor = useColorModeValue('gray.200', 'gray.800');
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,7 +66,10 @@ const PaymentDrawer: React.FC<IPaymentDrawer> = ({ isOpen, onClose, invoice, eve
     setMessageBar(null);
 
     try {
-      const response = await findOrCreatePaymentIntent({ reservationId, invoiceItems });
+      const response = await findOrCreatePaymentIntent({
+        reservationId,
+        invoiceItems,
+      });
       if (!response.success) {
         toast({
           title: 'Error',

@@ -57,6 +57,7 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="events/create" element={<>test</>} />
           <Route
             path="/events/:eventId/reservation/:reservationId"
             element={
@@ -97,7 +98,7 @@ function App() {
               </Suspense>
             }
           />
-          <Route path="statistics" element={<>Statistics</>} />
+          {/* <Route path="statistics" element={<>Statistics</>} /> */}
           <Route
             path="reservations"
             element={
@@ -115,9 +116,20 @@ function App() {
             }
           />
         </Route>
-        <Route path="*" element={isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />} />
-        <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />
-        <Route path="/register" element={isAuthenticated() ? <Navigate to="/" replace /> : <SignupCard />} />
+        <Route
+          path="*"
+          element={
+            isAuthenticated() ? <Navigate to="/" replace /> : <Navigate to="login" replace />
+          }
+        />
+        <Route
+          path="/login"
+          element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />}
+        />
+        <Route
+          path="/register"
+          element={isAuthenticated() ? <Navigate to="/" replace /> : <SignupCard />}
+        />
       </Routes>
     </BrowserRouter>
   );

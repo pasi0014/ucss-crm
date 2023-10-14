@@ -16,7 +16,8 @@ import { FiMoreVertical } from 'react-icons/fi';
 import { getStatus, getStatusColor } from '../../utils/utilities';
 import PieChart from '../PieChart';
 import { pieChartData, pieChartOptions } from '../PieChart/chartData';
-import { DonationCampaign } from '../../types/DonationCampaign';
+import { DonationCampaign } from '../../data/types/DonationCampaign';
+import { Button } from '@chakra-ui/react';
 
 interface IDonationCampaignCardProps {
   donationCampaign: DonationCampaign;
@@ -25,27 +26,33 @@ interface IDonationCampaignCardProps {
   onArchive: (campaignId: number | undefined) => void;
   onSelect: (campaign: DonationCampaign) => void;
 }
-const DonationCampaignCard: React.FC<IDonationCampaignCardProps> = ({ statuses, donationCampaign, onEdit, onArchive, onSelect }) => {
+const DonationCampaignCard: React.FC<IDonationCampaignCardProps> = ({
+  statuses,
+  donationCampaign,
+  onEdit,
+  onArchive,
+  onSelect
+}) => {
   return (
     <Box
-      bg={useColorModeValue('gray.50', 'gray.600')}
+      bg={useColorModeValue('white', 'gray.600')}
       p={5}
-      mb={10}
-      className="rounded-lg text-left w-full shadow cursor-pointer"
+      className="rounded-lg text-left w-full h-full shadow mb-5"
       _hover={{
-        bgGradient: `linear(to-r, ${useColorModeValue('pink.200', 'pink.400')} ,${useColorModeValue('purple.300', 'purple.400')})`,
+        bgGradient: `linear(to-r, ${useColorModeValue('pink.200', 'pink.400')} ,${useColorModeValue(
+          'purple.300',
+          'purple.400'
+        )})`,
         boxShadow: 'lg',
         shadow: 'md',
-        color: 'white',
+        color: 'white'
       }}
-      onClick={() => onSelect(donationCampaign)}
     >
       {/* <Flex direction={{ base: 'column', md: 'row' }}> */}
       {/* <Box className="w-4/12 mx-auto text-center flex flex-col items-center justify-between p-1">
           <Heading size="xs">Donations Collected</Heading>
           <PieChart h="100%" w="100%" chartData={pieChartData} chartOptions={pieChartOptions} />
         </Box> */}
-
       <Flex direction="column" className="w-full">
         <div className="flex flex-row justify-between">
           <Heading as="h3" size="md" mb={3}>
@@ -53,7 +60,12 @@ const DonationCampaignCard: React.FC<IDonationCampaignCardProps> = ({ statuses, 
           </Heading>
 
           <Menu>
-            <MenuButton as={IconButton} aria-label="Options" icon={<FiMoreVertical />} variant="outline" />
+            <MenuButton
+              as={IconButton}
+              aria-label="Options"
+              icon={<FiMoreVertical />}
+              variant="outline"
+            />
             <MenuList>
               <MenuItem
                 icon={<EditIcon />}
@@ -79,18 +91,32 @@ const DonationCampaignCard: React.FC<IDonationCampaignCardProps> = ({ statuses, 
             <span className="text-md">{donationCampaign.contentEn}</span>
           </Box> */}
         <Box>
-          <span className="text-sm font-bold">Campaign Start: {moment(donationCampaign.startDate).format('MMMM D, YYYY')}</span>
+          <span className="text-sm font-bold">
+            Campaign Start: {moment(donationCampaign.startDate).format('MMMM D, YYYY')}
+          </span>
         </Box>
         <Box>
-          <span className="text-sm font-bold">Campaign End: {moment(donationCampaign.endDate).format('MMMM D, YYYY')}</span>
+          <span className="text-sm font-bold">
+            Campaign End: {moment(donationCampaign.endDate).format('MMMM D, YYYY')}
+          </span>
         </Box>
         <Box>
           <span className="font-xs mr-2">Status</span>
-          <Badge fontSize="0.3em" colorScheme={getStatusColor(getStatus(statuses.DonationCampaign, donationCampaign.StatusId).tag || '')}>
+          <Badge
+            fontSize="0.3em"
+            colorScheme={getStatusColor(
+              getStatus(statuses.DonationCampaign, donationCampaign.StatusId).tag || ''
+            )}
+          >
             {getStatus(statuses.DonationCampaign, donationCampaign.StatusId).tag}
           </Badge>
         </Box>
       </Flex>
+      <div className="w-full flex justify-center mt-5">
+        <Button colorScheme="green" className="w-full">
+          Open
+        </Button>
+      </div>
       {/* </Flex> */}
     </Box>
   );

@@ -95,8 +95,13 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div>
-      <Button onClick={startCamera} colorScheme="yellow">
+    <div className="w-full">
+      <Button
+        onClick={startCamera}
+        colorScheme="yellow"
+        className="w-full"
+        size={{ base: 'sm', md: 'md' }}
+      >
         Search by QR code
       </Button>
       <Modal

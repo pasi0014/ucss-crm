@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { Reservation } from '../../types/Reservation';
+import { Reservation } from '../../data/types/Reservation';
 import { getEventReservation } from '../../containers/EventView/calls';
 import { IMessageBar } from '../MessageBar';
 import {
@@ -221,7 +221,7 @@ const ReservationList: React.FC<ReservationListProps> = ({
             </Box>
           </div>
 
-          <div className="lg:w-6/12 justify-end w-full mt-3 flex sm:flex-row flex-col">
+          <div className="lg:w-6/12 w-full justify-end w-full mt-3 flex sm:flex-row flex-col">
             <Button
               variant={'solid'}
               colorScheme={'blue'}
@@ -233,11 +233,7 @@ const ReservationList: React.FC<ReservationListProps> = ({
               <SearchIcon boxSize={3} mr={3} />
               Search
             </Button>
-            <Box
-              size={{ base: 'sm', md: 'md' }}
-              my={{ base: 5, sm: 15 }}
-              mr={5}
-            >
+            <Box my={{ base: 5, sm: 15 }} mr={5}>
               <Suspense fallback={<>loading...</>}>
                 <QRScanner
                   onSuccess={(reservationCode) => {

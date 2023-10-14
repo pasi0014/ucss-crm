@@ -6,7 +6,7 @@ import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
 
 export const getEvents = async () => {
   const ctx = {
-    component: 'components/Events/calls.getEvents',
+    component: 'components/Events/calls.getEvents'
   };
 
   let errorMessage = null;
@@ -18,8 +18,8 @@ export const getEvents = async () => {
 
     const response = await axios.get(`${API_BASE_URL}/v1/events`, {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
@@ -33,13 +33,13 @@ export const getEvents = async () => {
 
   return {
     success: false,
-    data: errorMessage,
+    data: errorMessage
   };
 };
 
 export const deleteEvent = async (eventId: number) => {
   const ctx = {
-    component: 'components/Events/calls.deleteEvent',
+    component: 'components/Events/calls.deleteEvent'
   };
 
   let errorMessage = null;
@@ -51,8 +51,8 @@ export const deleteEvent = async (eventId: number) => {
 
     const response = await axios.delete(`${API_BASE_URL}/v1/events/${eventId}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
@@ -67,6 +67,6 @@ export const deleteEvent = async (eventId: number) => {
 
   return {
     success: false,
-    data: errorMessage,
+    data: errorMessage
   };
 };

@@ -3,13 +3,13 @@ import API_BASE_URL from '../../config';
 
 import { UCSS_API_CONSTANTS } from '../../utils/constants';
 import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
-import { Client } from '../../types/Client';
-import { Reservation } from '../../types/Reservation';
+import { Client } from '../../data/types/Client';
+import { Reservation } from '../../data/types/Reservation';
 
 export const saveClientsToDB = async (clients: any) => {
   const ctx = {
     component: 'components/ReservationDrawer/calls.saveClientsToDB',
-    params: { clients },
+    params: { clients }
   };
 
   let errorMessage = null;
@@ -24,9 +24,9 @@ export const saveClientsToDB = async (clients: any) => {
       { clients },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
 
     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
@@ -40,7 +40,7 @@ export const saveClientsToDB = async (clients: any) => {
 
   return {
     success: false,
-    data: errorMessage,
+    data: errorMessage
   };
 };
 
@@ -48,7 +48,7 @@ export async function putDraftReservation(reservation: Reservation) {
   const ctx = {
     component: `components/ReservationDrawer.calls.updateDraftReservation`,
     params: { reservation }
-  }
+  };
 
   let errorMessage = null;
 
@@ -62,9 +62,9 @@ export async function putDraftReservation(reservation: Reservation) {
       { reservation },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
 
     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
@@ -73,19 +73,19 @@ export async function putDraftReservation(reservation: Reservation) {
 
     errorMessage = getAnErrorMessage(response);
   } catch (error) {
-    console.error(`An unexpected error while updating draft reservation`, { ...ctx, error })
+    console.error(`An unexpected error while updating draft reservation`, { ...ctx, error });
   }
 
   return {
     success: false,
-    data: errorMessage,
-  }
+    data: errorMessage
+  };
 }
 
 export async function postLightReservation(reservation: Reservation) {
   const ctx = {
     component: `components/ReservationDrawer.calls.postLightReservation`,
-    params: { reservation },
+    params: { reservation }
   };
 
   let errorMessage = null;
@@ -100,9 +100,9 @@ export async function postLightReservation(reservation: Reservation) {
       { reservation },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
 
     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
@@ -116,6 +116,6 @@ export async function postLightReservation(reservation: Reservation) {
 
   return {
     success: false,
-    data: errorMessage,
+    data: errorMessage
   };
 }

@@ -1,10 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Heading, useColorModeValue, Box, Flex } from '@chakra-ui/react';
+import {
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  Heading,
+  useColorModeValue,
+  Box,
+  Flex,
+} from '@chakra-ui/react';
 
-import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
+import {
+  Step,
+  StepDescription,
+  StepIcon,
+  StepIndicator,
+  StepNumber,
+  StepSeparator,
+  StepStatus,
+  StepTitle,
+  Stepper,
+  useSteps,
+} from '@chakra-ui/stepper';
 import { Button } from '@chakra-ui/react';
 
-import { Event } from '../../types/Event';
+import { Event } from '../../data/types/Event';
 import PriceInfo from './PriceInfo';
 import PublishEvent from './PublishEvent';
 
@@ -25,7 +47,11 @@ interface IStep {
   description: string;
 }
 
-const steps: IStep[] = [{ description: 'Event Info' }, { description: 'Tickets' }, { description: 'Publish the event' }];
+const steps: IStep[] = [
+  { description: 'Event Info' },
+  { description: 'Tickets' },
+  { description: 'Publish the event' },
+];
 
 const EventFormDrawer = (props: IEventFormDrawerProps) => {
   const [messageBar, setMessageBar] = useState<any>({});
@@ -68,11 +94,18 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
               bg={useColorModeValue('gray.50', 'gray.600')}
             >
               <Flex flexDir="column">
-                <Stepper index={activeStep} orientation={isMobile ? 'vertical' : 'horizontal'}>
+                <Stepper
+                  index={activeStep}
+                  orientation={isMobile ? 'vertical' : 'horizontal'}
+                >
                   {steps.map((step: any, index: number) => (
                     <Step key={index}>
                       <StepIndicator>
-                        <StepStatus complete={<StepIcon />} incomplete={<StepNumber />} active={<StepNumber />} />
+                        <StepStatus
+                          complete={<StepIcon />}
+                          incomplete={<StepNumber />}
+                          active={<StepNumber />}
+                        />
                       </StepIndicator>
 
                       <Box flexShrink="0">
@@ -84,9 +117,28 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <EventForm onNext={() => goToNext()} eventId={props.eventId} onEventUpdate={onEventUpdate} />}
-                {activeStep === 2 && <PriceInfo onNext={() => goToNext()} eventId={props.eventId} statuses={props.statuses} />}
-                {activeStep === 3 && <PublishEvent onNext={goToNext} entity="Event" eventId={props.eventId} statuses={props.statuses} />}
+                {activeStep === 1 && (
+                  <EventForm
+                    onNext={() => goToNext()}
+                    eventId={props.eventId}
+                    onEventUpdate={onEventUpdate}
+                  />
+                )}
+                {activeStep === 2 && (
+                  <PriceInfo
+                    onNext={() => goToNext()}
+                    eventId={props.eventId}
+                    statuses={props.statuses}
+                  />
+                )}
+                {activeStep === 3 && (
+                  <PublishEvent
+                    onNext={goToNext}
+                    entity="Event"
+                    eventId={props.eventId}
+                    statuses={props.statuses}
+                  />
+                )}
 
                 <Flex mt="15px">
                   {activeStep !== 1 && (
@@ -96,7 +148,11 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
                     </Button>
                   )}
                   {activeStep !== 3 && (
-                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={props.eventId && goToNext} isDisabled={!props.eventId}>
+                    <Button
+                      ml={activeStep !== 1 ? '15px' : '0px'}
+                      onClick={props.eventId && goToNext}
+                      isDisabled={!props.eventId}
+                    >
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />
                     </Button>

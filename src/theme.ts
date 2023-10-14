@@ -1,11 +1,11 @@
-import { extendTheme } from "@chakra-ui/react";
+import { extendTheme } from '@chakra-ui/react';
 
 const breakpoints = {
-  sm: "30em",
-  md: "48em",
-  lg: "62em",
-  xl: "80em",
-  "2xl": "96em",
+  sm: '30em',
+  md: '48em',
+  lg: '62em',
+  xl: '80em',
+  '2xl': '96em'
 };
 const Drawer = {
   parts: ['dialog', 'header', 'body'],
@@ -28,8 +28,8 @@ const Drawer = {
 };
 
 const config = {
-  initialColorMode: "light",
-  useSystemColorMode: false,
+  initialColorMode: 'light',
+  useSystemColorMode: false
 };
 
 const theme = extendTheme({
@@ -37,7 +37,7 @@ const theme = extendTheme({
   config,
   components: {
     Drawer: { ...Drawer }
-  },
+  }
 });
 
 export default theme;

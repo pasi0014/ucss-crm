@@ -9,8 +9,8 @@ import { MAXIMUM_CLIENTS } from '../../utils/constants';
 import ClientInfo from '../ClientInfo';
 import SearchBar from '../SearchBar';
 import MessageBar, { IMessageBar } from '../MessageBar';
-import { ClientList, Reservation, Client } from '../../types/Reservation';
-import { Price } from '../../types/Price';
+import { ClientList, Reservation, Client } from '../../data/types/Reservation';
+import { Price } from '../../data/types/Price';
 import { AppContext } from '../../context/AppContext';
 import { updateOrSaveClient } from './calls';
 
@@ -20,16 +20,25 @@ interface IReservationFormProps {
   onReservationUpdate: (reservation: Reservation) => void;
 }
 
-const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation, onReservationUpdate }) => {
+const ReservationForm: React.FC<IReservationFormProps> = ({
+  eventId,
+  reservation,
+  onReservationUpdate,
+}) => {
   const { setAppLoading } = useContext<any>(AppContext);
   const toast = useToast();
-  const [clientLists, setClientLists] = useState<ClientList[]>(reservation.ClientLists || []);
+  const [clientLists, setClientLists] = useState<ClientList[]>(
+    reservation.ClientLists || [],
+  );
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
   const handleAddGuestList = () => {
     // Validate if we reaching the maximum event capacity
     if (clientLists.length >= MAXIMUM_CLIENTS) {
-      setMessageBar({ type: 'info', message: `Warning: you have reached maximum clients (${MAXIMUM_CLIENTS}) per one reservation` });
+      setMessageBar({
+        type: 'info',
+        message: `Warning: you have reached maximum clients (${MAXIMUM_CLIENTS}) per one reservation`,
+      });
       toast({
         title: 'Warning',
         description: `You have reached maximum client's capacity (${MAXIMUM_CLIENTS}) per one reservation`,
@@ -58,13 +67,24 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
     setClientLists((prevClientLists) => [...prevClientLists, newClientList]);
     // Update the reservation object with the updated clients array
     // Client Entity
-    const ownerId = clientLists.length > 0 ? clientLists.find((iClient) => iClient.isOwner)?.ClientId : newClient.id;
+    const ownerId =
+      clientLists.length > 0
+        ? clientLists.find((iClient) => iClient.isOwner)?.ClientId
+        : newClient.id;
     const updatedClients = [...clientLists, newClientList];
-    const updatedReservation: Reservation = { ...reservation, OwnerId: ownerId || '', ClientLists: updatedClients };
+    const updatedReservation: Reservation = {
+      ...reservation,
+      OwnerId: ownerId || '',
+      ClientLists: updatedClients,
+    };
     onReservationUpdate(updatedReservation);
   };
 
-  const handleClientInfoChange = (index: number, fieldName: string, value: string | Price) => {
+  const handleClientInfoChange = (
+    index: number,
+    fieldName: string,
+    value: string | Price,
+  ) => {
     setClientLists((prevClients) => {
       const updatedClients = [...prevClients];
       const clientToUpdate: any = updatedClients[index];
@@ -103,7 +123,10 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
         duration: 3000,
         isClosable: true,
       });
-      setMessageBar({ type: 'warning', message: `You have reached maximum client's capacity of ${MAXIMUM_CLIENTS} per one reservation` });
+      setMessageBar({
+        type: 'warning',
+        message: `You have reached maximum client's capacity of ${MAXIMUM_CLIENTS} per one reservation`,
+      });
     }
 
     // Validate if we reaching the maximum event capacity
@@ -141,7 +164,11 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
     // Update the reservation object with the updated clients array
     const ownerId = clientLists.length === 0 ? client.id : reservation.OwnerId;
     const updatedClients = [...clientLists, newClientList];
-    const updatedReservation: Reservation = { ...reservation, OwnerId: ownerId || '', ClientLists: updatedClients };
+    const updatedReservation: Reservation = {
+      ...reservation,
+      OwnerId: ownerId || '',
+      ClientLists: updatedClients,
+    };
     onReservationUpdate(updatedReservation);
 
     toast({
@@ -191,18 +218,26 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
 
   const removeClient = (clientList: ClientList) => {
     setMessageBar(null);
-    const updatedClients = clientLists.filter((iClient) => iClient.id !== clientList.id) as ClientList[];
+    const updatedClients = clientLists.filter(
+      (iClient) => iClient.id !== clientList.id,
+    ) as ClientList[];
     if (updatedClients.length > 0) {
       updatedClients[0].isOwner = true;
     }
     setClientLists(updatedClients);
     // Update the reservation object with the updated clients array
     const ownerId = !!updatedClients.length && updatedClients[0].Client.id;
-    const updatedReservation: Reservation = { ...reservation, OwnerId: ownerId || '', ClientLists: updatedClients };
+    const updatedReservation: Reservation = {
+      ...reservation,
+      OwnerId: ownerId || '',
+      ClientLists: updatedClients,
+    };
     onReservationUpdate(updatedReservation);
     toast({
       title: 'Client has been removed',
-      description: `You have removed ${clientList.Client.firstName || 'Client'} from this reservation`,
+      description: `You have removed ${
+        clientList.Client.firstName || 'Client'
+      } from this reservation`,
       position: 'top-left',
       status: 'warning',
       duration: 9000,
@@ -217,11 +252,20 @@ const ReservationForm: React.FC<IReservationFormProps> = ({ eventId, reservation
           <MessageBar type={messageBar.type} message={messageBar.message} />
         </Flex>
       )}
-      <Flex justifyContent={{ base: 'center', md: 'space-between' }} direction={{ base: 'column', md: 'row' }}>
+      <Flex
+        justifyContent={{ base: 'center', md: 'space-between' }}
+        direction={{ base: 'column', md: 'row' }}
+      >
         <Heading as="h2" my={5}>
           Client's Information
         </Heading>
-        <Button variant="solid" colorScheme="teal" size="md" onClick={handleAddGuestList} my="auto">
+        <Button
+          variant="solid"
+          colorScheme="teal"
+          size="md"
+          onClick={handleAddGuestList}
+          my="auto"
+        >
           <AddIcon boxSize={3} mr={2} />
           Create Client
         </Button>

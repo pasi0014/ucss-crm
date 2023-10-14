@@ -4,10 +4,20 @@ import imageCompression from 'browser-image-compression';
 
 import { AppContext } from '../../context/AppContext';
 
-import { Button, Divider, Input, FormLabel, FormControl, Flex, useColorModeValue, Heading, Box } from '@chakra-ui/react';
+import {
+  Button,
+  Divider,
+  Input,
+  FormLabel,
+  FormControl,
+  Flex,
+  useColorModeValue,
+  Heading,
+  Box,
+} from '@chakra-ui/react';
 
 import MessageBar, { IMessageBar } from '../MessageBar';
-import { DonationCampaign } from '../../types/DonationCampaign';
+import { DonationCampaign } from '../../data/types/DonationCampaign';
 import { getDonationCampaignById } from './calls';
 import { Spinner } from '@chakra-ui/react';
 
@@ -19,7 +29,11 @@ interface IDonationCampaignForm {
   campaignId?: number | undefined;
 }
 
-const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donationCampaign, campaignId }) => {
+const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
+  onNext,
+  donationCampaign,
+  campaignId,
+}) => {
   const { appLoading, setAppLoading } = useContext<any>(AppContext);
   const [formValues, setFormValues] = useState<DonationCampaign>({
     nameEn: '',
@@ -118,13 +132,19 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donatio
    * @param date
    * @returns
    */
-  const formatDate = (date: Date) => moment(date).tz('America/Toronto').format('YYYY-MM-DDTHH:mm');
+  const formatDate = (date: Date) =>
+    moment(date).tz('America/Toronto').format('YYYY-MM-DDTHH:mm');
 
   /**
    * Make sure that end date is not before the start date
    */
   useEffect(() => {
-    if (formValues.startDate && formValues.startDate.length && !formValues.endDate && formValues.endDate.length) {
+    if (
+      formValues.startDate &&
+      formValues.startDate.length &&
+      !formValues.endDate &&
+      formValues.endDate.length
+    ) {
       const tempDate = formatDate(new Date(formValues.startDate));
       setFormValues((prevState) => ({
         ...prevState,
@@ -165,21 +185,41 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donatio
       >
         <Box className="w-full flex md:flex-row flex-col">
           <Box className="md:w-4/12 w-full p-3 flex flex-col">
-            <span className="text-md font-bold w-full">Campaign Information</span>
-            <span className="mt-2 text-sm w-10/12">This information will be used to be displayed on the website.</span>
+            <span className="text-md font-bold w-full">
+              Campaign Information
+            </span>
+            <span className="mt-2 text-sm w-10/12">
+              This information will be used to be displayed on the website.
+            </span>
           </Box>
           <Box className="sm:w-10/12 w-full p-3">
-            <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between">
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justifyContent="space-between"
+            >
               <FormControl mr="5%" isRequired>
                 <FormLabel>Donation Campaign Name</FormLabel>
-                <Input type="text" name="name" value={formValues.nameEn} disabled={appLoading} onChange={handleInputChange} />
+                <Input
+                  type="text"
+                  name="name"
+                  value={formValues.nameEn}
+                  disabled={appLoading}
+                  onChange={handleInputChange}
+                />
               </FormControl>
             </Flex>
-            <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between" mt={5}>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justifyContent="space-between"
+              mt={5}
+            >
               <FormControl mr="5%" isRequired>
                 <FormLabel>Campaign Description</FormLabel>
                 <Suspense fallback={<Spinner size="xs" />}>
-                  <RichTextEditor initialContent={formValues.contentEn} onSave={handleDescriptionChange} />
+                  <RichTextEditor
+                    initialContent={formValues.contentEn}
+                    onSave={handleDescriptionChange}
+                  />
                 </Suspense>
               </FormControl>
             </Flex>
@@ -190,14 +230,30 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donatio
         <Box className="w-full flex md:flex-row flex-col">
           <Box className="md:w-4/12 w-full p-3 flex flex-col">
             <span className="text-md font-bold w-full">Campaign Image</span>
-            <span className="mt-2 text-sm w-10/12">Upload an image, it will be used as a donation campaign promotion image.</span>
+            <span className="mt-2 text-sm w-10/12">
+              Upload an image, it will be used as a donation campaign promotion
+              image.
+            </span>
           </Box>
           <Box className="sm:w-10/12 w-full p-3">
             <Flex direction={{ base: 'column' }} justifyContent="space-between">
               <FormControl mr="5%" isRequired>
-                <Input type="file" accept="image/*" onChange={handleImageChange} p={1} />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  p={1}
+                />
               </FormControl>
-              <Box my={5}>{formValues.imageURL && <img src={formValues.imageURL} alt="Preview" style={{ maxWidth: '100px' }} />}</Box>
+              <Box my={5}>
+                {formValues.imageURL && (
+                  <img
+                    src={formValues.imageURL}
+                    alt="Preview"
+                    style={{ maxWidth: '100px' }}
+                  />
+                )}
+              </Box>
             </Flex>
           </Box>
         </Box>
@@ -205,17 +261,28 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donatio
         {/* Date and location */}
         <Box className="w-full flex md:flex-row flex-col">
           <Box className="md:w-4/12 w-full p-3 flex flex-col">
-            <span className="text-md font-bold w-full">Donation Campaign duration</span>
-            <span className="mt-2 text-sm w-10/12">Please, select campaign start and end dates.</span>
+            <span className="text-md font-bold w-full">
+              Donation Campaign duration
+            </span>
+            <span className="mt-2 text-sm w-10/12">
+              Please, select campaign start and end dates.
+            </span>
           </Box>
           <Box className="w-10/12 p-3">
-            <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between">
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justifyContent="space-between"
+            >
               <FormControl mr="5%" isRequired>
                 <FormLabel>Start time</FormLabel>
                 <Input
                   type="date"
                   name="startTime"
-                  value={formatDate(formValues.startDate && formValues.startDate.length ? new Date(formValues.startDate) : new Date())}
+                  value={formatDate(
+                    formValues.startDate && formValues.startDate.length
+                      ? new Date(formValues.startDate)
+                      : new Date(),
+                  )}
                   onChange={handleInputChange}
                   disabled={appLoading}
                   min={formatDate(new Date())} // set min to current date
@@ -236,7 +303,14 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({ onNext, donatio
           </Box>
         </Box>
         <Flex my={10} className="w-full flex" justifyContent="end">
-          <Button colorScheme="red" mr="2%" className="sm:w-24 w-6/12" color={useColorModeValue('white', 'gray.100')} disabled={appLoading} onClick={resetForm}>
+          <Button
+            colorScheme="red"
+            mr="2%"
+            className="sm:w-24 w-6/12"
+            color={useColorModeValue('white', 'gray.100')}
+            disabled={appLoading}
+            onClick={resetForm}
+          >
             Reset
           </Button>
           <Button

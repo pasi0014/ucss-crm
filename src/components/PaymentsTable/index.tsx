@@ -1,10 +1,22 @@
 import React, { useContext, useEffect } from 'react';
 import moment from 'moment';
-import { Table, Badge, Button, Box, TableContainer, useColorModeValue, Thead, Tr, Td, Th, Tbody } from '@chakra-ui/react';
+import {
+  Table,
+  Badge,
+  Button,
+  Box,
+  TableContainer,
+  useColorModeValue,
+  Thead,
+  Tr,
+  Td,
+  Th,
+  Tbody,
+} from '@chakra-ui/react';
 
 import { RiRefund2Fill } from 'react-icons/ri';
 
-import { Invoice } from '../../types/Reservation';
+import { Invoice } from '../../data/types/Reservation';
 import { IColumnProps } from '../../interfaces';
 import { getStatus, getStatusColor } from '../../utils/utilities';
 
@@ -16,17 +28,42 @@ interface IPaymentTable {
   onPayment?: (invoice: Invoice) => void;
 }
 
-const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) => {
+const PaymentsTable: React.FC<IPaymentTable> = ({
+  statuses,
+  paymentIntents,
+}) => {
   const columns: IColumnProps[] = [
     { header: 'ID', accessor: 'id' },
-    { header: 'Amount', accessor: 'totalWithFees', render: (value) => <span>${value}</span> },
+    {
+      header: 'Amount',
+      accessor: 'totalWithFees',
+      render: (value) => <span>${value}</span>,
+    },
     {
       header: 'Status',
       accessor: 'StatusId',
-      render: (value) => <Badge colorScheme={getStatusColor(getStatus(statuses.Invoice, value).tag || '')}>{getStatus(statuses.Invoice, value).tag}</Badge>,
+      render: (value) => (
+        <Badge
+          colorScheme={getStatusColor(
+            getStatus(statuses.Invoice, value).tag || '',
+          )}
+        >
+          {getStatus(statuses.Invoice, value).tag}
+        </Badge>
+      ),
     },
-    { header: 'Updated At', accessor: 'updatedAt', render: (value) => moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] HH:mma') },
-    { header: 'Created', accessor: 'createdAt', render: (value) => moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] HH:mma') },
+    {
+      header: 'Updated At',
+      accessor: 'updatedAt',
+      render: (value) =>
+        moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] HH:mma'),
+    },
+    {
+      header: 'Created',
+      accessor: 'createdAt',
+      render: (value) =>
+        moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] HH:mma'),
+    },
     { header: 'Created By', accessor: 'createdBy' },
   ];
 
@@ -36,7 +73,9 @@ const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) =>
     }
     return item[column.accessor];
   };
-  const showPaymentButton = paymentIntents?.find((iPaymentIntent) => iPaymentIntent.StatusId === statuses.Invoice.PENDING);
+  const showPaymentButton = paymentIntents?.find(
+    (iPaymentIntent) => iPaymentIntent.StatusId === statuses.Invoice.PENDING,
+  );
   return (
     <Box>
       <TableContainer>
@@ -66,7 +105,11 @@ const PaymentsTable: React.FC<IPaymentTable> = ({ statuses, paymentIntents }) =>
                 ))}
                 {showPaymentButton ? (
                   <Td>
-                    <Button colorScheme="orange" size={{ base: 'sm', md: 'md' }} className="ml-2">
+                    <Button
+                      colorScheme="orange"
+                      size={{ base: 'sm', md: 'md' }}
+                      className="ml-2"
+                    >
                       <MdPayment className="mr-2" /> <span>Pay</span>
                     </Button>
                   </Td>

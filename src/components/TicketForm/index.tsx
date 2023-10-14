@@ -1,10 +1,29 @@
 // TicketForm.tsx
 
 import { useEffect, useState } from 'react';
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
-import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+} from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
-import { Price } from '../../types/Price';
+import { Price } from '../../data/types/Price';
 import MessageBar from '../MessageBar';
 
 interface TicketFormProps {
@@ -15,7 +34,13 @@ interface TicketFormProps {
   onClose: () => void;
 }
 
-const TicketForm: React.FC<TicketFormProps> = ({ isOpen, price, eventId, onCreate, onClose }) => {
+const TicketForm: React.FC<TicketFormProps> = ({
+  isOpen,
+  price,
+  eventId,
+  onCreate,
+  onClose,
+}) => {
   const [messageBar, setMessageBar] = useState<any>({});
   const [error, setError] = useState(false);
   const [formValues, setFormValues] = useState<Price>({
@@ -64,7 +89,8 @@ const TicketForm: React.FC<TicketFormProps> = ({ isOpen, price, eventId, onCreat
       setError(true);
       setMessageBar({
         type: 'error',
-        message: 'The form contains errors. Please enter all required information',
+        message:
+          'The form contains errors. Please enter all required information',
       });
       return false;
     }
@@ -97,25 +123,43 @@ const TicketForm: React.FC<TicketFormProps> = ({ isOpen, price, eventId, onCreat
             <Box mb="20px">
               {error && (
                 <Box my={15}>
-                  <MessageBar type={messageBar.type} message={messageBar.message} />
+                  <MessageBar
+                    type={messageBar.type}
+                    message={messageBar.message}
+                  />
                 </Box>
               )}
 
               <FormLabel>Ticket Type</FormLabel>
-              <Flex direction={{ base: 'column', md: 'row' }} mt={{ base: '25px', md: '5px' }}>
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                mt={{ base: '25px', md: '5px' }}
+              >
                 <Button
-                  variant={formValues.ticketType === 'paid' ? 'solid' : 'outline'}
+                  variant={
+                    formValues.ticketType === 'paid' ? 'solid' : 'outline'
+                  }
                   mb={{ base: '5', md: '0' }}
                   mr="15px"
                   width={{ base: '100%', md: '130px' }}
-                  onClick={() => setFormValues({ ...formValues, ticketType: 'paid' })}
+                  onClick={() =>
+                    setFormValues({ ...formValues, ticketType: 'paid' })
+                  }
                 >
                   Paid
                 </Button>
                 <Button
-                  variant={formValues.ticketType === 'free' ? 'solid' : 'outline'}
+                  variant={
+                    formValues.ticketType === 'free' ? 'solid' : 'outline'
+                  }
                   width={{ base: '100%', md: '130px' }}
-                  onClick={() => setFormValues({ ...formValues, ticketType: 'free', amount: 0 })}
+                  onClick={() =>
+                    setFormValues({
+                      ...formValues,
+                      ticketType: 'free',
+                      amount: 0,
+                    })
+                  }
                 >
                   Free
                 </Button>
@@ -123,20 +167,40 @@ const TicketForm: React.FC<TicketFormProps> = ({ isOpen, price, eventId, onCreat
             </Box>
             <FormControl isRequired>
               <FormLabel>Ticket Name</FormLabel>
-              <Input type="text" name="name" value={formValues.name} onChange={handleInputChange} />
+              <Input
+                type="text"
+                name="name"
+                value={formValues.name}
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={5} isRequired>
               <FormLabel>Amount</FormLabel>
               <InputGroup>
-                <InputLeftElement pointerEvents="none" color="gray.300" fontSize="1.2em" children="$" />
-                <Input disabled={formValues.ticketType === 'free'} type="number" name="amount" value={formValues.amount} onChange={handleInputChange} />
+                <InputLeftElement
+                  pointerEvents="none"
+                  color="gray.300"
+                  fontSize="1.2em"
+                  children="$"
+                />
+                <Input
+                  disabled={formValues.ticketType === 'free'}
+                  type="number"
+                  name="amount"
+                  value={formValues.amount}
+                  onChange={handleInputChange}
+                />
                 <InputRightElement children={<CheckIcon color="green.500" />} />
               </InputGroup>
             </FormControl>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={() => onCreate(formValues)}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={() => onCreate(formValues)}
+            >
               Save
             </Button>
             <Button

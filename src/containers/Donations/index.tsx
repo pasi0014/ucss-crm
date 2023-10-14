@@ -5,7 +5,7 @@ import { useColorModeValue } from '@chakra-ui/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScaleFade, Box, Flex, InputLeftElement, Button, Input } from '@chakra-ui/react';
 
-import { DonationCampaign } from '../../types/DonationCampaign';
+import { DonationCampaign } from '../../data/types/DonationCampaign';
 import { getStatus } from '../../utils/utilities';
 import { getDonationCampaigns } from './calls';
 
@@ -15,6 +15,14 @@ import DonationCampaignCard from '../../components/DonationCampaignCard';
 import DonationCampaignStatistics from '../../components/DonationCampaignStatistics';
 
 import withStatusFetching from '../../context/withStatus';
+import DonorsOverview from '../../components/DonorsOverview';
+import { Stat } from '@chakra-ui/react';
+import { StatLabel } from '@chakra-ui/react';
+import { FaMoneyBill } from 'react-icons/fa';
+import { StatNumber } from '@chakra-ui/react';
+import { Text } from '@chakra-ui/react';
+import { FiUser, FiUsers } from 'react-icons/fi';
+import DonationOverview from '../../components/DonationOverview';
 
 const Donations = (props: any) => {
   const [donationCampaigns, setDonationCampaigns] = useState<any[]>([]);
@@ -27,9 +35,10 @@ const Donations = (props: any) => {
 
   const statusItems = useMemo(() => {
     if (props.statuses) {
-      return Object.keys(props.statuses.DonationCampaign).map((statusKey) => ({
+      return Object.keys(props.statuses.DonationCampaign).map(statusKey => ({
         key: props.statuses.DonationCampaign[statusKey],
-        text: getStatus(props.statuses.DonationCampaign, props.statuses.DonationCampaign[statusKey]).tag,
+        text: getStatus(props.statuses.DonationCampaign, props.statuses.DonationCampaign[statusKey])
+          .tag
       }));
     }
   }, [props.statuses]);
@@ -78,60 +87,69 @@ const Donations = (props: any) => {
       <Box textAlign="left" my={5} p={3}>
         <Heading>Donation Campaigns</Heading>
       </Box>
+      <Flex direction={{ base: 'column', lg: 'row' }}>
+        <Flex direction={{ base: 'column' }} className="lg:w-8/12 w-full lg:mr-5">
+          <Box className="w-full h-full">
+            <div className="flex flex-row justify-end lg:mr-5 my-5 space-x-3">
+              <Button onClick={() => handleOpenDrawer()} colorScheme="green">
+                <AddIcon className="mr-2" fontSize={11} />
+                <span>Create Donation Campaign</span>
+              </Button>
 
-      <Flex direction={{ base: 'column', lg: 'row' }} className="w-full h-full" my={15}>
-        <Box className="lg:w-6/12 w-full" mr={{ base: 0, md: 10 }} my={2}>
-          <InputGroup>
-            <InputLeftElement>
-              <Search2Icon color="gray.300" />
-            </InputLeftElement>
-            <Input type="text" bg={useColorModeValue('white', 'gray.700')} placeholder={`Search`} />
-          </InputGroup>
-        </Box>
-
-        <Box className="lg:w-6/12 w-full flex md:flex-row flex-col">
-          <Button onClick={() => console.log('test')} className="w-full md:w-4/12" colorScheme="teal" mt={{ base: 5, md: 2 }} mr={{ base: 0, md: 5 }}>
-            <Search2Icon className="mr-2" fontSize={12} />
-            <span>Search</span>
-          </Button>
-          <Button onClick={() => handleOpenDrawer()} className="w-full md:w-8/12" colorScheme="green" my={2}>
-            <AddIcon className="mr-2" fontSize={12} />
-            <span>Create Donation Campaign</span>
-          </Button>
-        </Box>
-      </Flex>
-
-      <Flex direction={{ base: 'column', md: 'row' }} className="w-full h-full">
-        <Flex
-          direction="column"
-          height="80vh"
-          className="lg:w-5/12 w-full overflow-y-scroll scroll-smooth rounded-lg shadow"
-          bg={useColorModeValue('white', 'gray.700')}
-          p={{ base: 3, sm: 5 }}
-          mr={{ base: 0, md: 10 }}
-          my={{ base: 5, md: 0 }}
-        >
-          {props.statuses &&
-            donationCampaigns.length > 0 &&
-            donationCampaigns.map((iDonationCampaign) => (
-              <ScaleFade initialScale={0.8} in={!!donationCampaigns} key={iDonationCampaign.id}>
-                <DonationCampaignCard
-                  statuses={props.statuses}
-                  donationCampaign={iDonationCampaign}
-                  onEdit={(id) => console.log({ id })}
-                  onArchive={(id) => console.log({ id })}
-                  onSelect={setSelectedDonationCampaign}
-                />
-              </ScaleFade>
-            ))}
+              <Button>See all campaigns</Button>
+            </div>
+            <Box className="w-full flex lg:flex-row flex-col justify-between">
+              {props.statuses &&
+                donationCampaigns.length > 0 &&
+                donationCampaigns.map(
+                  (iDonationCampaign, index) =>
+                    index <= 2 && (
+                      <ScaleFade
+                        initialScale={0.8}
+                        in={!!donationCampaigns}
+                        key={iDonationCampaign.id}
+                        className="lg:my-5 "
+                      >
+                        <DonationCampaignCard
+                          statuses={props.statuses}
+                          donationCampaign={iDonationCampaign}
+                          onEdit={id => console.log({ id })}
+                          onArchive={id => console.log({ id })}
+                          onSelect={setSelectedDonationCampaign}
+                        />
+                      </ScaleFade>
+                    )
+                )}
+            </Box>
+          </Box>
+          <Box className="w-full h-full lg:flex">
+            <DonationCampaignStatistics donationCampaign={selectedDonationCampaign} />
+          </Box>
         </Flex>
         {/* Transform this into drawer when on mobile */}
-        <Box className="w-full h-full lg:flex hidden">
-          <DonationCampaignStatistics donationCampaign={selectedDonationCampaign} />
-        </Box>
+        <Flex direction={{ base: 'column' }} className="xl:w-4/12 w-full">
+          <Box
+            bg={useColorModeValue('white', 'gray.700')}
+            border="1px"
+            borderColor={useColorModeValue('gray.200', 'gray.400')}
+            p={5}
+            className="w-full h-full shadow rounded-lg"
+          >
+            <DonorsOverview />
+          </Box>
+          <Box className="w-full h-full mt-5 lg:p-1 flex flex-col">
+            <DonationOverview />
+          </Box>
+        </Flex>
       </Flex>
+
       {props.statuses && (
-        <DonationCampaignDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} donationCampaignId={selectedCampaignId} statuses={props.statuses} />
+        <DonationCampaignDrawer
+          isOpen={isDrawerOpen}
+          onClose={handleDrawerClose}
+          donationCampaignId={selectedCampaignId}
+          statuses={props.statuses}
+        />
       )}
     </Box>
   );

@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import validator from 'validator';
-import { Box, FormControl, Input, Button, Text, Center, useColorModeValue, Spinner, FormLabel, Flex } from '@chakra-ui/react';
+import {
+  Box,
+  FormControl,
+  Input,
+  Button,
+  Text,
+  Center,
+  useColorModeValue,
+  Spinner,
+  FormLabel,
+  Flex,
+} from '@chakra-ui/react';
 
 import { findEventPrice } from '../EventDrawer/calls';
 
 // import { Client } from '../../types/Client';
-import { Price } from '../../types/Price';
+import { Price } from '../../data/types/Price';
 import { Modal } from '@chakra-ui/react';
 import { ModalOverlay } from '@chakra-ui/react';
 import { ModalContent } from '@chakra-ui/react';
@@ -15,7 +26,7 @@ import { ModalBody } from '@chakra-ui/react';
 import { ModalFooter } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
 import MessageBar, { IMessageBar } from '../MessageBar';
-import { Client, ClientList } from '../../types/Reservation';
+import { Client, ClientList } from '../../data/types/Reservation';
 
 interface IClientProps {
   index: number;
@@ -50,13 +61,22 @@ const listOfNames = [
   'Uncanny',
 ];
 
-const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChange, onSave, onDelete }) => {
+const ClientInfo: React.FC<IClientProps> = ({
+  index,
+  clientList,
+  eventId,
+  onChange,
+  onSave,
+  onDelete,
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [funnyName, setFunnyName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(null);
   const [tickets, setTickets] = useState<Price[]>([]);
-  const [selectedTicket, setSelectedTicket] = useState<Price | null>(clientList.Price || null);
+  const [selectedTicket, setSelectedTicket] = useState<Price | null>(
+    clientList.Price || null,
+  );
 
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
 
@@ -87,7 +107,9 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
 
       setTickets(response.data);
     } catch (error: any) {
-      console.error('Unepxected error while trying to find the Event Price', { ...error });
+      console.error('Unepxected error while trying to find the Event Price', {
+        ...error,
+      });
       setMessageBar({ type: 'error', message: error.message });
     }
     setLoading(false);
@@ -140,13 +162,21 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
     // Validate Client Information
     const errors = validateClient(clientList.Client);
     if (Object.keys(errors).length > 0) {
-      setMessageBar({ type: 'error', message: 'Please fix the highlighted fields.' });
+      setMessageBar({
+        type: 'error',
+        message: 'Please fix the highlighted fields.',
+      });
       return;
     }
 
     // Validate that the client has selected ticket
     if (!clientList.Price) {
-      setMessageBar({ type: 'error', message: `Make sure that you have selected Ticket for ${clientList.Client.firstName || 'Client'}` });
+      setMessageBar({
+        type: 'error',
+        message: `Make sure that you have selected Ticket for ${
+          clientList.Client.firstName || 'Client'
+        }`,
+      });
       return;
     } else {
       onSave(clientList);
@@ -154,7 +184,13 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
   };
 
   return (
-    <Box borderRadius="15px" boxShadow="md" bg={useColorModeValue('white', 'gray.700')} my={5} p={5}>
+    <Box
+      borderRadius="15px"
+      boxShadow="md"
+      bg={useColorModeValue('white', 'gray.700')}
+      my={5}
+      p={5}
+    >
       {messageBar && (
         <Box mb={5}>
           <MessageBar type={messageBar.type} message={messageBar.message} />
@@ -179,8 +215,14 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
                 p={10}
                 borderWidth={2}
                 borderRadius="md"
-                bg={selectedTicket && selectedTicket?.id === iTicket.id && 'teal.500'}
-                color={selectedTicket && selectedTicket?.id === iTicket.id && 'white'}
+                bg={
+                  selectedTicket &&
+                  selectedTicket?.id === iTicket.id &&
+                  'teal.500'
+                }
+                color={
+                  selectedTicket && selectedTicket?.id === iTicket.id && 'white'
+                }
                 className="transition-all sm:w-4/12 w-full text-left"
                 textAlign="center"
                 _hover={{
@@ -190,11 +232,26 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
                 }}
                 onClick={() => handleTicketSelect(iTicket)}
               >
-                <Text fontSize="md" fontWeight="bold" lineHeight="shorter" className="text-left">
+                <Text
+                  fontSize="md"
+                  fontWeight="bold"
+                  lineHeight="shorter"
+                  className="text-left"
+                >
                   {iTicket.name}
                 </Text>
-                <Text fontSize="md" lineHeight="shorter" className="text-left" mt={2}>
-                  Ticket: <b>{iTicket.ticketType === 'paid' ? `$${iTicket.amount}CAD` : iTicket.ticketType}</b>
+                <Text
+                  fontSize="md"
+                  lineHeight="shorter"
+                  className="text-left"
+                  mt={2}
+                >
+                  Ticket:{' '}
+                  <b>
+                    {iTicket.ticketType === 'paid'
+                      ? `$${iTicket.amount}CAD`
+                      : iTicket.ticketType}
+                  </b>
                 </Text>
               </Box>
             ))}
@@ -205,9 +262,13 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>You are about to remove Client from Reservation</ModalHeader>
+          <ModalHeader>
+            You are about to remove Client from Reservation
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>Are you sure you want to delete {funnyName} from the reservation?</ModalBody>
+          <ModalBody>
+            Are you sure you want to delete {funnyName} from the reservation?
+          </ModalBody>
 
           <ModalFooter>
             <Button
@@ -228,7 +289,11 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
       </Modal>
 
       {/* <Flex mt={5} mb={5}> */}
-      <Flex direction={{ base: 'column', md: 'row' }} my={5} justifyContent="space-between">
+      <Flex
+        direction={{ base: 'column', md: 'row' }}
+        my={5}
+        justifyContent="space-between"
+      >
         <FormControl mr="5%" isInvalid={errors && errors.requiredFirstName}>
           <FormLabel htmlFor="first-name" fontWeight={'normal'}>
             First name
@@ -236,24 +301,34 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
           <Input
             id="first-name"
             value={clientList.Client.firstName}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'firstName', event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              onChange(index, 'firstName', event.target.value)
+            }
             placeholder="First name"
           />
         </FormControl>
 
-        <FormControl mt={{ base: 5, md: 0 }} isInvalid={errors && errors.requiredLastName}>
+        <FormControl
+          mt={{ base: 5, md: 0 }}
+          isInvalid={errors && errors.requiredLastName}
+        >
           <FormLabel htmlFor="last-name" fontWeight={'normal'}>
             Last name
           </FormLabel>
           <Input
             id="last-name"
             value={clientList.Client.lastName}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'lastName', event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              onChange(index, 'lastName', event.target.value)
+            }
             placeholder="Last name"
           />
         </FormControl>
       </Flex>
-      <FormControl mt="2%" isInvalid={errors && (errors.requiredEmail || errors.invalidEmail)}>
+      <FormControl
+        mt="2%"
+        isInvalid={errors && (errors.requiredEmail || errors.invalidEmail)}
+      >
         <FormLabel htmlFor="email" fontWeight={'normal'}>
           Email address
         </FormLabel>
@@ -261,12 +336,17 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
           id="email"
           type="email"
           value={clientList.Client.email}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'email', event.target.value)}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            onChange(index, 'email', event.target.value)
+          }
           placeholder="example@mail.com"
         />
       </FormControl>
 
-      <FormControl mt="2%" isInvalid={errors && (errors.requiredPhone || errors.invalidPhone)}>
+      <FormControl
+        mt="2%"
+        isInvalid={errors && (errors.requiredPhone || errors.invalidPhone)}
+      >
         <FormLabel htmlFor="phone" fontWeight={'normal'}>
           Phone Number
         </FormLabel>
@@ -274,7 +354,9 @@ const ClientInfo: React.FC<IClientProps> = ({ index, clientList, eventId, onChan
           id="phone"
           type="phone"
           value={clientList.Client.phone}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(index, 'phone', event.target.value)}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            onChange(index, 'phone', event.target.value)
+          }
           placeholder="+1-888-5555 / 18885555"
         />
       </FormControl>

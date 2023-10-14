@@ -26,12 +26,12 @@ import {
 import { FiUsers } from 'react-icons/fi';
 import { FaMoneyBillWave } from 'react-icons/fa';
 
-import { Event } from '../../types/Event';
+import { Event } from '../../data/types/Event';
 
 import ReservationList from '../../components/ReservationList';
 import ReservationDrawer from '../../components/ReservationDrawer';
 import MessageBar, { IMessageBar } from '../../components/MessageBar';
-import { Reservation } from '../../types/Reservation';
+import { Reservation } from '../../data/types/Reservation';
 
 import withStatusFetching from '../../context/withStatus';
 import PriceList from '../../components/PriceList';

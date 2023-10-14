@@ -1,5 +1,5 @@
 import React from 'react';
-import { Price } from '../../types/Price';
+import { Price } from '../../data/types/Price';
 import { Box } from '@chakra-ui/react';
 import { useColorModeValue } from '@chakra-ui/react';
 import { FaTicket } from 'react-icons/fa6';
@@ -12,7 +12,12 @@ interface PriceListProps {
   statuses?: object;
 }
 
-const PriceList: React.FC<PriceListProps> = ({ prices, onEdit, onDelete, statuses }) => {
+const PriceList: React.FC<PriceListProps> = ({
+  prices,
+  onEdit,
+  onDelete,
+  statuses,
+}) => {
   return (
     <div className="w-full">
       {prices.map((iPrice: Price) => (
@@ -24,14 +29,18 @@ const PriceList: React.FC<PriceListProps> = ({ prices, onEdit, onDelete, statuse
           border="1px"
           color={useColorModeValue('gray.700', 'gray.100')}
           _hover={{
-            bgGradient: `linear(to-r, ${useColorModeValue('teal.200', 'teal.500')},${useColorModeValue('teal.300', 'teal.400')})`,
+            bgGradient: `linear(to-r, ${useColorModeValue(
+              'teal.200',
+              'teal.500',
+            )},${useColorModeValue('teal.300', 'teal.400')})`,
             boxShadow: 'xl',
           }}
         >
           <div className="sm:w-6/12 w-8/12 flex flex-row items-center">
             <FaTicket size="25px" className="mr-5" />
             <div className="flex flex-col text-left">
-              <div className="font-bold">{iPrice.name}</div> {iPrice.ticketType === 'free' ? 'Free' : `$${iPrice.amount}`}
+              <div className="font-bold">{iPrice.name}</div>{' '}
+              {iPrice.ticketType === 'free' ? 'Free' : `$${iPrice.amount}`}
             </div>
           </div>
 
@@ -44,12 +53,22 @@ const PriceList: React.FC<PriceListProps> = ({ prices, onEdit, onDelete, statuse
           </div>
           <div className="w-2/12 flex flex-col space-y-3">
             {onEdit && iPrice && (
-              <Button size="sm" colorScheme="orange" className="z-40" onClick={() => onEdit(iPrice)}>
+              <Button
+                size="sm"
+                colorScheme="orange"
+                className="z-40"
+                onClick={() => onEdit(iPrice)}
+              >
                 Edit
               </Button>
             )}
             {onDelete && iPrice.id && (
-              <Button size="sm" colorScheme="red" className="z-40" onClick={() => onDelete(iPrice)}>
+              <Button
+                size="sm"
+                colorScheme="red"
+                className="z-40"
+                onClick={() => onDelete(iPrice)}
+              >
                 Delete
               </Button>
             )}

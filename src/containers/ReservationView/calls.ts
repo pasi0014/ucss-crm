@@ -1,81 +1,115 @@
-import axios from "axios";
-import API_BASE_URL from "../../config";
+import axios from 'axios';
+import API_BASE_URL from '../../config';
 
-import { UCSS_API_CONSTANTS } from "../../utils/constants";
-import { getAnErrorMessage, getCookieValue } from "../../utils/utilities";
+import { UCSS_API_CONSTANTS } from '../../utils/constants';
+import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
 
 export async function getReservation(reservationId: any) {
-    const ctx = {
-        component: `components/ReservationView.calls.getReservation`,
-        params: { reservationId }
+  const ctx = {
+    component: `components/ReservationView.calls.getReservation`,
+    params: { reservationId }
+  };
+
+  let errorMessage = null;
+
+  try {
+    console.log('Fetching Reservation', { ...ctx });
+
+    const token = getCookieValue('_auth');
+
+    const response = await axios.get(`${API_BASE_URL}/v1/reservations/${reservationId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+      return { success: true, data: response.data.content };
     }
 
-    let errorMessage = null;
+    errorMessage = getAnErrorMessage(response);
+  } catch (error) {
+    console.error(`An unexpected error while fetching Reservation`, { ...ctx, error });
+  }
 
-    try {
-        console.log('Fetching Reservation', { ...ctx });
+  return {
+    success: false,
+    data: errorMessage
+  };
+}
 
-        const token = getCookieValue('_auth');
+export async function checkInGuest(clientListId: number) {
+  const ctx = {
+    component: `components/ReservationView.calls.checkInGuest`,
+    params: { clientListId }
+  };
 
-        const response = await axios.get(
-            `${API_BASE_URL}/v1/reservations/${reservationId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
-        );
+  let errorMessage = null;
 
-        if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
-            return { success: true, data: response.data.content };
+  try {
+    console.log('Checking in Guest', { ...ctx });
+
+    const token = getCookieValue('_auth');
+
+    const response = await axios.post(
+      `${API_BASE_URL}/v1/reservations/${clientListId}/checkin`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
+      }
+    );
 
-        errorMessage = getAnErrorMessage(response);
-    } catch (error) {
-        console.error(`An unexpected error while fetching Reservation`, { ...ctx, error })
+    if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+      return { success: true, data: response.data.content };
     }
 
-    return {
-        success: false,
-        data: errorMessage,
-    }
+    errorMessage = getAnErrorMessage(response);
+  } catch (error) {
+    console.error(`An unexpected error while checkin in Guest`, { ...ctx, error });
+  }
+
+  return {
+    success: false,
+    data: errorMessage
+  };
 }
 
 export async function confirmReservation(reservationId: string | undefined) {
-    const ctx = {
-        component: `components/ReservationView.calls.confirmReservation`,
-        params: { reservationId }
-    }
+  const ctx = {
+    component: `components/ReservationView.calls.confirmReservation`,
+    params: { reservationId }
+  };
 
-    let errorMessage = null;
+  let errorMessage = null;
 
-    try {
-        console.log('Confirming Reservation', { ...ctx });
+  try {
+    console.log('Confirming Reservation', { ...ctx });
 
-        const token = getCookieValue('_auth');
+    const token = getCookieValue('_auth');
 
-        const response = await axios.put(
-            `${API_BASE_URL}/v1/reservations/${reservationId}`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
-        );
-
-        if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
-            return { success: true, data: response.data.content };
+    const response = await axios.put(
+      `${API_BASE_URL}/v1/reservations/${reservationId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
+      }
+    );
 
-        errorMessage = getAnErrorMessage(response);
-    } catch (error) {
-        console.error(`An unexpected error while fetching Reservation`, { ...ctx, error })
+    if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
+      return { success: true, data: response.data.content };
     }
 
-    return {
-        success: false,
-        data: errorMessage,
-    }
+    errorMessage = getAnErrorMessage(response);
+  } catch (error) {
+    console.error(`An unexpected error while fetching Reservation`, { ...ctx, error });
+  }
+
+  return {
+    success: false,
+    data: errorMessage
+  };
 }
-

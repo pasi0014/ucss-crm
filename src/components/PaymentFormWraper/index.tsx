@@ -6,7 +6,7 @@ import { useToast, useColorModeValue } from '@chakra-ui/react';
 
 import { AppContext } from '../../context/AppContext';
 import { IMessageBar } from '../MessageBar';
-import { PaymentIntent } from '../../types/Reservation';
+import { PaymentIntent } from '../../data/types/Reservation';
 
 import { createPaymentIntent } from './calls';
 
@@ -21,7 +21,12 @@ interface IPaymentFormWrapper {
   pendingPayments: PaymentIntent[];
 }
 
-const PaymentFormWrapper = ({ reservationId, eventId, clientId, pendingPayments }: any) => {
+const PaymentFormWrapper = ({
+  reservationId,
+  eventId,
+  clientId,
+  pendingPayments,
+}: any) => {
   const toast = useToast();
   const navigate = useNavigate();
   const { setAppLoading } = useContext<any>(AppContext);
@@ -34,7 +39,12 @@ const PaymentFormWrapper = ({ reservationId, eventId, clientId, pendingPayments 
     setMessageBar(null);
 
     try {
-      const response = await createPaymentIntent({ reservationId, eventId, clientId, pendingPayments });
+      const response = await createPaymentIntent({
+        reservationId,
+        eventId,
+        clientId,
+        pendingPayments,
+      });
       if (!response.success) {
         toast({
           title: 'Error',
@@ -77,7 +87,9 @@ const PaymentFormWrapper = ({ reservationId, eventId, clientId, pendingPayments 
   return clientSecret ? (
     <Elements options={options} stripe={stripePromise}>
       <PaymentForm
-        onPaymentSuccess={() => navigate(`/events/${eventId}/reservation/${reservationId}`)}
+        onPaymentSuccess={() =>
+          navigate(`/events/${eventId}/reservation/${reservationId}`)
+        }
         eventId={eventId}
         clientSecret={clientSecret}
         reservationId={reservationId}

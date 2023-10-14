@@ -2,7 +2,7 @@
  * File contains calls for the Login Form Component
  */
 
-import { UCSS_API_CONSTANTS } from "../../utils/constants";
+import { UCSS_API_CONSTANTS } from '../../utils/constants';
 
 interface IUser {
   email: String;
@@ -13,7 +13,7 @@ interface IUser {
 export const registerUser = async ({ user }: { user: IUser }) => {
   const logContext = {
     component: `components/Login.calls.registerUser`,
-    params: { user },
+    params: { user }
   } as Object;
 
   try {
@@ -24,7 +24,7 @@ export const registerUser = async ({ user }: { user: IUser }) => {
   } catch (error) {
     console.error(`Unexpected error while trying to register User`, {
       ...logContext,
-      error,
+      error
     });
   }
 };

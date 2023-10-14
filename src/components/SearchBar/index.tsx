@@ -1,11 +1,19 @@
 import React, { useState, ChangeEvent, useEffect } from 'react';
-import { InputLeftElement, InputGroup, Input, Box, Spinner, useColorModeValue, Flex } from '@chakra-ui/react';
+import {
+  InputLeftElement,
+  InputGroup,
+  Input,
+  Box,
+  Spinner,
+  useColorModeValue,
+  Flex,
+} from '@chakra-ui/react';
 import { Search2Icon } from '@chakra-ui/icons';
 
 // import { Client } from '../../types/Client';
 
 import { searchClients } from './calls';
-import { Client } from '../../types/Reservation';
+import { Client } from '../../data/types/Reservation';
 
 interface ISearchBarProps {
   entity: string;
@@ -72,7 +80,11 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity, onSelect }) => {
             placeholder={`Search ${entity || '...'}`}
             value={searchTerm}
             onChange={handleChange}
-            sx={{ color: isLoading ? useColorModeValue('gray.300', 'gray.500') : useColorModeValue('gray.500', 'white') }}
+            sx={{
+              color: isLoading
+                ? useColorModeValue('gray.300', 'gray.500')
+                : useColorModeValue('gray.500', 'white'),
+            }}
           />
         </InputGroup>
       </Box>
@@ -85,7 +97,13 @@ const SearchBar: React.FC<ISearchBarProps> = ({ entity, onSelect }) => {
         )}
         {searchResults.length > 0
           ? searchResults.map((iClient: Client) => (
-              <Box bg={resultBg} borderRadius="15px" my={2} boxShadow="sm" key={iClient.id}>
+              <Box
+                bg={resultBg}
+                borderRadius="15px"
+                my={2}
+                boxShadow="sm"
+                key={iClient.id}
+              >
                 <button
                   className={`flex flex-col text-left justify-items-start p-3 w-full transition-all ease hover:${
                     bgColor || 'bg-gray-800'

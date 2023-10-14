@@ -22,13 +22,24 @@ import {
   Button,
   useToast,
 } from '@chakra-ui/react';
-import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps } from '@chakra-ui/stepper';
+import {
+  Step,
+  StepDescription,
+  StepIcon,
+  StepIndicator,
+  StepNumber,
+  StepSeparator,
+  StepStatus,
+  StepTitle,
+  Stepper,
+  useSteps,
+} from '@chakra-ui/stepper';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
 import { AppContext } from '../../context/AppContext';
 import useIsMobile from '../../hooks/useMobile';
 
-import { Reservation } from '../../types/Reservation';
+import { Reservation } from '../../data/types/Reservation';
 import { IMessageBar } from '../MessageBar';
 
 import { postLightReservation, putDraftReservation } from './calls';
@@ -55,8 +66,17 @@ const steps: IStep[] = [
   { title: '', description: 'Review and Payment' },
 ];
 
-const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen, onClose, variant }) => {
-  const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
+const ReservationDrawer: React.FC<IReservationDrawerProps> = ({
+  eventId,
+  isOpen,
+  onClose,
+  variant,
+}) => {
+  const {
+    isOpen: isModalOpen,
+    onOpen: openModal,
+    onClose: closeModal,
+  } = useDisclosure();
   const { setAppLoading } = useContext<any>(AppContext);
   const toast = useToast();
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
@@ -82,7 +102,8 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
     if (!reservation.ClientLists?.length) {
       toast({
         title: 'Warning',
-        description: 'Please make sure you have added at least 1 Client to the reservation.',
+        description:
+          'Please make sure you have added at least 1 Client to the reservation.',
         position: 'top-left',
         status: 'warning',
         duration: 5000,
@@ -90,12 +111,15 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
       });
       return;
     }
-    const clientWithoutTicket = reservation.ClientLists?.find((iClient) => !iClient.Price);
+    const clientWithoutTicket = reservation.ClientLists?.find(
+      (iClient) => !iClient.Price,
+    );
     if (clientWithoutTicket) {
       // If at least one client doesn't have a ticket selected, display a message or perform an action
       toast({
         title: 'Warning',
-        description: 'Please make sure you have selected a ticket for all reservation clients.',
+        description:
+          'Please make sure you have selected a ticket for all reservation clients.',
         position: 'top-left',
         status: 'warning',
         duration: 3000,
@@ -126,7 +150,10 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           duration: 3000,
           isClosable: true,
         });
-        const updatedReservation: Reservation = { ...reservation, StatusId: response.data.StatusId };
+        const updatedReservation: Reservation = {
+          ...reservation,
+          StatusId: response.data.StatusId,
+        };
         goToNext();
       } else {
         toast({
@@ -161,8 +188,10 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
           duration: 3000,
           isClosable: true,
         });
-        const updatedReservation: Reservation = { ...reservation, ...response.data };
-        console.log({ updatedReservation });
+        const updatedReservation: Reservation = {
+          ...reservation,
+          ...response.data,
+        };
         setReservation(updatedReservation);
         goToNext();
       } else {
@@ -236,11 +265,18 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
               bg={useColorModeValue('gray.50', 'gray.600')}
             >
               <Flex flexDir="column">
-                <Stepper index={activeStep} orientation={isMobile ? 'vertical' : 'horizontal'}>
+                <Stepper
+                  index={activeStep}
+                  orientation={isMobile ? 'vertical' : 'horizontal'}
+                >
                   {steps.map((step: any, index: number) => (
                     <Step key={index}>
                       <StepIndicator>
-                        <StepStatus complete={<StepIcon />} incomplete={<StepNumber />} active={<StepNumber />} />
+                        <StepStatus
+                          complete={<StepIcon />}
+                          incomplete={<StepNumber />}
+                          active={<StepNumber />}
+                        />
                       </StepIndicator>
 
                       <Box flexShrink="0">
@@ -253,8 +289,20 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                   ))}
                 </Stepper>
                 {/* Stepper Content */}
-                {activeStep === 1 && <ReservationForm eventId={eventId} reservation={reservation} onReservationUpdate={setReservation} />}
-                {activeStep === 2 && <PaymentReview onReservationUpdate={setReservation} reservation={reservation} onNext={() => goToNext()} />}
+                {activeStep === 1 && (
+                  <ReservationForm
+                    eventId={eventId}
+                    reservation={reservation}
+                    onReservationUpdate={setReservation}
+                  />
+                )}
+                {activeStep === 2 && (
+                  <PaymentReview
+                    onReservationUpdate={setReservation}
+                    reservation={reservation}
+                    onNext={() => goToNext()}
+                  />
+                )}
 
                 <Flex mt="15px">
                   {activeStep !== 1 && (
@@ -264,7 +312,11 @@ const ReservationDrawer: React.FC<IReservationDrawerProps> = ({ eventId, isOpen,
                     </Button>
                   )}
                   {activeStep !== 2 && (
-                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={eventId && handleNextClick} isDisabled={!eventId}>
+                    <Button
+                      ml={activeStep !== 1 ? '15px' : '0px'}
+                      onClick={eventId && handleNextClick}
+                      isDisabled={!eventId}
+                    >
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />
                     </Button>
