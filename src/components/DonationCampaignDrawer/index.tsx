@@ -11,7 +11,7 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerHeader,
-  DrawerBody,
+  DrawerBody
 } from '@chakra-ui/react';
 import {
   Step,
@@ -22,7 +22,7 @@ import {
   StepSeparator,
   StepStatus,
   Stepper,
-  useSteps,
+  useSteps
 } from '@chakra-ui/stepper';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import useIsMobile from '../../hooks/useMobile';
@@ -30,12 +30,8 @@ import useIsMobile from '../../hooks/useMobile';
 import { IMessageBar } from '../MessageBar';
 import { DonationCampaign } from '../../data/types/DonationCampaign';
 
-const DonationCampaignForm = React.lazy(
-  () => import('../DonationCampaignForm'),
-);
-const DonationCampaignPrices = React.lazy(
-  () => import('../DonationCampaignPrices'),
-);
+const DonationCampaignForm = React.lazy(() => import('../DonationCampaignForm'));
+const DonationCampaignPrices = React.lazy(() => import('../DonationCampaignPrices'));
 
 interface IDonationCampaignDrawerProps {
   donationCampaignId?: number;
@@ -51,7 +47,7 @@ interface IStep {
 const steps: IStep[] = [
   { description: 'Campaign Info' },
   { description: 'Add Donation Options' },
-  { description: 'Change Stauts of Campaign' },
+  { description: 'Change Stauts of Campaign' }
 ];
 
 const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
@@ -59,7 +55,7 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
   donationCampaignId,
   onClose,
   isOpen,
-  statuses,
+  statuses
 }) => {
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
   const bg = useColorModeValue('gray.100', 'gray.700');
@@ -67,7 +63,7 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
 
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
     index: 1,
-    count: steps.length,
+    count: steps.length
   });
 
   const onDrawerClose = () => {
@@ -88,17 +84,14 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
           <DrawerBody>
             <Box
               border="1px"
-              borderColor={useColorModeValue('gray.100', 'gray.400')}
-              p={{ base: '0px', sm: '25px' }}
+              borderColor={{ base: 'transparent', md: useColorModeValue('gray.100', 'gray.400') }}
+              p={{ base: '0px', md: '25px' }}
               borderRadius="15px"
               shadow="md"
               bg={useColorModeValue('gray.50', 'gray.600')}
             >
               <Flex flexDirection="column">
-                <Stepper
-                  index={activeStep}
-                  orientation={isMobile ? 'vertical' : 'horizontal'}
-                >
+                <Stepper index={activeStep} orientation={isMobile ? 'vertical' : 'horizontal'}>
                   {steps.map((step: any, index: number) => (
                     <Step key={index}>
                       <StepIndicator>
@@ -128,9 +121,7 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
                 )}
                 {activeStep === 2 && (
                   <Suspense fallback={<div>Loading...</div>}>
-                    <DonationCampaignPrices
-                      donationCampaignId={donationCampaignId}
-                    />
+                    <DonationCampaignPrices donationCampaignId={donationCampaignId} />
                   </Suspense>
                 )}
 
@@ -142,10 +133,7 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
                     </Button>
                   )}
                   {activeStep !== 3 && (
-                    <Button
-                      ml={activeStep !== 1 ? '15px' : '0px'}
-                      onClick={goToNext}
-                    >
+                    <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={goToNext}>
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />
                     </Button>

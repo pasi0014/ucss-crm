@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import {
-  Heading,
-  Text,
-  Badge,
-  Button,
-  Box,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Heading, Text, Badge, Button, Box, useColorModeValue } from '@chakra-ui/react';
 import { FiUsers } from 'react-icons/fi';
 
 import { Event } from '../../data/types/Event';
@@ -20,12 +13,7 @@ interface IEventList {
   statuses: any;
 }
 
-const EventList: React.FC<IEventList> = ({
-  events,
-  statuses,
-  onOpen,
-  onEdit,
-}) => {
+const EventList: React.FC<IEventList> = ({ events, statuses, onOpen, onEdit }) => {
   const eventDateBG = useColorModeValue('blue.600', 'blue.900');
   const eventDateColor = useColorModeValue('orange.200', 'orange.300');
   const muted = useColorModeValue('gray.400', 'gray.500');
@@ -56,7 +44,7 @@ const EventList: React.FC<IEventList> = ({
 
   return (
     <div className="flex flex-col rounded">
-      {eventsForCurrentPage.map((iEvent) => (
+      {eventsForCurrentPage.map(iEvent => (
         <Box
           key={iEvent.id}
           bg={cardBg}
@@ -76,15 +64,13 @@ const EventList: React.FC<IEventList> = ({
                 bg={eventDateBG}
                 color={eventDateColor}
               >
-                <div className="font-bold text-3xl">
-                  {moment(iEvent.startTime).format('ddd')}
-                </div>
+                <div className="font-bold text-3xl">{moment(iEvent.startTime).format('ddd')}</div>
                 <div className="font-medium text-lg">
                   {moment(iEvent.startTime).format('MMMM D, YYYY')}
                 </div>
               </Box>
             )}
-            <div className="ml-3 w-8/12">
+            <div className="md:ml-3 md:w-8/12 w-full">
               {/* Date and Location */}
               <Heading size="md" className="my-3">
                 {iEvent.name}
@@ -97,9 +83,9 @@ const EventList: React.FC<IEventList> = ({
                 {/* <BsClock className="mr-2" /> */}
                 <Text color={muted}>
                   {iEvent.endTime
-                    ? `${moment(iEvent.startTime).format(
-                        'MMMM, D HH:mm',
-                      )} - ${moment(iEvent.endTime).format('MMMM, D HH:mm')}`
+                    ? `${moment(iEvent.startTime).format('MMMM, D HH:mm')} - ${moment(
+                        iEvent.endTime
+                      ).format('MMMM, D HH:mm')}`
                     : `${moment(iEvent.startTime).format('MMMM, D HH:mm')}`}
                 </Text>
               </Box>
@@ -114,27 +100,27 @@ const EventList: React.FC<IEventList> = ({
                   <Badge
                     fontSize="0.8em"
                     colorScheme={getStatusColor(
-                      getStatus(statuses.Event, iEvent.StatusId).tag || '',
+                      getStatus(statuses.Event, iEvent.StatusId).tag || ''
                     )}
                   >
                     {getStatus(statuses.Event, iEvent.StatusId).tag}
                   </Badge>
                 </div>
               </div>
-              <div className="mt-4 w-full flex flex-row justify-center">
+              <div className="mt-4 w-full flex flex-row justify-center space-x-3">
                 <Button
-                  className="md:w-full w-6/12 md:mb-5"
-                  size="sm"
-                  borderRadius="10px"
+                  className="w-full md:mb-5"
+                  size={{ base: 'md', md: 'sm' }}
+                  borderRadius="5px"
                   colorScheme="orange"
                   onClick={() => onEdit(iEvent)}
                 >
                   Edit
                 </Button>
                 <Button
-                  className="md:w-full w-6/12 mx-3"
-                  borderRadius="10px"
-                  size="sm"
+                  className="w-full"
+                  borderRadius="5px"
+                  size={{ base: 'md', md: 'sm' }}
                   colorScheme="green"
                   onClick={() => onOpen(iEvent)}
                 >

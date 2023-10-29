@@ -13,7 +13,7 @@ import {
   Flex,
   useColorModeValue,
   Heading,
-  Box,
+  Box
 } from '@chakra-ui/react';
 
 import MessageBar, { IMessageBar } from '../MessageBar';
@@ -32,7 +32,7 @@ interface IDonationCampaignForm {
 const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
   onNext,
   donationCampaign,
-  campaignId,
+  campaignId
 }) => {
   const { appLoading, setAppLoading } = useContext<any>(AppContext);
   const [formValues, setFormValues] = useState<DonationCampaign>({
@@ -40,7 +40,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
     contentEn: '',
     startDate: '',
     endDate: '',
-    imageURL: null,
+    imageURL: null
   });
   const [error, setError] = useState(false);
   const [minEndDate, setMinEndDate] = useState('');
@@ -69,9 +69,9 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
   };
 
   const updateDonationCampaign = (donationCampaign: DonationCampaign) => {
-    setFormValues((prevState) => ({
+    setFormValues(prevState => ({
       ...prevState,
-      ...donationCampaign,
+      ...donationCampaign
     }));
   };
 
@@ -80,23 +80,23 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
       nameEn: '',
       contentEn: '',
       startDate: '',
-      endDate: '',
+      endDate: ''
     });
     setError(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues((prevState) => ({
+    setFormValues(prevState => ({
       ...prevState,
-      [name]: value,
+      [name]: value
     }));
   };
 
   const handleDescriptionChange = (val: any) => {
-    setFormValues((prevState) => ({
+    setFormValues(prevState => ({
       ...prevState,
-      description: val,
+      description: val
     }));
   };
 
@@ -106,7 +106,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
-      useWebWorker: true,
+      useWebWorker: true
     };
     const compressedFile = await imageCompression(selectedImage, options);
     if (compressedFile) {
@@ -115,14 +115,14 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
       reader.onload = () => {
         setFormValues((prevState: DonationCampaign) => ({
           ...prevState,
-          imageURL: reader.result,
+          imageURL: reader.result
         }));
       };
       reader.readAsDataURL(compressedFile);
     } else {
-      setFormValues((prevState) => ({
+      setFormValues(prevState => ({
         ...prevState,
-        imageURL: null,
+        imageURL: null
       }));
     }
   };
@@ -132,8 +132,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
    * @param date
    * @returns
    */
-  const formatDate = (date: Date) =>
-    moment(date).tz('America/Toronto').format('YYYY-MM-DDTHH:mm');
+  const formatDate = (date: Date) => moment(date).tz('America/Toronto').format('YYYY-MM-DDTHH:mm');
 
   /**
    * Make sure that end date is not before the start date
@@ -146,9 +145,9 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
       formValues.endDate.length
     ) {
       const tempDate = formatDate(new Date(formValues.startDate));
-      setFormValues((prevState) => ({
+      setFormValues(prevState => ({
         ...prevState,
-        endTime: tempDate,
+        endTime: tempDate
       }));
       setMinEndDate(tempDate);
     }
@@ -185,18 +184,13 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
       >
         <Box className="w-full flex md:flex-row flex-col">
           <Box className="md:w-4/12 w-full p-3 flex flex-col">
-            <span className="text-md font-bold w-full">
-              Campaign Information
-            </span>
+            <span className="text-md font-bold w-full">Campaign Information</span>
             <span className="mt-2 text-sm w-10/12">
               This information will be used to be displayed on the website.
             </span>
           </Box>
           <Box className="sm:w-10/12 w-full p-3">
-            <Flex
-              direction={{ base: 'column', md: 'row' }}
-              justifyContent="space-between"
-            >
+            <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between">
               <FormControl mr="5%" isRequired>
                 <FormLabel>Donation Campaign Name</FormLabel>
                 <Input
@@ -208,11 +202,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
                 />
               </FormControl>
             </Flex>
-            <Flex
-              direction={{ base: 'column', md: 'row' }}
-              justifyContent="space-between"
-              mt={5}
-            >
+            <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between" mt={5}>
               <FormControl mr="5%" isRequired>
                 <FormLabel>Campaign Description</FormLabel>
                 <Suspense fallback={<Spinner size="xs" />}>
@@ -231,27 +221,17 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
           <Box className="md:w-4/12 w-full p-3 flex flex-col">
             <span className="text-md font-bold w-full">Campaign Image</span>
             <span className="mt-2 text-sm w-10/12">
-              Upload an image, it will be used as a donation campaign promotion
-              image.
+              Upload an image, it will be used as a donation campaign promotion image.
             </span>
           </Box>
           <Box className="sm:w-10/12 w-full p-3">
             <Flex direction={{ base: 'column' }} justifyContent="space-between">
               <FormControl mr="5%" isRequired>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  p={1}
-                />
+                <Input type="file" accept="image/*" onChange={handleImageChange} p={1} />
               </FormControl>
               <Box my={5}>
                 {formValues.imageURL && (
-                  <img
-                    src={formValues.imageURL}
-                    alt="Preview"
-                    style={{ maxWidth: '100px' }}
-                  />
+                  <img src={formValues.imageURL} alt="Preview" style={{ maxWidth: '100px' }} />
                 )}
               </Box>
             </Flex>
@@ -261,17 +241,16 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
         {/* Date and location */}
         <Box className="w-full flex md:flex-row flex-col">
           <Box className="md:w-4/12 w-full p-3 flex flex-col">
-            <span className="text-md font-bold w-full">
-              Donation Campaign duration
-            </span>
+            <span className="text-md font-bold w-full">Donation Campaign duration</span>
             <span className="mt-2 text-sm w-10/12">
               Please, select campaign start and end dates.
             </span>
           </Box>
-          <Box className="w-10/12 p-3">
+          <Box className="md:w-10/12 w-full  p-3">
             <Flex
               direction={{ base: 'column', md: 'row' }}
               justifyContent="space-between"
+              className="md:space-y-0 space-y-5"
             >
               <FormControl mr="5%" isRequired>
                 <FormLabel>Start time</FormLabel>
@@ -281,7 +260,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
                   value={formatDate(
                     formValues.startDate && formValues.startDate.length
                       ? new Date(formValues.startDate)
-                      : new Date(),
+                      : new Date()
                   )}
                   onChange={handleInputChange}
                   disabled={appLoading}
@@ -302,11 +281,16 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
             </Flex>
           </Box>
         </Box>
-        <Flex my={10} className="w-full flex" justifyContent="end">
+        <Flex
+          my={10}
+          className="w-full md:space-x-3 space-x-0 md:space-y-0 space-y-3 md:p-0 p-5"
+          flexDirection={{ base: 'column', md: 'row' }}
+          justifyContent={{ base: 'center', md: 'end' }}
+        >
           <Button
             colorScheme="red"
             mr="2%"
-            className="sm:w-24 w-6/12"
+            className="md:w-24 w-full"
             color={useColorModeValue('white', 'gray.100')}
             disabled={appLoading}
             onClick={resetForm}
@@ -315,9 +299,9 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
           </Button>
           <Button
             colorScheme="blue"
-            className="sm:w-24 w-6/12"
+            className="md:w-24 w-full"
             _hover={{
-              bg: useColorModeValue('green.400', 'green.500'),
+              bg: useColorModeValue('green.400', 'green.500')
             }}
             color={useColorModeValue('white', 'gray.100')}
             bg={useColorModeValue('green.500', 'green.600')}

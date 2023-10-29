@@ -98,6 +98,7 @@ function App() {
               </Suspense>
             }
           />
+          <Route path="donations/list" element={<>DonationList</>} />
           {/* <Route path="statistics" element={<>Statistics</>} /> */}
           <Route
             path="reservations"
