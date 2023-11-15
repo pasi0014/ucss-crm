@@ -40,9 +40,11 @@ export default function EventForm(props: {
   const [messageBar, setMessageBar] = useState<any>({});
   const [minEndDate, setMinEndDate] = useState('');
   const [formValues, setFormValues] = useState<Event>({
-    name: '',
+    nameEn: '',
+    nameUa: '',
     imageURL: null,
-    description: '',
+    descriptionEn: '',
+    descriptionUa: '',
     startTime: '',
     endTime: '',
     location: '',
@@ -94,10 +96,10 @@ export default function EventForm(props: {
     }));
   };
 
-  const handleDescriptionChange = (val: any) => {
+  const handleDescriptionChange = (key: string, val: any) => {
     setFormValues((prevState) => ({
       ...prevState,
-      description: val,
+      [key]: val,
     }));
   };
 
@@ -193,8 +195,10 @@ export default function EventForm(props: {
 
   const resetForm = () => {
     setFormValues({
-      name: '',
-      description: '',
+      nameEn: '',
+      nameUa: '',
+      descriptionEn: '',
+      descriptionUa: '',
       startTime: '',
       endTime: '',
       imageURL: null,
@@ -207,8 +211,18 @@ export default function EventForm(props: {
   const validateForm = () => {
     const errors: any = {};
 
-    if (!formValues.name.length) {
-      errors.nameError = true;
+    if (!formValues.nameEn.length) {
+      errors.nameUaError = true;
+    }
+
+    if (!formValues.nameUa.length) {
+      errors.nameEnError = true;
+    }
+    if (!formValues.descriptionEn.length) {
+      errors.descriptionEnError = true;
+    }
+    if (!formValues.descriptionUa.length) {
+      errors.descriptionUaError = true;
     }
     if (!formValues.startTime.length) {
       errors.startTime = true;
@@ -302,11 +316,26 @@ export default function EventForm(props: {
               justifyContent="space-between"
             >
               <FormControl mr="5%" isRequired>
-                <FormLabel>Event Name</FormLabel>
+                <FormLabel>Event Name En</FormLabel>
                 <Input
                   type="text"
-                  name="name"
-                  value={formValues.name}
+                  name="nameEn"
+                  value={formValues.nameEn}
+                  disabled={appLoading}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+            </Flex>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justifyContent="space-between"
+            >
+              <FormControl mr="5%" isRequired>
+                <FormLabel>Event Name Ua</FormLabel>
+                <Input
+                  type="text"
+                  name="nameUa"
+                  value={formValues.nameUa}
                   disabled={appLoading}
                   onChange={handleInputChange}
                 />
@@ -318,10 +347,23 @@ export default function EventForm(props: {
               mt={5}
             >
               <FormControl mr="5%" isRequired>
-                <FormLabel>Event Description</FormLabel>
+                <FormLabel>Event Description En</FormLabel>
                 <RichTextEditor
-                  initialContent={formValues.description}
-                  onSave={handleDescriptionChange}
+                  initialContent={formValues.descriptionEn}
+                  onSave={(val) => handleDescriptionChange('descriptionEn', val)}
+                />
+              </FormControl>
+            </Flex>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justifyContent="space-between"
+              mt={5}
+            >
+              <FormControl mr="5%" isRequired>
+                <FormLabel>Event Description Ua</FormLabel>
+                <RichTextEditor
+                  initialContent={formValues.descriptionUa}
+                  onSave={(val) => handleDescriptionChange('descriptionUa', val)}
                 />
               </FormControl>
             </Flex>

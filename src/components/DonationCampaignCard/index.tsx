@@ -113,7 +113,7 @@ const DonationCampaignCard: React.FC<IDonationCampaignCardProps> = ({
         </Box>
       </Flex>
       <div className="w-full flex justify-center mt-5">
-        <Button colorScheme="green" className="w-full">
+        <Button colorScheme="green" className="w-full" onClick={() => onSelect(donationCampaign)}>
           Open
         </Button>
       </div>

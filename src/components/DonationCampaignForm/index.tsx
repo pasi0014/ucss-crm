@@ -18,13 +18,14 @@ import {
 
 import MessageBar, { IMessageBar } from '../MessageBar';
 import { DonationCampaign } from '../../data/types/DonationCampaign';
-import { getDonationCampaignById } from './calls';
+import { getDonationCampaignById, saveDonationCampaign } from './calls';
 import { Spinner } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 
 const RichTextEditor = React.lazy(() => import('../RichTextEditor'));
 
 interface IDonationCampaignForm {
-  onNext: () => void;
+  onNext: (donationCampaign: DonationCampaign) => void;
   donationCampaign?: DonationCampaign;
   campaignId?: number | undefined;
 }
@@ -37,7 +38,9 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
   const { appLoading, setAppLoading } = useContext<any>(AppContext);
   const [formValues, setFormValues] = useState<DonationCampaign>({
     nameEn: '',
+    nameUa: '',
     contentEn: '',
+    contentUa: '',
     startDate: '',
     endDate: '',
     imageURL: null
@@ -50,9 +53,11 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
   const borderColor = useColorModeValue('border-gray-300', 'border-gray-500');
   const resultBg = useColorModeValue('white', 'gray.500');
 
-  const doFetchEvent = async () => {
+  const toast = useToast();
+  const doFetchCampaign = async () => {
     setAppLoading(true);
     setError(false);
+
     try {
       const response = await getDonationCampaignById(campaignId);
       if (!response.success) {
@@ -68,6 +73,35 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
     setAppLoading(false);
   };
 
+  const doSaveDonationCampaign = async () => {
+    setAppLoading(true);
+    setError(false);
+
+    try {
+      const response = await saveDonationCampaign(formValues);
+
+      if (!response.success) {
+        throw new Error(response.data);
+      }
+
+      onNext(response.data);
+
+      toast({
+        title: 'Success!',
+        description: `Donation Campaign have been saved`,
+        position: 'top-right',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      console.error(`Error :: ${error.message}`);
+      setMessageBar({ type: 'error', message: error.message })
+    }
+    setAppLoading(false);
+  }
+
+
   const updateDonationCampaign = (donationCampaign: DonationCampaign) => {
     setFormValues(prevState => ({
       ...prevState,
@@ -78,7 +112,9 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
   const resetForm = () => {
     setFormValues({
       nameEn: '',
+      nameUa: '',
       contentEn: '',
+      contentUa: '',
       startDate: '',
       endDate: ''
     });
@@ -87,17 +123,30 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    setFormValues(prevState => {
+      return ({
+        ...prevState,
+        [name]: value
+      })
+    });
   };
 
-  const handleDescriptionChange = (val: any) => {
-    setFormValues(prevState => ({
-      ...prevState,
-      description: val
-    }));
+  const handleDescriptionChangeEn = (val: any) => {
+    setFormValues(prevState => {
+      return ({
+        ...prevState,
+        contentEn: val
+      })
+    });
+  };
+
+  const handleDescriptionChangeUa = (val: any) => {
+    setFormValues(prevState => {
+      return ({
+        ...prevState,
+        contentUa: val
+      })
+    });
   };
 
   const handleImageChange = async (e: any) => {
@@ -145,10 +194,13 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
       formValues.endDate.length
     ) {
       const tempDate = formatDate(new Date(formValues.startDate));
-      setFormValues(prevState => ({
-        ...prevState,
-        endTime: tempDate
-      }));
+      setFormValues(prevState => {
+        return ({
+          ...prevState,
+          endTime: tempDate
+        })
+
+      });
       setMinEndDate(tempDate);
     }
   }, [formValues.startDate]);
@@ -158,7 +210,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
    */
   useEffect(() => {
     if (campaignId) {
-      doFetchEvent();
+      doFetchCampaign();
     }
     return () => resetForm();
   }, []);
@@ -192,11 +244,23 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
           <Box className="sm:w-10/12 w-full p-3">
             <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between">
               <FormControl mr="5%" isRequired>
-                <FormLabel>Donation Campaign Name</FormLabel>
+                <FormLabel>Donation Campaign Name EN</FormLabel>
                 <Input
                   type="text"
-                  name="name"
+                  name="nameEn"
                   value={formValues.nameEn}
+                  disabled={appLoading}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+            </Flex>
+            <Flex direction={{ base: 'column', md: 'row' }} mt={5} justifyContent="space-between">
+              <FormControl mr="5%" isRequired>
+                <FormLabel>Donation Campaign Name UA</FormLabel>
+                <Input
+                  type="text"
+                  name="nameUa"
+                  value={formValues.nameUa}
                   disabled={appLoading}
                   onChange={handleInputChange}
                 />
@@ -204,11 +268,22 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
             </Flex>
             <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between" mt={5}>
               <FormControl mr="5%" isRequired>
-                <FormLabel>Campaign Description</FormLabel>
+                <FormLabel>Campaign Description EN</FormLabel>
                 <Suspense fallback={<Spinner size="xs" />}>
                   <RichTextEditor
-                    initialContent={formValues.contentEn}
-                    onSave={handleDescriptionChange}
+                    initialContent={formValues.contentEn || ""}
+                    onSave={handleDescriptionChangeEn}
+                  />
+                </Suspense>
+              </FormControl>
+            </Flex>
+            <Flex direction={{ base: 'column', md: 'row' }} justifyContent="space-between" mt={5}>
+              <FormControl mr="5%" isRequired>
+                <FormLabel>Campaign Description UA</FormLabel>
+                <Suspense fallback={<Spinner size="xs" />}>
+                  <RichTextEditor
+                    initialContent={formValues.contentUa || ""}
+                    onSave={handleDescriptionChangeUa}
                   />
                 </Suspense>
               </FormControl>
@@ -255,8 +330,8 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
               <FormControl mr="5%" isRequired>
                 <FormLabel>Start time</FormLabel>
                 <Input
-                  type="date"
-                  name="startTime"
+                  type="datetime-local"
+                  name="startDate"
                   value={formatDate(
                     formValues.startDate && formValues.startDate.length
                       ? new Date(formValues.startDate)
@@ -270,8 +345,8 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
               <FormControl mr="5%" ml={{ base: '0', md: '5' }} isRequired>
                 <FormLabel>End time</FormLabel>
                 <Input
-                  type="date"
-                  name="endTime"
+                  type="datetime-local"
+                  name="endDate"
                   value={formatDate(new Date(formValues.endDate))}
                   disabled={appLoading}
                   onChange={handleInputChange}
@@ -306,7 +381,7 @@ const DonationCampaignForm: React.FC<IDonationCampaignForm> = ({
             color={useColorModeValue('white', 'gray.100')}
             bg={useColorModeValue('green.500', 'green.600')}
             disabled={appLoading}
-            onClick={() => console.log({ formValues })}
+            onClick={() => doSaveDonationCampaign()}
           >
             Save
           </Button>

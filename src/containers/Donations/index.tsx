@@ -23,6 +23,7 @@ import { StatNumber } from '@chakra-ui/react';
 import { Text } from '@chakra-ui/react';
 import { FiUser, FiUsers } from 'react-icons/fi';
 import DonationOverview from '../../components/DonationOverview';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const Donations = (props: any) => {
   const [donationCampaigns, setDonationCampaigns] = useState<any[]>([]);
@@ -32,6 +33,7 @@ const Donations = (props: any) => {
   const [fetchCampaigns, setFetchCampaigns] = useState(false);
   const [loading, setLoading] = useState(false);
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
+  const navigate = useNavigate();
 
   const statusItems = useMemo(() => {
     if (props.statuses) {
@@ -86,18 +88,23 @@ const Donations = (props: any) => {
     <Box>
       <Box textAlign="left" my={5} p={3}>
         <Heading>Donation Campaigns</Heading>
-      </Box>
-      <Flex direction={{ base: 'column', lg: 'row' }}>
-        <Flex direction={{ base: 'column' }} className="lg:w-8/12 w-full lg:mr-5">
-          <Box className="w-full h-full">
-            <div className="flex flex-row justify-end lg:mr-5 my-5 space-x-3">
-              <Button onClick={() => handleOpenDrawer()} colorScheme="green">
-                <AddIcon className="mr-2" fontSize={11} />
-                <span>Create Donation Campaign</span>
-              </Button>
+        <div className="flex flex-row justify-end lg:mr-5 my-5 space-x-3">
+          <Button onClick={() => handleOpenDrawer()} colorScheme="green">
+            <AddIcon className="mr-2" fontSize={11} />
+            <span>Create Donation Campaign</span>
+          </Button>
 
-              <Button>See all campaigns</Button>
-            </div>
+          <NavLink to="/donations/list"><Button colorScheme="linkedin" p={5} className="flex justify-center items-center">
+            See all campaigns</Button></NavLink>
+        </div>
+      </Box>
+      <Flex direction={{ base: 'column', xl: 'row' }}>
+        <Flex direction={{ base: 'column' }} className="xl:w-8/12 w-full lg:mr-5">
+          {/* <Box className="w-full h-full lg:flex flex-col">
+            <DonationCampaignStatistics donationCampaign={selectedDonationCampaign} />
+          </Box> */}
+          <Box className="w-full h-full">
+
             <Box className="w-full flex lg:flex-row flex-col justify-between">
               {props.statuses &&
                 donationCampaigns.length > 0 &&
@@ -108,23 +115,24 @@ const Donations = (props: any) => {
                         initialScale={0.8}
                         in={!!donationCampaigns}
                         key={iDonationCampaign.id}
-                        className="lg:my-5 "
+                        className="lg:my-5"
                       >
                         <DonationCampaignCard
                           statuses={props.statuses}
                           donationCampaign={iDonationCampaign}
-                          onEdit={id => console.log({ id })}
-                          onArchive={id => console.log({ id })}
-                          onSelect={setSelectedDonationCampaign}
+                          onEdit={id => {
+                            setSelectedCampaignId(id);
+                            setIsDrawerOpen(true);
+                          }}
+                          onArchive={id => console.log('Show Archieve modal')}
+                          onSelect={(donationCampaign) => navigate(`/donations/${donationCampaign.id}`)}
                         />
                       </ScaleFade>
                     )
                 )}
             </Box>
           </Box>
-          <Box className="w-full h-full lg:flex">
-            <DonationCampaignStatistics donationCampaign={selectedDonationCampaign} />
-          </Box>
+
         </Flex>
         {/* Transform this into drawer when on mobile */}
         <Flex direction={{ base: 'column' }} className="xl:w-4/12 w-full">

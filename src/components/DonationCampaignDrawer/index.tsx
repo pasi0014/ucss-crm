@@ -29,13 +29,13 @@ import useIsMobile from '../../hooks/useMobile';
 
 import { IMessageBar } from '../MessageBar';
 import { DonationCampaign } from '../../data/types/DonationCampaign';
+import DonationCampaignPublish from '../DonationCampaignPublish/DonationCampaignPublish';
 
 const DonationCampaignForm = React.lazy(() => import('../DonationCampaignForm'));
 const DonationCampaignPrices = React.lazy(() => import('../DonationCampaignPrices'));
 
 interface IDonationCampaignDrawerProps {
   donationCampaignId?: number;
-  donationCampaign?: DonationCampaign;
   isOpen: boolean;
   onClose: () => void;
   statuses: object;
@@ -47,17 +47,18 @@ interface IStep {
 const steps: IStep[] = [
   { description: 'Campaign Info' },
   { description: 'Add Donation Options' },
-  { description: 'Change Stauts of Campaign' }
+  { description: 'Start/Finish Campaign' }
 ];
 
 const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
-  donationCampaign,
   donationCampaignId,
   onClose,
   isOpen,
-  statuses
+  statuses,
 }) => {
   const [messageBar, setMessageBar] = useState<IMessageBar | null>(null);
+  const [productId, setProductId] = useState<string>("");
+  const [donationCampaignStatus, setDonationCampaignStatus] = useState<string>("");
   const bg = useColorModeValue('gray.100', 'gray.700');
   const isMobile = useIsMobile();
 
@@ -74,7 +75,7 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
 
   return (
     <Box>
-      <Drawer isOpen={isOpen} onClose={onDrawerClose} size="full">
+      <Drawer isOpen={isOpen} onClose={onDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
@@ -115,14 +116,22 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
                   <Suspense fallback={<div>Loading...</div>}>
                     <DonationCampaignForm
                       campaignId={donationCampaignId}
-                      onNext={() => goToNext()}
+                      onNext={(donationCampaign) => {
+                        setProductId(donationCampaign?.stripeProductId || "");
+                        setDonationCampaignStatus(donationCampaign.StatusId?.toString() || "");
+                        goToNext();
+                      }}
                     />
                   </Suspense>
                 )}
                 {activeStep === 2 && (
                   <Suspense fallback={<div>Loading...</div>}>
-                    <DonationCampaignPrices donationCampaignId={donationCampaignId} />
+                    <DonationCampaignPrices donationCampaignId={donationCampaignId} productId={productId} statuses={statuses} />
                   </Suspense>
+                )}
+
+                {activeStep === 3 && (
+                  <DonationCampaignPublish statusId={donationCampaignStatus} statuses={statuses} donationCampaignId={donationCampaignId} />
                 )}
 
                 <Flex mt="15px">
@@ -132,7 +141,7 @@ const DonationCampaignDrawer: React.FC<IDonationCampaignDrawerProps> = ({
                       <ArrowLeftIcon ml="15px" width="15px" />
                     </Button>
                   )}
-                  {activeStep !== 3 && (
+                  {activeStep !== 3 && activeStep !== 1 && (
                     <Button ml={activeStep !== 1 ? '15px' : '0px'} onClick={goToNext}>
                       Next
                       <ArrowRightIcon ml="15px" width="15px" />

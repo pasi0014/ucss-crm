@@ -77,7 +77,7 @@ const EventFormDrawer = (props: IEventFormDrawerProps) => {
 
   return (
     <>
-      <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="full">
+      <Drawer isOpen={props.isOpen} onClose={onDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent bg={bg}>
           <DrawerCloseButton />

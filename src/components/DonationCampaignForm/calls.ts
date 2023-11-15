@@ -43,22 +43,22 @@ export const getDonationCampaignById = async (campaignId: number | undefined) =>
   };
 };
 
-export const createEvent = async (event: Event) => {
+export const saveDonationCampaign = async (donationCampaign: DonationCampaign) => {
   const ctx = {
-    component: 'components/EventDrawer/calls.createEvent',
-    params: { event }
+    component: 'components/EventDrawer/calls.createDonationCampaign',
+    params: { donationCampaign }
   };
 
   let errorMessage = null;
 
   try {
-    console.log('Trying to create Event', { ...ctx });
+    console.log('Trying to Create Donation Campaign', { ...ctx });
 
-    const data = event;
-    const temp = { event: { ...data } };
+    const data = donationCampaign;
+    const temp = { donationCampaign: { ...data } };
     const token = getCookieValue('_auth');
 
-    const response = await axios.post(`${API_BASE_URL}/v1/events`, temp, {
+    const response = await axios.post(`${API_BASE_URL}/v1/donations/campaigns`, temp, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
@@ -71,7 +71,7 @@ export const createEvent = async (event: Event) => {
 
     errorMessage = getAnErrorMessage(response);
   } catch (error) {
-    console.error('Unexpected error while trying to create an Event', error);
+    console.error('Unexpected error while trying to create a Donation Campaign', error);
   }
 
   return {

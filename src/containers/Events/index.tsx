@@ -305,7 +305,7 @@ const Events = (props: any) => {
           </ScaleFade>
         )}
 
-        {!filteredEvents.length && (!!searchTerm.length || selectedStatus) && (
+        {!filteredEvents.length && (!!searchTerm.length) && (
           <Box className="lg:w-8/12 w-full">
             <ScaleFade initialScale={0.9} in={true}>
               <Box

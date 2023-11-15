@@ -2,9 +2,11 @@ import { Price } from './Price';
 
 export type Event = {
   id?: number | null;
-  name: string;
+  nameEn: string;
+  nameUa: string;
   imageURL?: any;
-  description: string;
+  descriptionEn: string;
+  descriptionUa: string;
   startTime: string;
   endTime: string;
   saleStart?: string;

@@ -98,6 +98,7 @@ function App() {
               </Suspense>
             }
           />
+          <Route path="donations/:id" element={<>TODO: Campaign Overview</>} />
           <Route path="donations/list" element={<>DonationList</>} />
           {/* <Route path="statistics" element={<>Statistics</>} /> */}
           <Route

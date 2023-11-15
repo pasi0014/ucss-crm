@@ -25,9 +25,6 @@ const RichTextEditor: React.FC<WysiwygEditorProps> = ({ initialContent, onSave }
   return (
     <div className="w-full h-full">
       <ReactQuill value={content} onChange={handleContentChange} style={{ maxHeight: '100%' }} />
-      {/* <Button onClick={handleSave} colorScheme="green" mt={3}>
-        Save
-      </Button> */}
     </div>
   );
 };

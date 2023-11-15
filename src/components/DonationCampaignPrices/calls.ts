@@ -6,7 +6,7 @@ import { getAnErrorMessage, getCookieValue } from '../../utils/utilities';
 
 export const getDonationCampaignPrices = async (campaignId: number | undefined) => {
   const ctx = {
-    component: 'components/DonationCampaignDrawer/calls.getDonationCampaignById',
+    component: 'components/DonationCampaignPrices/calls.getDonationCampaignPrices',
     params: { campaignId }
   };
 
@@ -43,7 +43,7 @@ export const getDonationCampaignPrices = async (campaignId: number | undefined) 
     data: errorMessage
   };
 };
-export const createDonationPrice = async (productId: string, price: any) => {
+export const createDonationPrice = async (productId: string, price: any, donationCampaignId?: number) => {
   const ctx = {
     component: 'components/DonationCampaignDrawer/calls.createDonationPrice',
     params: { productId, price }
@@ -58,7 +58,7 @@ export const createDonationPrice = async (productId: string, price: any) => {
 
     const response = await axios.post(
       `${API_BASE_URL}/v1/donations/campaigns/prices`,
-      { price, productId },
+      { price, productId, donationCampaignId },
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -66,11 +66,13 @@ export const createDonationPrice = async (productId: string, price: any) => {
       }
     );
 
+    console.log({ response: response.data.errors })
+
     if (response.status === 200 && response.data.code.id === UCSS_API_CONSTANTS.SUCCESS_CODE) {
       return { success: true, data: response.data.content };
     }
 
-    errorMessage = getAnErrorMessage(response);
+    errorMessage = response.data.errors || 'An error occurred. Please try again.';
   } catch (error) {
     console.error('Unexpected error while trying to find Donation Campaign Prices', {
       ...ctx,
