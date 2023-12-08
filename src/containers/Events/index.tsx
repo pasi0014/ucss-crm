@@ -156,7 +156,7 @@ const Events = (props: any) => {
       }
 
       // Convert event name and searchTerm to lowercase for case-insensitive comparison
-      const eventName = event.name.toLowerCase();
+      const eventName = event.nameEn.toLowerCase();
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
 
       // Check if the event name contains the searchTerm
