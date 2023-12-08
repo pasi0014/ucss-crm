@@ -73,7 +73,7 @@ const EventList: React.FC<IEventList> = ({ events, statuses, onOpen, onEdit }) =
             <div className="md:ml-3 md:w-8/12 w-full">
               {/* Date and Location */}
               <Heading size="md" className="my-3">
-                {iEvent.name}
+                {iEvent.nameEn}
               </Heading>
               <Box my="2" className="flex flex-row items-center">
                 {/* <FaLocationDot size={14} className="mr-2" /> */}

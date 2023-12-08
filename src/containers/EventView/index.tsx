@@ -184,7 +184,7 @@ const EventView: React.FC = (props: any) => {
         <>
           <Stack>
             <Box textAlign="left" my={5} p={3}>
-              <Heading>{selectedEvent.name}</Heading>
+              <Heading>{selectedEvent.nameEn}</Heading>
             </Box>
           </Stack>
 

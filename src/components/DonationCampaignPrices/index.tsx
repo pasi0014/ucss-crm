@@ -28,7 +28,7 @@ import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 interface IDonationCampaignPriceProps {
   donationCampaignId?: number;
   productId: string;
-  statuses: object;
+  statuses: any;
 }
 
 interface PriceObj {
