@@ -342,9 +342,8 @@ const EventView: React.FC = (props: any) => {
                   <span className="font-bold text-sm ">Start Time</span>
                   <span className="text-base font-medium tracking-wide">
                     {moment(selectedEvent.startTime)
-                      .tz('America/Toronto')
                       .utc()
-                      .format('DD MMM, YYYY [at] HH:mma')}
+                      .format('DD MMM, YYYY [at] hh:mma')}
                   </span>
                 </div>
                 <div className="text-left w-full ml-10 flex flex-col">
@@ -355,7 +354,7 @@ const EventView: React.FC = (props: any) => {
                     {moment(selectedEvent.endTime)
                       .tz('America/Toronto')
                       .utc()
-                      .format('DD MMM, YYYY [at] HH:mma')}
+                      .format('DD MMM, YYYY [at] hh:mma')}
                   </span>
                 </div>
               </div>
@@ -389,7 +388,7 @@ const EventView: React.FC = (props: any) => {
                       {moment(selectedEvent.startTime)
                         .tz('America/Toronto')
                         .utc()
-                        .format('DD MMM, YYYY [at] HH:mma')}
+                        .format('DD MMM, YYYY [at] hh:mma')}
                     </span>
                   </div>
                   <div className="text-left w-full ml-10 flex flex-col">
@@ -400,7 +399,7 @@ const EventView: React.FC = (props: any) => {
                       {moment(selectedEvent.endTime)
                         .tz('America/Toronto')
                         .utc()
-                        .format('DD MMM, YYYY [at] HH:mma')}
+                        .format('DD MMM, YYYY [at] hh:mma')}
                     </span>
                   </div>
                 </div>

@@ -116,7 +116,7 @@ const ReservationList: React.FC<ReservationListProps> = ({
       header: 'Created At',
       accessor: 'createdAt',
       render: (value) =>
-        moment(value).tz('America/Toronto').format('YYYY-MM-DD HH:mm'),
+        moment(value).tz('America/Toronto').format('DD MMM, YYYY [at] hh:mma'),
     },
     { header: 'Created By', accessor: 'createdBy' },
   ];

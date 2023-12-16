@@ -64,7 +64,7 @@ const EventList: React.FC<IEventList> = ({ events, statuses, onOpen, onEdit }) =
                 bg={eventDateBG}
                 color={eventDateColor}
               >
-                <div className="font-bold text-3xl">{moment(iEvent.startTime).format('ddd')}</div>
+                <div className="font-bold text-3xl">{moment(iEvent.startTime).tz('America/Toronto').format('ddd')}</div>
                 <div className="font-medium text-lg">
                   {moment(iEvent.startTime).format('MMMM D, YYYY')}
                 </div>
