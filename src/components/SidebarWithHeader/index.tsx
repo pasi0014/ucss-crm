@@ -28,8 +28,8 @@ interface LinkItemProps {
   url?: String;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Home', icon: FiHome, url: '/dashboard' },
-  { name: 'Statistics', icon: FaChartBar, url: '/login' },
+  // { name: 'Home', icon: FiHome, url: '/dashboard' },
+  // { name: 'Statistics', icon: FaChartBar, url: '/login' },
   { name: 'Donors', icon: FaUsers, url: '/donors' },
   { name: 'Donations', icon: FaDonate, url: '/donations' },
   { name: 'Events', icon: FiCalendar, url: '/events' },
