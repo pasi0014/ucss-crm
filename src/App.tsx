@@ -17,6 +17,7 @@ const Donations = React.lazy(() => import('./containers/Donations'));
 
 import './App.scss';
 import LoadingPage from './components/LoadingPage';
+import DonationCampaignList from './components/DonationCampaignList';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -99,7 +100,7 @@ function App() {
             }
           />
           <Route path="donations/:id" element={<>TODO: Campaign Overview</>} />
-          <Route path="donations/list" element={<>DonationList</>} />
+          <Route path="donations/list" element={<DonationCampaignList />} />
           {/* <Route path="statistics" element={<>Statistics</>} /> */}
           <Route
             path="reservations"

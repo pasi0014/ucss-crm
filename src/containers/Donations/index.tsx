@@ -24,6 +24,7 @@ import { Text } from '@chakra-ui/react';
 import { FiUser, FiUsers } from 'react-icons/fi';
 import DonationOverview from '../../components/DonationOverview';
 import { NavLink, useNavigate } from 'react-router-dom';
+import DonationCampaignList from '../../components/DonationCampaignList';
 
 const Donations = (props: any) => {
   const [donationCampaigns, setDonationCampaigns] = useState<any[]>([]);
@@ -94,8 +95,6 @@ const Donations = (props: any) => {
             <span>Create Donation Campaign</span>
           </Button>
 
-          <NavLink to="/donations/list"><Button colorScheme="linkedin" p={5} className="flex justify-center items-center">
-            See all campaigns</Button></NavLink>
         </div>
       </Box>
       <Flex direction={{ base: 'column', xl: 'row' }}>
@@ -105,30 +104,11 @@ const Donations = (props: any) => {
           </Box> */}
           <Box className="w-full h-full">
 
-            <Box className="w-full flex lg:flex-row flex-col justify-between">
+            <Box className="w-full justify-start">
               {props.statuses &&
                 donationCampaigns.length > 0 &&
-                donationCampaigns.map(
-                  (iDonationCampaign, index) =>
-                    index <= 2 && (
-                      <ScaleFade
-                        initialScale={0.8}
-                        in={!!donationCampaigns}
-                        key={iDonationCampaign.id}
-                        className="lg:my-5"
-                      >
-                        <DonationCampaignCard
-                          statuses={props.statuses}
-                          donationCampaign={iDonationCampaign}
-                          onEdit={id => {
-                            setSelectedCampaignId(id);
-                            setIsDrawerOpen(true);
-                          }}
-                          onArchive={id => console.log('Show Archieve modal')}
-                          onSelect={(donationCampaign) => navigate(`/donations/${donationCampaign.id}`)}
-                        />
-                      </ScaleFade>
-                    )
+                (
+                  <DonationCampaignList donationCampaigns={donationCampaigns} statuses={props.statuses} onOpen={(val: DonationCampaign) => { setSelectedCampaignId(val.id); setIsDrawerOpen(true) }} />
                 )}
             </Box>
           </Box>
