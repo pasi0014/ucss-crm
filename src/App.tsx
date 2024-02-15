@@ -100,7 +100,6 @@ function App() {
             }
           />
           <Route path="donations/:id" element={<>TODO: Campaign Overview</>} />
-          <Route path="donations/list" element={<DonationCampaignList />} />
           {/* <Route path="statistics" element={<>Statistics</>} /> */}
           <Route
             path="reservations"
